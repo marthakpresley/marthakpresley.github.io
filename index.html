@@ -45,49 +45,124 @@ body {
   color: var(--text);
   line-height: 1.55;
   -webkit-font-smoothing: antialiased;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
-/* HEADER */
+/* COMPACT HEADER */
 .header {
   background: linear-gradient(135deg, var(--alive-blue) 0%, var(--alive-teal) 100%);
   color: white;
-  padding: 28px 32px 22px;
-  position: sticky;
-  top: 0;
-  z-index: 100;
+  padding: 10px 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
   box-shadow: 0 4px 20px rgba(50,97,149,0.3);
+  flex-shrink: 0;
+  z-index: 100;
 }
 .header h1 {
   font-family: Georgia, 'Times New Roman', serif;
-  font-size: 22px;
+  font-size: 18px;
   font-weight: 700;
   letter-spacing: -0.3px;
-  margin-bottom: 4px;
+  white-space: nowrap;
 }
 .header p {
-  font-size: 13px;
+  font-size: 12px;
   opacity: 0.85;
   font-weight: 400;
+  white-space: nowrap;
 }
 
-/* LEGEND */
+/* THREE-PANEL LAYOUT */
+.app-layout {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+/* LEFT NAV */
+.left-nav {
+  width: 220px;
+  min-width: 220px;
+  background: var(--card-bg);
+  border-right: 1px solid #E0DCD7;
+  overflow-y: auto;
+  padding: 12px;
+  flex-shrink: 0;
+}
+.left-nav .nav-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  background: var(--card-bg);
+  border: 2px solid #E0DCD7;
+  border-radius: 6px;
+  padding: 10px 12px;
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--alive-blue);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+  margin-bottom: 6px;
+}
+.left-nav .nav-btn:hover {
+  border-color: var(--alive-blue);
+  box-shadow: var(--shadow-hover);
+  transform: translateY(-1px);
+}
+.left-nav .nav-btn .icon { font-size: 16px; flex-shrink: 0; }
+.left-nav .nav-btn.active {
+  background: var(--alive-blue);
+  color: white;
+  border-color: var(--alive-blue);
+}
+.left-nav .nav-btn.util {
+  color: var(--alive-teal);
+  border-color: var(--alive-teal);
+  border-style: dashed;
+}
+.left-nav .nav-btn.util:hover {
+  background: var(--alive-teal);
+  color: #fff;
+}
+
+/* CENTER CONTENT */
+.center-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0;
+  min-width: 0;
+}
+.center-inner {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 16px 20px 60px;
+}
+
+/* LEGEND (now in center) */
 .legend {
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
-  padding: 14px 32px;
+  padding: 12px 16px;
   background: white;
-  border-bottom: 1px solid #E8E4DF;
-  position: sticky;
-  top: 76px;
-  z-index: 99;
+  border: 1px solid #E8E4DF;
+  border-radius: var(--radius);
+  margin-bottom: 16px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.04);
 }
 .legend-item {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 11.5px;
+  font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.3px;
   text-transform: uppercase;
@@ -104,49 +179,148 @@ body {
 .legend-dot.blue { background: var(--blue-info); }
 .legend-dot.purple { background: var(--purple-hospice); }
 
-/* CONTAINER */
-.container {
-  max-width: 960px;
-  margin: 0 auto;
-  padding: 24px 20px 60px;
+/* RIGHT SUMMARY */
+.right-summary {
+  width: 300px;
+  min-width: 300px;
+  background: #FAFAF8;
+  border-left: 1px solid #E0DCD7;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
 }
-
-/* NAV GRID */
-.nav-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(165px, 1fr));
-  gap: 10px;
-  margin-bottom: 28px;
-}
-.nav-btn {
-  background: var(--card-bg);
-  border: 2px solid #E0DCD7;
-  border-radius: var(--radius);
-  padding: 12px 14px;
-  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--alive-blue);
-  cursor: pointer;
-  transition: all 0.2s ease;
-  text-align: left;
+.summary-header {
+  background: linear-gradient(135deg, var(--alive-green), #4a6d2e);
+  color: white;
+  padding: 12px 16px;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 15px;
+  font-weight: 700;
   display: flex;
   align-items: center;
   gap: 8px;
+  flex-shrink: 0;
 }
-.nav-btn:hover {
-  border-color: var(--alive-blue);
-  box-shadow: var(--shadow-hover);
-  transform: translateY(-1px);
+.summary-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px;
 }
-.nav-btn .icon { font-size: 17px; flex-shrink: 0; }
-.nav-btn.active {
+.summary-empty {
+  text-align: center;
+  color: var(--text-light);
+  font-size: 13px;
+  padding: 30px 16px;
+  font-style: italic;
+}
+.summary-item {
+  background: white;
+  border: 1px solid #E0DCD7;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 10px;
+  position: relative;
+}
+.summary-item-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+.summary-item-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--alive-blue);
+}
+.summary-remove {
+  background: none;
+  border: none;
+  color: #999;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  line-height: 1;
+}
+.summary-remove:hover { background: var(--red-bg); color: var(--red-urgent); }
+.summary-note {
+  width: 100%;
+  border: 1px solid #DDD;
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-size: 12px;
+  font-family: inherit;
+  resize: vertical;
+  min-height: 50px;
+  line-height: 1.5;
+}
+.summary-note::placeholder { color: #BBB; }
+.summary-footer {
+  padding: 12px;
+  border-top: 1px solid #E0DCD7;
+  flex-shrink: 0;
+}
+.copy-btn {
+  width: 100%;
   background: var(--alive-blue);
   color: white;
-  border-color: var(--alive-blue);
+  border: none;
+  border-radius: 8px;
+  padding: 12px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.2s;
+}
+.copy-btn:hover { background: var(--alive-teal); }
+.copy-btn.copied { background: var(--alive-green); }
+.clear-btn {
+  width: 100%;
+  background: transparent;
+  color: var(--red-urgent);
+  border: 2px solid var(--red-urgent);
+  border-radius: 8px;
+  padding: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s;
+  margin-top: 8px;
+}
+.clear-btn:hover { background: var(--red-bg); }
+.summary-count {
+  font-size: 11px;
+  color: var(--text-light);
+  text-align: center;
+  margin-top: 8px;
 }
 
-/* SECTION */
+/* ADD TO SUMMARY BUTTON */
+.add-to-summary-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--alive-green);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  margin: 8px 0 4px;
+  transition: all 0.2s;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+.add-to-summary-btn:hover { background: #4a6d2e; transform: translateY(-1px); }
+.add-to-summary-btn.added { background: #999; cursor: default; }
+
+/* SECTION STYLES (preserved from original) */
 .section {
   background: var(--card-bg);
   border-radius: var(--radius);
@@ -169,13 +343,11 @@ body {
 .section-header .icon { font-size: 22px; }
 .section-body { padding: 20px 22px; }
 
-/* EVERY-PATIENT BOX */
 .every-patient {
   border: 2px solid var(--alive-blue);
   border-left: 6px solid var(--alive-blue);
 }
 
-/* ALERT BOXES */
 .alert {
   border-radius: 8px;
   padding: 12px 16px;
@@ -194,10 +366,7 @@ body {
 .alert.blue { background: var(--blue-bg); border-left: 4px solid var(--blue-border); color: #1A5276; }
 .alert.purple { background: var(--purple-bg); border-left: 4px solid var(--purple-border); color: #6C3483; }
 
-/* FLOW STEPS */
-.flow-group {
-  margin: 14px 0;
-}
+.flow-group { margin: 14px 0; }
 .flow-group-title {
   font-size: 14px;
   font-weight: 700;
@@ -207,10 +376,7 @@ body {
   border-bottom: 2px solid var(--alive-teal);
   display: inline-block;
 }
-.question-list {
-  list-style: none;
-  padding: 0;
-}
+.question-list { list-style: none; padding: 0; }
 .question-list li {
   padding: 6px 0 6px 20px;
   position: relative;
@@ -224,28 +390,11 @@ body {
   color: var(--alive-blue);
   font-weight: 700;
 }
-.question-list li.sub {
-  padding-left: 40px;
-  font-size: 13px;
-  color: var(--text-light);
-}
-.question-list li.sub::before {
-  left: 22px;
-  content: '–';
-  color: #AAAAAA;
-}
-.question-list li.sub2 {
-  padding-left: 60px;
-  font-size: 12.5px;
-  color: var(--text-light);
-}
-.question-list li.sub2::before {
-  left: 42px;
-  content: '·';
-  color: #CCCCCC;
-}
+.question-list li.sub { padding-left: 40px; font-size: 13px; color: var(--text-light); }
+.question-list li.sub::before { left: 22px; content: '–'; color: #AAAAAA; }
+.question-list li.sub2 { padding-left: 60px; font-size: 12.5px; color: var(--text-light); }
+.question-list li.sub2::before { left: 42px; content: '·'; color: #CCCCCC; }
 
-/* BRANCH BOX */
 .branch {
   border: 1px solid #DDD;
   border-radius: 8px;
@@ -276,14 +425,9 @@ body {
 .branch.bilateral .branch-header { background: #E3F2FD; color: #1565C0; border-bottom: 1px solid #BBDEFB; }
 .branch.unilateral .branch-header { background: #FFF3E0; color: #E65100; border-bottom: 1px solid #FFE0B2; }
 .branch.default .branch-header { background: #F5F5F5; color: #424242; border-bottom: 1px solid #E0E0E0; }
-.branch-body {
-  padding: 14px 16px;
-  display: none;
-  background: white;
-}
+.branch-body { padding: 14px 16px; display: none; background: white; }
 .branch-body.open { display: block; }
 
-/* CROSS-REFERENCE LINK */
 .xref {
   display: inline-flex;
   align-items: center;
@@ -302,7 +446,6 @@ body {
 }
 .xref:hover { background: var(--alive-blue); color: white; }
 
-/* MEDICATION TAG */
 .med-tag {
   display: inline-block;
   background: #FFF8E1;
@@ -315,7 +458,6 @@ body {
   margin: 1px 2px;
 }
 
-/* HOSPICE SECTION */
 .hospice-flow {
   background: var(--purple-bg);
   border: 2px solid var(--purple-border);
@@ -323,11 +465,7 @@ body {
   padding: 16px 18px;
   margin: 12px 0;
 }
-.hospice-flow h4 {
-  color: var(--purple-hospice);
-  font-size: 14px;
-  margin-bottom: 8px;
-}
+.hospice-flow h4 { color: var(--purple-hospice); font-size: 14px; margin-bottom: 8px; }
 .hospice-step {
   background: white;
   border-radius: 6px;
@@ -338,30 +476,7 @@ body {
 }
 .hospice-step strong { color: var(--purple-hospice); }
 
-/* SECTION DIVIDER */
-.divider {
-  height: 1px;
-  background: #E8E4DF;
-  margin: 16px 0;
-}
-
-/* RESPONSIVE */
-@media (max-width: 700px) {
-  .header { padding: 20px 16px 16px; }
-  .header h1 { font-size: 18px; }
-  .legend { padding: 10px 16px; gap: 8px; }
-  .container { padding: 16px 12px 40px; }
-  .nav-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; }
-  .section-body { padding: 16px; }
-  .legend-item { font-size: 10px; }
-}
-
-@media print {
-  .header { position: static; }
-  .legend { position: static; }
-  .branch-body { display: block !important; }
-  .nav-grid { display: none; }
-}
+.divider { height: 1px; background: #E8E4DF; margin: 16px 0; }
 
 .branch.red-branch .branch-header{background:var(--red-bg);color:#922B21;border-bottom:1px solid #F5C6CB}
 .branch.purple-branch .branch-header{background:var(--purple-bg);color:#6C3483;border-bottom:1px solid #D7BDE2}
@@ -378,28 +493,137 @@ body {
 .checklist{list-style:none;padding:0}.checklist li{padding:8px 0 8px 30px;position:relative;font-size:13.5px;border-bottom:1px solid #F0EDEA}.checklist li::before{content:'\2610';position:absolute;left:4px;font-size:16px;color:var(--alive-blue)}
 .qr-table{width:100%;border-collapse:collapse;font-size:12px;margin:10px 0}.qr-table th{background:var(--alive-blue);color:#fff;padding:8px 10px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.3px}.qr-table td{padding:8px 10px;border-bottom:1px solid #E8E4DF;vertical-align:top}.qr-table tr:hover td{background:#F8F6F3}.qr-table .sym-link{color:var(--alive-blue);font-weight:600;cursor:pointer;text-decoration:underline}
 .return-box{background:linear-gradient(135deg,#FFF9E6,#FFF3CD);border:2px solid var(--alive-gold);border-radius:10px;padding:18px 20px;margin:10px 0}.return-box h4{color:#856404;font-size:14px;margin-bottom:10px}.return-box p{font-size:13px;font-style:italic;color:#664D03;line-height:1.7;margin:4px 0}
-.nav-btn.util{color:var(--alive-teal);border-color:var(--alive-teal);border-style:dashed}.nav-btn.util:hover{background:var(--alive-teal);color:#fff}
+
+/* FOOTER inside center */
+.app-footer {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px 0 40px;
+  font-size: 12px;
+  color: #888;
+  line-height: 1.7;
+  border-top: 1px solid #E0DCD7;
+}
+
+/* MODAL OVERLAY */
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(2px);
+}
+.modal-overlay.hidden { display: none; }
+.modal-box {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.25);
+  max-width: 460px;
+  width: 90%;
+  padding: 28px 24px 20px;
+  text-align: center;
+}
+.modal-box h3 {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 18px;
+  color: var(--alive-blue);
+  margin-bottom: 12px;
+}
+.modal-box p {
+  font-size: 13.5px;
+  color: var(--text);
+  line-height: 1.65;
+  margin-bottom: 8px;
+}
+.modal-box .modal-warning {
+  background: var(--red-bg);
+  border: 1px solid var(--red-border);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 12.5px;
+  color: #922B21;
+  font-weight: 600;
+  margin: 12px 0;
+}
+.modal-box .modal-info {
+  background: var(--blue-bg);
+  border: 1px solid var(--blue-border);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 12.5px;
+  color: #1A5276;
+  margin: 12px 0;
+  text-align: left;
+  line-height: 1.6;
+}
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 18px;
+  justify-content: center;
+}
+.modal-actions button {
+  padding: 10px 22px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  border: none;
+  transition: all 0.2s;
+}
+.modal-btn-primary {
+  background: var(--alive-blue);
+  color: white;
+}
+.modal-btn-primary:hover { background: var(--alive-teal); }
+.modal-btn-danger {
+  background: var(--red-urgent);
+  color: white;
+}
+.modal-btn-danger:hover { background: #A93226; }
+.modal-btn-secondary {
+  background: #E8E4DF;
+  color: var(--text);
+}
+.modal-btn-secondary:hover { background: #D5D0CA; }
+
+/* RESPONSIVE */
+@media (max-width: 900px) {
+  .right-summary { width: 250px; min-width: 250px; }
+}
+@media (max-width: 768px) {
+  .app-layout { flex-direction: column; }
+  .left-nav { width: 100%; min-width: unset; max-height: 120px; flex-direction: row; overflow-x: auto; overflow-y: hidden; white-space: nowrap; border-right: none; border-bottom: 1px solid #E0DCD7; display: flex; gap: 6px; padding: 8px 12px; }
+  .left-nav .nav-btn { min-width: 140px; margin-bottom: 0; white-space: nowrap; }
+  .right-summary { width: 100%; min-width: unset; max-height: 300px; border-left: none; border-top: 1px solid #E0DCD7; }
+  .center-content { flex: 1; }
+}
+
+@media print {
+  body { overflow: visible; height: auto; }
+  .app-layout { flex-direction: column; height: auto; }
+  .left-nav { display: none; }
+  .right-summary { display: none; }
+  .center-content { overflow: visible; }
+  .branch-body { display: block !important; }
+}
 </style>
 </head>
 <body>
 
 <div class="header">
   <h1>📋 Palliative & Geriatrics Triage — Decision Support Algorithm</h1>
-  <p>Alive Hospice &amp; Palliative Care &nbsp;|&nbsp; RN Triage Line Reference Guide</p>
+  <p>Alive Hospice & Palliative Care &nbsp;|&nbsp; RN Triage Line Reference Guide</p>
 </div>
 
-<div class="legend">
-  <div class="legend-item"><div class="legend-dot red"></div> 911 / NP Immediately</div>
-  <div class="legend-item"><div class="legend-dot orange"></div> Escalate to Provider</div>
-  <div class="legend-item"><div class="legend-dot green"></div> RN Manage / Schedule</div>
-  <div class="legend-item"><div class="legend-dot blue"></div> Cross-reference Algorithm</div>
-  <div class="legend-item"><div class="legend-dot purple"></div> Hospice Transition Pathway</div>
-</div>
+<div class="app-layout">
 
-<div class="container">
-
-<!-- QUICK NAV -->
-<div class="nav-grid">
+<!-- LEFT NAV -->
+<nav class="left-nav">
   <button class="nav-btn" onclick="scrollToSection('every-patient')"><span class="icon">🔵</span>Every Patient</button>
   <button class="nav-btn" onclick="scrollToSection('dyspnea')"><span class="icon">🫁</span>Dyspnea</button>
   <button class="nav-btn" onclick="scrollToSection('edema')"><span class="icon">🦵</span>Edema</button>
@@ -420,11 +644,20 @@ body {
   <button class="nav-btn util" onclick="scrollToSection('escalation-guide')"><span class="icon">📊</span>Escalation Guide</button>
   <button class="nav-btn util" onclick="scrollToSection('return-precautions')"><span class="icon">⚡</span>Return Precautions</button>
   <button class="nav-btn util" onclick="scrollToSection('hospice-checklist')"><span class="icon">✅</span>Hospice Checklist</button>
+</nav>
+
+<!-- CENTER CONTENT -->
+<main class="center-content" id="center-content">
+<div class="center-inner">
+
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot red"></div> 911 / NP Immediately</div>
+  <div class="legend-item"><div class="legend-dot orange"></div> Escalate to Provider</div>
+  <div class="legend-item"><div class="legend-dot green"></div> RN Manage / Schedule</div>
+  <div class="legend-item"><div class="legend-dot blue"></div> Cross-reference Algorithm</div>
+  <div class="legend-item"><div class="legend-dot purple"></div> Hospice Transition Pathway</div>
 </div>
 
-<!-- ============================================================ -->
-<!-- EVERY PATIENT EVERY TIME -->
-<!-- ============================================================ -->
 <div class="section every-patient" id="every-patient">
   <div class="section-header"><span class="icon">🔵</span> Part 1: Initial Assessment — Every Patient, Every Time</div>
   <div class="section-body">
@@ -524,7 +757,9 @@ body {
 <!-- ============================================================ -->
 <div class="section" id="dyspnea">
   <div class="section-header"><span class="icon">🫁</span> Dyspnea (Shortness of Breath)</div>
-  <div class="section-body"><div class="flow-group">
+  <div class="section-body">
+    <button class="add-to-summary-btn" data-summary-btn="dyspnea" onclick="addToSummary('dyspnea', 'Dyspnea (Shortness of Breath)')">+ Add To Summary</button>
+<div class="flow-group">
       <div class="flow-group-title">Triage Assessment (Complete BEFORE branching)</div>
       <ul class="question-list">
         <li>When did it start? (Acute vs. Gradual)</li>
@@ -612,7 +847,9 @@ body {
 <!-- ============================================================ -->
 <div class="section" id="edema">
   <div class="section-header"><span class="icon">🦵</span> Edema</div>
-  <div class="section-body"><div class="flow-group">
+  <div class="section-body">
+    <button class="add-to-summary-btn" data-summary-btn="edema" onclick="addToSummary('edema', 'Edema')">+ Add To Summary</button>
+<div class="flow-group">
       <div class="flow-group-title">Triage Questions</div>
       <ul class="question-list">
         <li>When did it start?</li>
@@ -735,7 +972,9 @@ body {
 <!-- ============================================================ -->
 <div class="section" id="cough">
   <div class="section-header"><span class="icon">💨</span> Cough</div>
-  <div class="section-body"><div class="flow-group">
+  <div class="section-body">
+    <button class="add-to-summary-btn" data-summary-btn="cough" onclick="addToSummary('cough', 'Cough')">+ Add To Summary</button>
+<div class="flow-group">
       <div class="flow-group-title">Triage Questions</div>
       <ul class="question-list">
         <li>When did it start?</li>
@@ -800,7 +1039,9 @@ body {
 <!-- ============================================================ -->
 <div class="section" id="chest-pain">
   <div class="section-header"><span class="icon">❤️‍🩹</span> Chest Pain</div>
-  <div class="section-body"><div class="flow-group">
+  <div class="section-body">
+    <button class="add-to-summary-btn" data-summary-btn="chest-pain" onclick="addToSummary('chest-pain', 'Chest Pain')">+ Add To Summary</button>
+<div class="flow-group">
       <div class="flow-group-title">Detailed Assessment</div>
       <ul class="question-list">
         <li><strong>Duration</strong> — how long?</li>
@@ -864,7 +1105,9 @@ body {
 <!-- ============================================================ -->
 <div class="section" id="gen-weakness">
   <div class="section-header"><span class="icon">💪</span> Generalized Weakness</div>
-  <div class="section-body"><div class="alert red"><span class="alert-icon">🚨</span> Change in mental status? → <strong>Notify NP URGENTLY</strong></div>
+  <div class="section-body">
+    <button class="add-to-summary-btn" data-summary-btn="gen-weakness" onclick="addToSummary('gen-weakness', 'Gen. Weakness / Fatigue')">+ Add To Summary</button>
+<div class="alert red"><span class="alert-icon">🚨</span> Change in mental status? → <strong>Notify NP URGENTLY</strong></div>
 
     <div class="flow-group">
       <div class="flow-group-title">Key Differentiator</div>
@@ -939,7 +1182,9 @@ body {
 <!-- ============================================================ -->
 <div class="section" id="uni-weakness">
   <div class="section-header"><span class="icon">⚡</span> Unilateral Weakness (Concern for Stroke)</div>
-  <div class="section-body"><div class="alert red"><span class="alert-icon">⚠️</span> <strong>NOTE:</strong> Call 911 regardless of goals of care if acute onset &lt;24 hours. Hospice transition only appropriate for known stroke history or symptoms &gt;24h and stable.</div>
+  <div class="section-body">
+    <button class="add-to-summary-btn" data-summary-btn="uni-weakness" onclick="addToSummary('uni-weakness', 'Unilateral Weakness / Stroke')">+ Add To Summary</button>
+<div class="alert red"><span class="alert-icon">⚠️</span> <strong>NOTE:</strong> Call 911 regardless of goals of care if acute onset &lt;24 hours. Hospice transition only appropriate for known stroke history or symptoms &gt;24h and stable.</div>
 
     <div class="flow-group">
       <div class="flow-group-title">Assessment</div>
@@ -996,6 +1241,8 @@ body {
 <div class="section" id="ams">
   <div class="section-header"><span class="icon">🧠</span> Agitation, Altered Mental Status, or Abnormal Behavior</div>
   <div class="section-body">
+    <button class="add-to-summary-btn" data-summary-btn="ams" onclick="addToSummary('ams', 'AMS / Agitation')">+ Add To Summary</button>
+
 
     <div class="alert red"><span class="alert-icon">🚨</span> <strong>Is the patient and family safe?</strong> If not → <strong>Call 911</strong></div>
 
@@ -1118,7 +1365,9 @@ body {
 <!-- ============================================================ -->
 <div class="section" id="fever">
   <div class="section-header"><span class="icon">🌡️</span> Fever</div>
-  <div class="section-body"><div class="alert red">
+  <div class="section-body">
+    <button class="add-to-summary-btn" data-summary-btn="fever" onclick="addToSummary('fever', 'Fever')">+ Add To Summary</button>
+<div class="alert red">
       <span class="alert-icon">🚨</span>
       <div><strong>IMMEDIATE ESCALATION if any:</strong><br>
       • Cancer + concern for neutropenia → <strong>assess goals, urgently notify NP or send to ED</strong><br>
@@ -1185,7 +1434,9 @@ body {
 <!-- ============================================================ -->
 <div class="section" id="falls">
   <div class="section-header"><span class="icon">⚠️</span> Falls</div>
-  <div class="section-body"><div class="alert green"><span class="alert-icon">📋</span> Assess for injury — <strong>non-urgent unless concern for fracture</strong>.</div>
+  <div class="section-body">
+    <button class="add-to-summary-btn" data-summary-btn="falls" onclick="addToSummary('falls', 'Falls')">+ Add To Summary</button>
+<div class="alert green"><span class="alert-icon">📋</span> Assess for injury — <strong>non-urgent unless concern for fracture</strong>.</div>
     <div class="alert orange"><span class="alert-icon">🦴</span> Concern for break → <strong>order home X-ray or send to ED, then notify NP</strong>.</div>
     <div class="alert orange"><span class="alert-icon">💊</span> On anticoagulation? → <strong>Notify NP URGENTLY</strong></div>
 
@@ -1310,7 +1561,9 @@ body {
 <!-- ============================================================ -->
 <div class="section" id="pain">
   <div class="section-header"><span class="icon">🩺</span> Pain</div>
-  <div class="section-body"><div class="flow-group">
+  <div class="section-body">
+    <button class="add-to-summary-btn" data-summary-btn="pain" onclick="addToSummary('pain', 'Pain')">+ Add To Summary</button>
+<div class="flow-group">
       <div class="flow-group-title">Assessment</div>
       <ul class="question-list">
         <li>Has it happened before?</li>
@@ -1364,7 +1617,9 @@ body {
 <!-- ============================================================ -->
 <div class="section" id="constipation">
   <div class="section-header"><span class="icon">🔶</span> Constipation</div>
-  <div class="section-body"><div class="flow-group">
+  <div class="section-body">
+    <button class="add-to-summary-btn" data-summary-btn="constipation" onclick="addToSummary('constipation', 'Constipation')">+ Add To Summary</button>
+<div class="flow-group">
       <div class="flow-group-title">Triage Questions</div>
       <ul class="question-list">
         <li>Last BM?</li>
@@ -1438,7 +1693,9 @@ body {
 <!-- ============================================================ -->
 <div class="section" id="diarrhea">
   <div class="section-header"><span class="icon">🔷</span> Diarrhea</div>
-  <div class="section-body"><div class="flow-group">
+  <div class="section-body">
+    <button class="add-to-summary-btn" data-summary-btn="diarrhea" onclick="addToSummary('diarrhea', 'Diarrhea')">+ Add To Summary</button>
+<div class="flow-group">
       <div class="flow-group-title">Triage Questions</div>
       <ul class="question-list">
         <li>When did it start?</li>
@@ -1526,7 +1783,9 @@ body {
 <!-- ============================================================ -->
 <div class="section" id="nausea">
   <div class="section-header"><span class="icon">🤢</span> Nausea / Vomiting</div>
-  <div class="section-body"><div class="flow-group">
+  <div class="section-body">
+    <button class="add-to-summary-btn" data-summary-btn="nausea" onclick="addToSummary('nausea', 'Nausea / Vomiting')">+ Add To Summary</button>
+<div class="flow-group">
       <div class="flow-group-title">Triage Questions</div>
       <ul class="question-list">
         <li>When did it start?</li>
@@ -1620,6 +1879,8 @@ body {
 <div class="section" id="abd-pain">
   <div class="section-header"><span class="icon">🩻</span> Abdominal Pain</div>
   <div class="section-body">
+    <button class="add-to-summary-btn" data-summary-btn="abd-pain" onclick="addToSummary('abd-pain', 'Abdominal Pain')">+ Add To Summary</button>
+
     <div class="flow-group">
       <div class="flow-group-title">Initial Questions</div>
       <ul class="question-list">
@@ -1707,6 +1968,8 @@ body {
 <div class="section" id="uti">
   <div class="section-header"><span class="icon">🔬</span> UTI / Suprapubic Pain</div>
   <div class="section-body">
+    <button class="add-to-summary-btn" data-summary-btn="uti" onclick="addToSummary('uti', 'UTI / Suprapubic Pain')">+ Add To Summary</button>
+
     <div class="flow-group">
       <div class="flow-group-title">Assessment</div>
       <ul class="question-list">
@@ -1863,31 +2126,7 @@ body {
   </div>
 </div>
 
-</div><!-- /container -->
-
-<script>
-function toggleBranch(header) {
-  const body = header.nextElementSibling;
-  const chevron = header.querySelector('.chevron');
-  body.classList.toggle('open');
-  chevron.classList.toggle('open');
-}
-
-function scrollToSection(id) {
-  const el = document.getElementById(id);
-  if (el) {
-    const headerOffset = 130;
-    const elementPosition = el.getBoundingClientRect().top + window.scrollY;
-    window.scrollTo({ top: elementPosition - headerOffset, behavior: 'smooth' });
-    // Brief highlight
-    el.style.transition = 'box-shadow 0.3s ease';
-    el.style.boxShadow = '0 0 0 3px #326195, 0 4px 20px rgba(50,97,149,0.3)';
-    setTimeout(() => { el.style.boxShadow = ''; }, 2000);
-  }
-}
-</script>
-
-<footer style="max-width:960px;margin:0 auto;padding:20px 20px 40px;font-size:12px;color:#888;line-height:1.7;border-top:1px solid #E0DCD7;">
+<div class="app-footer">
   <div style="background:#FFF8E1;border:2px solid #FFD54F;border-radius:8px;padding:14px 18px;margin-bottom:16px;">
     <p style="margin-bottom:6px;color:#E65100;font-weight:700;font-size:13px;">PROOF OF CONCEPT &mdash; NOT FOR CLINICAL USE</p>
     <p style="color:#795548;">This application is a prototype and proof of concept created for demonstration and evaluation purposes only. It has not been formally validated, peer-reviewed, or approved for use in clinical decision-making. This tool must not be used to guide patient care, triage decisions, or any clinical activity in its current form.</p>
@@ -1896,8 +2135,347 @@ function scrollToSection(id) {
   <p>This document is a conceptual clinical decision-support prototype intended to illustrate a potential workflow for trained nursing professionals. It does not constitute medical advice, replace clinical judgment, or establish a standard of care. All clinical decisions must be made by a qualified healthcare provider based on the individual patient's condition, history, and goals of care.</p>
   <p style="margin-top:8px;">The authors and contributors assume no liability for clinical outcomes resulting from the use or misuse of this prototype. The information contained herein, including medication names, dosages, and clinical pathways, is provided for illustrative purposes and has not been independently verified for accuracy or completeness. Users are solely responsible for verifying all clinical content with authoritative sources before any application in a care setting.</p>
   <p style="margin-top:8px;">This prototype is provided "as is" without warranty of any kind, express or implied, including but not limited to warranties of accuracy, completeness, or fitness for a particular purpose.</p>
-  <p style="margin-top:12px;color:#5A5A5A;"><strong>Reviewed by:</strong> Martha Presley Tran &nbsp;|&nbsp; <strong>Date:</strong> April 4, 2026 &nbsp;|&nbsp; <strong>Version:</strong> 1.0 (Proof of Concept)</p>
-</footer>
+  <p style="margin-top:12px;color:#5A5A5A;"><strong>Reviewed by:</strong> Martha Presley Tran &nbsp;|&nbsp; <strong>Date:</strong> April 4, 2026 &nbsp;|&nbsp; <strong>Version:</strong> 2.0 (Proof of Concept)</p>
+</div>
+
+</div><!-- /center-inner -->
+</main>
+
+<!-- RIGHT SUMMARY -->
+<aside class="right-summary">
+  <div class="summary-header">🛒 Summary</div>
+  <div class="summary-body" id="summary-body">
+    <div class="summary-empty" id="summary-empty">Click "Add To Summary" next to a symptom to add it here. Notes stay on this device only.</div>
+  </div>
+  <div class="summary-footer">
+    <button class="copy-btn" id="copy-btn" onclick="copyToClipboard()">📋 Copy to Clipboard</button>
+    <button class="clear-btn" onclick="showClearModal()">🗑 Clear Summary</button>
+    <div class="summary-count" id="summary-count"></div>
+  </div>
+</aside>
+
+</div><!-- /app-layout -->
+
+<!-- MODAL CONTAINER -->
+<div class="modal-overlay hidden" id="modal-overlay" onclick="handleOverlayClick(event)">
+  <div class="modal-box" id="modal-box"></div>
+</div>
+
+<script>
+// ===== STATE =====
+var summaryItems = {};
+var STORAGE_KEY = 'triage_summary_v2';
+var inactivityTimer = null;
+var INACTIVITY_MINUTES = 10;
+
+// ===== LOCAL STORAGE =====
+function saveToStorage() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(summaryItems));
+  } catch (e) { /* storage full or unavailable — silent fail */ }
+}
+
+function loadFromStorage() {
+  try {
+    var data = localStorage.getItem(STORAGE_KEY);
+    if (data) {
+      summaryItems = JSON.parse(data);
+      // Restore "Added" state on buttons
+      Object.keys(summaryItems).forEach(function(key) {
+        var btn = document.querySelector('[data-summary-btn="' + key + '"]');
+        if (btn) {
+          btn.textContent = '\u2713 Added';
+          btn.classList.add('added');
+        }
+      });
+      renderSummary();
+    }
+  } catch (e) { /* corrupted data — start fresh */ }
+}
+
+function clearStorage() {
+  try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
+}
+
+function hasData() {
+  return Object.keys(summaryItems).length > 0;
+}
+
+// ===== MODAL SYSTEM =====
+function showModal(html) {
+  document.getElementById('modal-box').innerHTML = html;
+  document.getElementById('modal-overlay').classList.remove('hidden');
+}
+
+function hideModal() {
+  document.getElementById('modal-overlay').classList.add('hidden');
+}
+
+function handleOverlayClick(e) {
+  if (e.target === document.getElementById('modal-overlay')) {
+    // Don't dismiss modals by clicking outside — user must choose an action
+  }
+}
+
+// Welcome modal on first load
+function showWelcomeModal() {
+  showModal(
+    '<h3>Welcome</h3>' +
+    '<p>This tool is a clinical decision-support reference for triage nurses.</p>' +
+    '<div class="modal-info">' +
+      '<strong>Privacy Notice</strong><br>' +
+      'This tool does <strong>not</strong> send any data to third parties. ' +
+      'It only stores data directly in your browser\'s local storage for recovery purposes if you accidentally close the tab.' +
+    '</div>' +
+    '<div class="modal-warning">' +
+      'Never use this tool on a public device or any device that does not have sufficient security safeguards in place (e.g. use only on a company-approved device).' +
+    '</div>' +
+    '<div class="modal-actions">' +
+      '<button class="modal-btn-primary" onclick="hideModal()">I Understand</button>' +
+    '</div>'
+  );
+}
+
+// Clear confirmation modal
+function showClearModal() {
+  if (!hasData()) {
+    return;
+  }
+  showModal(
+    '<h3>Clear Summary?</h3>' +
+    '<p>This will remove all symptoms and notes from your summary and <strong>permanently wipe</strong> the data from this browser\'s local storage.</p>' +
+    '<p>This action cannot be undone.</p>' +
+    '<div class="modal-actions">' +
+      '<button class="modal-btn-secondary" onclick="hideModal()">Cancel</button>' +
+      '<button class="modal-btn-danger" onclick="confirmClear()">Clear Everything</button>' +
+    '</div>'
+  );
+}
+
+function confirmClear() {
+  // Reset all "Added" buttons
+  Object.keys(summaryItems).forEach(function(key) {
+    var btn = document.querySelector('[data-summary-btn="' + key + '"]');
+    if (btn) {
+      btn.textContent = '+ Add To Summary';
+      btn.classList.remove('added');
+    }
+  });
+  summaryItems = {};
+  clearStorage();
+  renderSummary();
+  hideModal();
+}
+
+// Inactivity modal
+function showInactivityModal() {
+  showModal(
+    '<h3>Are you still here?</h3>' +
+    '<p>There has been no activity for 10 minutes.</p>' +
+    '<p>Are you still helping a patient, or would you like to start a new summary?</p>' +
+    '<div class="modal-actions">' +
+      '<button class="modal-btn-primary" onclick="continueSession()">Continue</button>' +
+      '<button class="modal-btn-danger" onclick="startNewSession()">Start New Summary</button>' +
+    '</div>'
+  );
+}
+
+function continueSession() {
+  hideModal();
+  resetInactivityTimer();
+}
+
+function startNewSession() {
+  confirmClear();
+  // confirmClear already calls hideModal
+  resetInactivityTimer();
+}
+
+// ===== INACTIVITY TIMER =====
+function resetInactivityTimer() {
+  if (inactivityTimer) clearTimeout(inactivityTimer);
+  inactivityTimer = setTimeout(function() {
+    if (hasData()) {
+      showInactivityModal();
+    }
+  }, INACTIVITY_MINUTES * 60 * 1000);
+}
+
+// Track user activity
+['click', 'keydown', 'scroll', 'mousemove', 'touchstart'].forEach(function(evt) {
+  document.addEventListener(evt, resetInactivityTimer, { passive: true });
+});
+
+// ===== BEFOREUNLOAD =====
+window.addEventListener('beforeunload', function(e) {
+  if (hasData()) {
+    e.preventDefault();
+    e.returnValue = 'You have data in your summary. Closing this tab will wipe it from local storage. Are you sure?';
+    return e.returnValue;
+  }
+});
+
+// ===== CORE FUNCTIONS =====
+function toggleBranch(header) {
+  var body = header.nextElementSibling;
+  var chevron = header.querySelector('.chevron');
+  body.classList.toggle('open');
+  chevron.classList.toggle('open');
+}
+
+function scrollToSection(id) {
+  var container = document.getElementById('center-content');
+  var el = document.getElementById(id);
+  if (el && container) {
+    var containerRect = container.getBoundingClientRect();
+    var elRect = el.getBoundingClientRect();
+    var scrollTop = container.scrollTop + elRect.top - containerRect.top - 10;
+    container.scrollTo({ top: scrollTop, behavior: 'smooth' });
+    el.style.transition = 'box-shadow 0.3s ease';
+    el.style.boxShadow = '0 0 0 3px #326195, 0 4px 20px rgba(50,97,149,0.3)';
+    setTimeout(function() { el.style.boxShadow = ''; }, 2000);
+  }
+  var btns = document.querySelectorAll('.left-nav .nav-btn');
+  btns.forEach(function(btn) { btn.classList.remove('active'); });
+  btns.forEach(function(btn) {
+    if (btn.getAttribute('onclick') && btn.getAttribute('onclick').indexOf(id) !== -1) {
+      btn.classList.add('active');
+    }
+  });
+}
+
+function addToSummary(sectionId, label) {
+  if (summaryItems[sectionId]) return;
+  summaryItems[sectionId] = { label: label, note: '' };
+
+  var btn = document.querySelector('[data-summary-btn="' + sectionId + '"]');
+  if (btn) {
+    btn.textContent = '\u2713 Added';
+    btn.classList.add('added');
+  }
+
+  renderSummary();
+  saveToStorage();
+}
+
+function removeFromSummary(sectionId) {
+  delete summaryItems[sectionId];
+
+  var btn = document.querySelector('[data-summary-btn="' + sectionId + '"]');
+  if (btn) {
+    btn.textContent = '+ Add To Summary';
+    btn.classList.remove('added');
+  }
+
+  renderSummary();
+  saveToStorage();
+}
+
+function updateNote(sectionId, value) {
+  if (summaryItems[sectionId]) {
+    summaryItems[sectionId].note = value;
+    saveToStorage();
+  }
+}
+
+function renderSummary() {
+  var body = document.getElementById('summary-body');
+  var count = document.getElementById('summary-count');
+  var keys = Object.keys(summaryItems);
+
+  if (keys.length === 0) {
+    body.innerHTML = '<div class="summary-empty">Click "Add To Summary" next to a symptom to add it here. Notes stay on this device only.</div>';
+    count.textContent = '';
+    return;
+  }
+
+  var html = '';
+  keys.forEach(function(key) {
+    var item = summaryItems[key];
+    html += '<div class="summary-item">';
+    html += '<div class="summary-item-header">';
+    html += '<span class="summary-item-title">' + escapeHtml(item.label) + '</span>';
+    html += '<button class="summary-remove" onclick="removeFromSummary(\'' + key + '\')" title="Remove">\u2715</button>';
+    html += '</div>';
+    html += '<textarea class="summary-note" placeholder="Type notes here..." oninput="updateNote(\'' + key + '\', this.value)">' + escapeHtml(item.note) + '</textarea>';
+    html += '</div>';
+  });
+
+  body.innerHTML = html;
+  count.textContent = keys.length + ' symptom' + (keys.length !== 1 ? 's' : '') + ' in summary';
+}
+
+function escapeHtml(str) {
+  var div = document.createElement('div');
+  div.appendChild(document.createTextNode(str));
+  return div.innerHTML;
+}
+
+function copyToClipboard() {
+  var keys = Object.keys(summaryItems);
+  if (keys.length === 0) {
+    alert('No symptoms in summary to copy.');
+    return;
+  }
+
+  var text = 'TRIAGE SUMMARY\n';
+  text += '==============\n\n';
+  keys.forEach(function(key) {
+    var item = summaryItems[key];
+    text += '\u2022 ' + item.label + '\n';
+    if (item.note.trim()) {
+      text += '  Notes: ' + item.note.trim() + '\n';
+    }
+    text += '\n';
+  });
+  text += 'Generated: ' + new Date().toLocaleString() + '\n';
+
+  navigator.clipboard.writeText(text).then(onCopySuccess).catch(function() {
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.left = '-9999px';
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    onCopySuccess();
+  });
+}
+
+function onCopySuccess() {
+  var btn = document.getElementById('copy-btn');
+  btn.textContent = '\u2713 Copied!';
+  btn.classList.add('copied');
+  setTimeout(function() {
+    btn.textContent = '\uD83D\uDCCB Copy to Clipboard';
+    btn.classList.remove('copied');
+  }, 2000);
+
+  var isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+  var shortcut = isMac ? 'Command + V' : 'Ctrl + V';
+
+  showModal(
+    '<h3>Copied to Clipboard</h3>' +
+    '<p>Your triage summary data is now on your clipboard.</p>' +
+    '<p>You can paste it using <strong>' + shortcut + '</strong>.</p>' +
+    '<div class="modal-warning">' +
+      'Only paste this information into a company-approved communication tool such as <strong>Outlook</strong>, <strong>Teams</strong>, or other approved messaging platforms. ' +
+      'Do not paste into personal email, social media, or any unapproved application.' +
+    '</div>' +
+    '<div class="modal-actions">' +
+      '<button class="modal-btn-primary" onclick="hideModal()">I Understand</button>' +
+    '</div>'
+  );
+}
+
+// ===== INIT =====
+document.addEventListener('DOMContentLoaded', function() {
+  loadFromStorage();
+  showWelcomeModal();
+  resetInactivityTimer();
+});
+</script>
 
 </body>
 </html>
