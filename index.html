@@ -123,6 +123,34 @@ body {
   color: white;
   border-color: var(--alive-blue);
 }
+.left-nav .nav-btn.nav-purple {
+  background: #E8D5F0;
+  color: #5C2270;
+  border-color: #C9A3D9;
+}
+.left-nav .nav-btn.nav-purple:hover {
+  border-color: #7B2D8E;
+  box-shadow: var(--shadow-hover);
+}
+.left-nav .nav-btn.nav-purple.active {
+  background: #5C2270;
+  color: white;
+  border-color: #5C2270;
+}
+.left-nav .nav-btn.nav-blue {
+  background: #D6E8F7;
+  color: #1A4D80;
+  border-color: #A3C4E0;
+}
+.left-nav .nav-btn.nav-blue:hover {
+  border-color: #1A4D80;
+  box-shadow: var(--shadow-hover);
+}
+.left-nav .nav-btn.nav-blue.active {
+  background: #1A4D80;
+  color: white;
+  border-color: #1A4D80;
+}
 .left-nav .nav-btn.util {
   color: var(--alive-teal);
   border-color: var(--alive-teal);
@@ -192,6 +220,7 @@ body {
   font-size: 12px;
   padding: 7px 10px 7px 20px;
   margin-bottom: 3px;
+  margin-left: 12px;
   border-width: 1px;
 }
 /* Top-level nav items (no sub-nav) */
@@ -777,7 +806,7 @@ body {
 <nav class="left-nav">
 
   <!-- Every Patient — top-level -->
-  <button class="nav-btn nav-top" onclick="scrollToSection('every-patient')"><span class="icon">🔵</span>Every Patient</button>
+  <button class="nav-btn nav-top nav-blue" onclick="scrollToSection('every-patient')"><span class="icon">🔵</span>Every Patient</button>
 
   <!-- Symptoms — collapsible with sub-nav -->
   <div class="nav-group has-subnav" id="nav-symptoms">
@@ -802,7 +831,7 @@ body {
   </div>
 
   <!-- Disposition — top-level -->
-  <button class="nav-btn nav-top" onclick="scrollToSection('documentation')"><span class="icon">📝</span>Disposition</button>
+  <button class="nav-btn nav-top nav-purple" onclick="scrollToSection('documentation')"><span class="icon">📝</span>Disposition</button>
 
   <!-- Resources — collapsible with sub-nav -->
   <div class="nav-group has-subnav" id="nav-resources">
@@ -2301,7 +2330,7 @@ body {
 
 <!-- RIGHT SUMMARY -->
 <aside class="right-summary" id="right-summary">
-  <div class="summary-header">🛒 Summary</div>
+  <div class="summary-header">Summary</div>
   <div class="summary-body" id="summary-body">
     <div class="summary-empty" id="summary-empty">Click "Add To Summary" next to a symptom to add it here. Notes stay on this device only.</div>
   </div>
@@ -2532,7 +2561,7 @@ function scrollToSection(id) {
     var header = group.querySelector('.nav-group-header');
     var btnsInGroup = body.querySelectorAll('.nav-btn');
     btnsInGroup.forEach(function(btn) {
-      if (btn.getAttribute('onclick') && btn.getAttribute('onclick').indexOf(id) !== -1) {
+      if (btn.getAttribute('onclick') && btn.getAttribute('onclick').indexOf("scrollToSection('" + id + "')") !== -1) {
         if (body.classList.contains('collapsed')) {
           body.classList.remove('collapsed');
           header.classList.remove('collapsed');
@@ -2543,7 +2572,8 @@ function scrollToSection(id) {
   var btns = document.querySelectorAll('.left-nav .nav-btn');
   btns.forEach(function(btn) { btn.classList.remove('active'); });
   btns.forEach(function(btn) {
-    if (btn.getAttribute('onclick') && btn.getAttribute('onclick').indexOf(id) !== -1) {
+    var onclick = btn.getAttribute('onclick');
+    if (onclick && onclick.indexOf("scrollToSection('" + id + "')") !== -1) {
       btn.classList.add('active');
     }
   });
