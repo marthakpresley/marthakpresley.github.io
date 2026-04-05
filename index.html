@@ -243,6 +243,29 @@ body {
 .legend-dot.blue { background: var(--blue-info); }
 .legend-dot.purple { background: var(--purple-hospice); }
 
+/* RESIZE HANDLE */
+.resize-handle {
+  width: 5px;
+  cursor: col-resize;
+  background: transparent;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 10;
+  transition: background 0.2s;
+}
+.resize-handle:hover,
+.resize-handle.dragging {
+  background: var(--alive-blue);
+}
+.resize-handle::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -3px;
+  right: -3px;
+  bottom: 0;
+}
+
 /* RIGHT SUMMARY */
 .right-summary {
   width: 300px;
@@ -308,6 +331,9 @@ body {
   line-height: 1;
 }
 .summary-remove:hover { background: var(--red-bg); color: var(--red-urgent); }
+.summary-note-wrapper {
+  position: relative;
+}
 .summary-note {
   width: 100%;
   border: 1px solid #DDD;
@@ -316,11 +342,42 @@ body {
   font-size: 12px;
   font-family: inherit;
   resize: none;
-  min-height: 36px;
+  min-height: 80px;
   overflow: hidden;
   line-height: 1.5;
+  transition: min-height 0.2s ease;
+}
+.summary-note.collapsed {
+  min-height: 80px;
+  max-height: 80px;
+  overflow: hidden;
+}
+.summary-note.expanded {
+  min-height: 200px;
+  max-height: none;
+  overflow: auto;
 }
 .summary-note::placeholder { color: #BBB; }
+.note-toggle {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background: rgba(255,255,255,0.9);
+  border: 1px solid #DDD;
+  border-radius: 4px;
+  cursor: pointer;
+  padding: 2px 5px;
+  font-size: 12px;
+  line-height: 1;
+  color: #888;
+  transition: all 0.2s;
+  z-index: 1;
+}
+.note-toggle:hover {
+  background: var(--alive-blue);
+  color: white;
+  border-color: var(--alive-blue);
+}
 .summary-footer {
   padding: 12px;
   border-top: 1px solid #E0DCD7;
@@ -682,7 +739,7 @@ body {
 
 /* RESPONSIVE */
 @media (max-width: 900px) {
-  .right-summary { width: 250px; min-width: 250px; }
+  .right-summary { width: 300px; min-width: 300px; }
 }
 @media (max-width: 768px) {
   .app-layout { flex-direction: column; }
@@ -2239,8 +2296,11 @@ body {
 </div><!-- /center-inner -->
 </main>
 
+<!-- RESIZE HANDLE -->
+<div class="resize-handle" id="resize-handle"></div>
+
 <!-- RIGHT SUMMARY -->
-<aside class="right-summary">
+<aside class="right-summary" id="right-summary">
   <div class="summary-header">🛒 Summary</div>
   <div class="summary-body" id="summary-body">
     <div class="summary-empty" id="summary-empty">Click "Add To Summary" next to a symptom to add it here. Notes stay on this device only.</div>
@@ -2517,9 +2577,62 @@ function removeFromSummary(sectionId) {
 }
 
 function autoGrowTextarea(el) {
+  if (el.classList.contains('collapsed')) return;
   el.style.height = 'auto';
   el.style.height = el.scrollHeight + 'px';
 }
+
+function toggleNoteExpand(btn) {
+  var textarea = btn.parentElement.querySelector('.summary-note');
+  if (textarea.classList.contains('expanded')) {
+    textarea.classList.remove('expanded');
+    textarea.classList.add('collapsed');
+    textarea.style.height = '';
+    btn.textContent = '\u2922';
+    btn.title = 'Expand';
+  } else {
+    textarea.classList.remove('collapsed');
+    textarea.classList.add('expanded');
+    textarea.style.height = 'auto';
+    textarea.style.height = textarea.scrollHeight + 'px';
+    btn.textContent = '\u2923';
+    btn.title = 'Collapse';
+  }
+}
+
+/* Resizable right panel */
+(function() {
+  var handle = document.getElementById('resize-handle');
+  var panel = document.getElementById('right-summary');
+  if (!handle || !panel) return;
+  var dragging = false;
+  var startX, startWidth;
+
+  handle.addEventListener('mousedown', function(e) {
+    e.preventDefault();
+    dragging = true;
+    startX = e.clientX;
+    startWidth = panel.offsetWidth;
+    handle.classList.add('dragging');
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
+  });
+
+  document.addEventListener('mousemove', function(e) {
+    if (!dragging) return;
+    var diff = startX - e.clientX;
+    var newWidth = Math.max(300, startWidth + diff);
+    panel.style.width = newWidth + 'px';
+  });
+
+  document.addEventListener('mouseup', function() {
+    if (!dragging) return;
+    dragging = false;
+    handle.classList.remove('dragging');
+    document.body.style.cursor = '';
+    document.body.style.userSelect = '';
+  });
+})();
 
 function updateNote(sectionId, value) {
   if (summaryItems[sectionId]) {
@@ -2547,7 +2660,10 @@ function renderSummary() {
     html += '<span class="summary-item-title">' + escapeHtml(item.label) + '</span>';
     html += '<button class="summary-remove" onclick="removeFromSummary(\'' + key + '\')" title="Remove">\u2715</button>';
     html += '</div>';
-    html += '<textarea class="summary-note" placeholder="Type notes here..." oninput="updateNote(\'' + key + '\', this.value); autoGrowTextarea(this)">' + escapeHtml(item.note) + '</textarea>';
+    html += '<div class="summary-note-wrapper">';
+    html += '<button class="note-toggle" onclick="toggleNoteExpand(this)" title="Expand/Collapse">⤢</button>';
+    html += '<textarea class="summary-note collapsed" placeholder="Type notes here..." oninput="updateNote(\'' + key + '\', this.value); autoGrowTextarea(this)">' + escapeHtml(item.note) + '</textarea>';
+    html += '</div>';
     html += '</div>';
   });
 
