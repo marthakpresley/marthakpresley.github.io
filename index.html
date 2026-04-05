@@ -133,6 +133,72 @@ body {
   color: #fff;
 }
 
+/* NAV GROUPS */
+.nav-group {
+  margin-bottom: 4px;
+}
+.nav-group-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  background: var(--alive-blue);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 9px 12px;
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s ease;
+}
+.nav-group-header:hover {
+  background: #274e78;
+}
+.nav-group-header .nav-chevron {
+  margin-left: auto;
+  font-size: 10px;
+  transition: transform 0.25s ease;
+}
+.nav-group-header.collapsed .nav-chevron {
+  transform: rotate(-90deg);
+}
+.nav-group-body {
+  overflow: hidden;
+  transition: max-height 0.3s ease, opacity 0.25s ease;
+  max-height: 800px;
+  opacity: 1;
+  position: relative;
+  padding-top: 4px;
+}
+.nav-group-body.collapsed {
+  max-height: 0;
+  opacity: 0;
+  padding-top: 0;
+}
+/* Peek effect: show partial top of first sub-nav when collapsed */
+.nav-group.has-subnav .nav-group-body.collapsed {
+  max-height: 34px;
+  opacity: 1;
+  mask-image: linear-gradient(to bottom, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.25) 70%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.25) 70%, transparent 100%);
+  cursor: pointer;
+}
+.nav-group-body .nav-btn {
+  font-size: 12px;
+  padding: 7px 10px 7px 20px;
+  margin-bottom: 3px;
+  border-width: 1px;
+}
+/* Top-level nav items (no sub-nav) */
+.nav-group > .nav-btn.nav-top {
+  margin-bottom: 6px;
+}
+
 /* CENTER CONTENT */
 .center-content {
   flex: 1;
@@ -141,8 +207,6 @@ body {
   min-width: 0;
 }
 .center-inner {
-  max-width: 800px;
-  margin: 0 auto;
   padding: 16px 20px 60px;
 }
 
@@ -181,8 +245,8 @@ body {
 
 /* RIGHT SUMMARY */
 .right-summary {
-  width: 300px;
-  min-width: 300px;
+  width: 450px;
+  min-width: 450px;
   background: #FAFAF8;
   border-left: 1px solid #E0DCD7;
   overflow-y: auto;
@@ -251,8 +315,9 @@ body {
   padding: 8px 10px;
   font-size: 12px;
   font-family: inherit;
-  resize: vertical;
-  min-height: 50px;
+  resize: none;
+  min-height: 36px;
+  overflow: hidden;
   line-height: 1.5;
 }
 .summary-note::placeholder { color: #BBB; }
@@ -303,22 +368,40 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  background: var(--alive-green);
+  background: linear-gradient(180deg, #5fad38 0%, #4a9a2a 100%);
   color: white;
-  border: none;
+  border: 1px solid #3f8524;
   border-radius: 6px;
-  padding: 6px 12px;
-  font-size: 11px;
+  padding: 6px 14px;
+  font-size: 10.5px;
   font-weight: 700;
   cursor: pointer;
   font-family: inherit;
-  margin: 8px 0 4px;
-  transition: all 0.2s;
+  margin: 0;
+  transition: all 0.15s;
   text-transform: uppercase;
   letter-spacing: 0.3px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.18), 0 1px 2px rgba(0,0,0,0.15);
+  text-shadow: 0 1px 1px rgba(0,0,0,0.15);
+  flex-shrink: 0;
+  white-space: nowrap;
 }
-.add-to-summary-btn:hover { background: #4a6d2e; transform: translateY(-1px); }
-.add-to-summary-btn.added { background: #999; cursor: default; }
+.add-to-summary-btn:hover {
+  background: linear-gradient(180deg, #6bbf44 0%, #429224 100%);
+  transform: translateY(-1px);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.22), 0 2px 4px rgba(0,0,0,0.2);
+}
+.add-to-summary-btn:active {
+  transform: translateY(0);
+  background: linear-gradient(180deg, #438a22 0%, #4a9a2a 100%);
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);
+}
+.add-to-summary-btn.added {
+  background: linear-gradient(180deg, #999 0%, #888 100%);
+  border-color: #777;
+  cursor: default;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.12);
+}
 
 /* SECTION STYLES (preserved from original) */
 .section {
@@ -336,6 +419,12 @@ body {
   font-family: Georgia, 'Times New Roman', serif;
   font-size: 18px;
   font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  justify-content: space-between;
+}
+.section-header-left {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -597,8 +686,13 @@ body {
 }
 @media (max-width: 768px) {
   .app-layout { flex-direction: column; }
-  .left-nav { width: 100%; min-width: unset; max-height: 120px; flex-direction: row; overflow-x: auto; overflow-y: hidden; white-space: nowrap; border-right: none; border-bottom: 1px solid #E0DCD7; display: flex; gap: 6px; padding: 8px 12px; }
+  .left-nav { width: 100%; min-width: unset; max-height: 140px; flex-direction: row; overflow-x: auto; overflow-y: hidden; white-space: nowrap; border-right: none; border-bottom: 1px solid #E0DCD7; display: flex; gap: 6px; padding: 8px 12px; flex-wrap: nowrap; align-items: flex-start; }
   .left-nav .nav-btn { min-width: 140px; margin-bottom: 0; white-space: nowrap; }
+  .nav-group { display: inline-flex; flex-direction: column; min-width: 140px; flex-shrink: 0; }
+  .nav-group-body { display: flex; flex-direction: row; gap: 4px; padding-top: 2px; }
+  .nav-group-body .nav-btn { padding: 7px 10px; min-width: auto; }
+  .nav-group.has-subnav .nav-group-body.collapsed { max-height: 18px; }
+  .nav-btn.nav-top { flex-shrink: 0; }
   .right-summary { width: 100%; min-width: unset; max-height: 300px; border-left: none; border-top: 1px solid #E0DCD7; }
   .center-content { flex: 1; }
 }
@@ -624,26 +718,45 @@ body {
 
 <!-- LEFT NAV -->
 <nav class="left-nav">
-  <button class="nav-btn" onclick="scrollToSection('every-patient')"><span class="icon">🔵</span>Every Patient</button>
-  <button class="nav-btn" onclick="scrollToSection('dyspnea')"><span class="icon">🫁</span>Dyspnea</button>
-  <button class="nav-btn" onclick="scrollToSection('edema')"><span class="icon">🦵</span>Edema</button>
-  <button class="nav-btn" onclick="scrollToSection('cough')"><span class="icon">💨</span>Cough</button>
-  <button class="nav-btn" onclick="scrollToSection('chest-pain')"><span class="icon">❤️‍🩹</span>Chest Pain</button>
-  <button class="nav-btn" onclick="scrollToSection('gen-weakness')"><span class="icon">💪</span>Gen. Weakness</button>
-  <button class="nav-btn" onclick="scrollToSection('uni-weakness')"><span class="icon">⚡</span>Unilateral / Stroke</button>
-  <button class="nav-btn" onclick="scrollToSection('ams')"><span class="icon">🧠</span>AMS / Agitation</button>
-  <button class="nav-btn" onclick="scrollToSection('fever')"><span class="icon">🌡️</span>Fever</button>
-  <button class="nav-btn" onclick="scrollToSection('falls')"><span class="icon">⚠️</span>Falls</button>
-  <button class="nav-btn" onclick="scrollToSection('pain')"><span class="icon">🩺</span>Pain</button>
-  <button class="nav-btn" onclick="scrollToSection('constipation')"><span class="icon">🔶</span>Constipation</button>
-  <button class="nav-btn" onclick="scrollToSection('diarrhea')"><span class="icon">🔷</span>Diarrhea</button>
-  <button class="nav-btn" onclick="scrollToSection('nausea')"><span class="icon">🤢</span>Nausea / Vomiting</button>
-  <button class="nav-btn" onclick="scrollToSection('abd-pain')"><span class="icon">🩻</span>Abdominal Pain</button>
-  <button class="nav-btn" onclick="scrollToSection('uti')"><span class="icon">🔬</span>UTI / Suprapubic</button>
-  <button class="nav-btn util" onclick="scrollToSection('documentation')"><span class="icon">📝</span>Documentation</button>
-  <button class="nav-btn util" onclick="scrollToSection('escalation-guide')"><span class="icon">📊</span>Escalation Guide</button>
-  <button class="nav-btn util" onclick="scrollToSection('return-precautions')"><span class="icon">⚡</span>Return Precautions</button>
-  <button class="nav-btn util" onclick="scrollToSection('hospice-checklist')"><span class="icon">✅</span>Hospice Checklist</button>
+
+  <!-- Every Patient — top-level -->
+  <button class="nav-btn nav-top" onclick="scrollToSection('every-patient')"><span class="icon">🔵</span>Every Patient</button>
+
+  <!-- Symptoms — collapsible with sub-nav -->
+  <div class="nav-group has-subnav" id="nav-symptoms">
+    <button class="nav-group-header collapsed" onclick="toggleNavGroup('nav-symptoms')"><span class="icon">🩺</span> Symptoms <span class="nav-chevron">&#9660;</span></button>
+    <div class="nav-group-body collapsed">
+      <button class="nav-btn" onclick="scrollToSection('dyspnea')"><span class="icon">🫁</span>Dyspnea</button>
+      <button class="nav-btn" onclick="scrollToSection('edema')"><span class="icon">🦵</span>Edema</button>
+      <button class="nav-btn" onclick="scrollToSection('cough')"><span class="icon">💨</span>Cough</button>
+      <button class="nav-btn" onclick="scrollToSection('chest-pain')"><span class="icon">❤️‍🩹</span>Chest Pain</button>
+      <button class="nav-btn" onclick="scrollToSection('gen-weakness')"><span class="icon">💪</span>Gen. Weakness</button>
+      <button class="nav-btn" onclick="scrollToSection('uni-weakness')"><span class="icon">⚡</span>Unilateral / Stroke</button>
+      <button class="nav-btn" onclick="scrollToSection('ams')"><span class="icon">🧠</span>AMS / Agitation</button>
+      <button class="nav-btn" onclick="scrollToSection('fever')"><span class="icon">🌡️</span>Fever</button>
+      <button class="nav-btn" onclick="scrollToSection('falls')"><span class="icon">⚠️</span>Falls</button>
+      <button class="nav-btn" onclick="scrollToSection('pain')"><span class="icon">🩺</span>Pain</button>
+      <button class="nav-btn" onclick="scrollToSection('constipation')"><span class="icon">🔶</span>Constipation</button>
+      <button class="nav-btn" onclick="scrollToSection('diarrhea')"><span class="icon">🔷</span>Diarrhea</button>
+      <button class="nav-btn" onclick="scrollToSection('nausea')"><span class="icon">🤢</span>Nausea / Vomiting</button>
+      <button class="nav-btn" onclick="scrollToSection('abd-pain')"><span class="icon">🩻</span>Abdominal Pain</button>
+      <button class="nav-btn" onclick="scrollToSection('uti')"><span class="icon">🔬</span>UTI / Suprapubic</button>
+    </div>
+  </div>
+
+  <!-- Disposition — top-level -->
+  <button class="nav-btn nav-top" onclick="scrollToSection('documentation')"><span class="icon">📝</span>Disposition</button>
+
+  <!-- Resources — collapsible with sub-nav -->
+  <div class="nav-group has-subnav" id="nav-resources">
+    <button class="nav-group-header collapsed" onclick="toggleNavGroup('nav-resources')" style="background:var(--alive-teal)"><span class="icon">📚</span> Resources <span class="nav-chevron">&#9660;</span></button>
+    <div class="nav-group-body collapsed">
+      <button class="nav-btn util" onclick="scrollToSection('escalation-guide')"><span class="icon">📊</span>Escalation Guide</button>
+      <button class="nav-btn util" onclick="scrollToSection('return-precautions')"><span class="icon">⚡</span>Return Precautions</button>
+      <button class="nav-btn util" onclick="scrollToSection('hospice-checklist')"><span class="icon">✅</span>Hospice Checklist</button>
+    </div>
+  </div>
+
 </nav>
 
 <!-- CENTER CONTENT -->
@@ -659,10 +772,10 @@ body {
 </div>
 
 <div class="section every-patient" id="every-patient">
-  <div class="section-header"><span class="icon">🔵</span> Part 1: Initial Assessment — Every Patient, Every Time</div>
+  <div class="section-header"><span class="section-header-left"><span class="icon">🔵</span> Part 1: Initial Assessment — Every Patient, Every Time</span><button class="add-to-summary-btn" data-summary-btn="every-patient" onclick="addToSummary('every-patient', 'General')">+ Add To Summary</button></div>
   <div class="section-body">
 
-    
+
     <div class="script-box">
       <div class="script-label phone">📞 Opening Script</div>
       <p>"Hello, this is [Name], the triage nurse at [Practice Name]. I understand you're calling about [chief complaint]. Before we discuss your symptoms, I'd like to ask a few questions to make sure we provide the best care for you."</p>
@@ -756,9 +869,8 @@ body {
 <!-- DYSPNEA -->
 <!-- ============================================================ -->
 <div class="section" id="dyspnea">
-  <div class="section-header"><span class="icon">🫁</span> Dyspnea (Shortness of Breath)</div>
+  <div class="section-header"><span class="section-header-left"><span class="icon">🫁</span> Dyspnea (Shortness of Breath)</span><button class="add-to-summary-btn" data-summary-btn="dyspnea" onclick="addToSummary('dyspnea', 'Dyspnea (Shortness of Breath)')">+ Add To Summary</button></div>
   <div class="section-body">
-    <button class="add-to-summary-btn" data-summary-btn="dyspnea" onclick="addToSummary('dyspnea', 'Dyspnea (Shortness of Breath)')">+ Add To Summary</button>
 <div class="flow-group">
       <div class="flow-group-title">Triage Assessment (Complete BEFORE branching)</div>
       <ul class="question-list">
@@ -846,9 +958,8 @@ body {
 <!-- EDEMA -->
 <!-- ============================================================ -->
 <div class="section" id="edema">
-  <div class="section-header"><span class="icon">🦵</span> Edema</div>
+  <div class="section-header"><span class="section-header-left"><span class="icon">🦵</span> Edema</span><button class="add-to-summary-btn" data-summary-btn="edema" onclick="addToSummary('edema', 'Edema')">+ Add To Summary</button></div>
   <div class="section-body">
-    <button class="add-to-summary-btn" data-summary-btn="edema" onclick="addToSummary('edema', 'Edema')">+ Add To Summary</button>
 <div class="flow-group">
       <div class="flow-group-title">Triage Questions</div>
       <ul class="question-list">
@@ -971,9 +1082,8 @@ body {
 <!-- COUGH -->
 <!-- ============================================================ -->
 <div class="section" id="cough">
-  <div class="section-header"><span class="icon">💨</span> Cough</div>
+  <div class="section-header"><span class="section-header-left"><span class="icon">💨</span> Cough</span><button class="add-to-summary-btn" data-summary-btn="cough" onclick="addToSummary('cough', 'Cough')">+ Add To Summary</button></div>
   <div class="section-body">
-    <button class="add-to-summary-btn" data-summary-btn="cough" onclick="addToSummary('cough', 'Cough')">+ Add To Summary</button>
 <div class="flow-group">
       <div class="flow-group-title">Triage Questions</div>
       <ul class="question-list">
@@ -1038,9 +1148,8 @@ body {
 <!-- CHEST PAIN -->
 <!-- ============================================================ -->
 <div class="section" id="chest-pain">
-  <div class="section-header"><span class="icon">❤️‍🩹</span> Chest Pain</div>
+  <div class="section-header"><span class="section-header-left"><span class="icon">❤️‍🩹</span> Chest Pain</span><button class="add-to-summary-btn" data-summary-btn="chest-pain" onclick="addToSummary('chest-pain', 'Chest Pain')">+ Add To Summary</button></div>
   <div class="section-body">
-    <button class="add-to-summary-btn" data-summary-btn="chest-pain" onclick="addToSummary('chest-pain', 'Chest Pain')">+ Add To Summary</button>
 <div class="flow-group">
       <div class="flow-group-title">Detailed Assessment</div>
       <ul class="question-list">
@@ -1104,9 +1213,8 @@ body {
 <!-- GENERALIZED WEAKNESS -->
 <!-- ============================================================ -->
 <div class="section" id="gen-weakness">
-  <div class="section-header"><span class="icon">💪</span> Generalized Weakness</div>
+  <div class="section-header"><span class="section-header-left"><span class="icon">💪</span> Generalized Weakness</span><button class="add-to-summary-btn" data-summary-btn="gen-weakness" onclick="addToSummary('gen-weakness', 'Gen. Weakness / Fatigue')">+ Add To Summary</button></div>
   <div class="section-body">
-    <button class="add-to-summary-btn" data-summary-btn="gen-weakness" onclick="addToSummary('gen-weakness', 'Gen. Weakness / Fatigue')">+ Add To Summary</button>
 <div class="alert red"><span class="alert-icon">🚨</span> Change in mental status? → <strong>Notify NP URGENTLY</strong></div>
 
     <div class="flow-group">
@@ -1181,9 +1289,8 @@ body {
 <!-- UNILATERAL WEAKNESS -->
 <!-- ============================================================ -->
 <div class="section" id="uni-weakness">
-  <div class="section-header"><span class="icon">⚡</span> Unilateral Weakness (Concern for Stroke)</div>
+  <div class="section-header"><span class="section-header-left"><span class="icon">⚡</span> Unilateral Weakness (Concern for Stroke)</span><button class="add-to-summary-btn" data-summary-btn="uni-weakness" onclick="addToSummary('uni-weakness', 'Unilateral Weakness / Stroke')">+ Add To Summary</button></div>
   <div class="section-body">
-    <button class="add-to-summary-btn" data-summary-btn="uni-weakness" onclick="addToSummary('uni-weakness', 'Unilateral Weakness / Stroke')">+ Add To Summary</button>
 <div class="alert red"><span class="alert-icon">⚠️</span> <strong>NOTE:</strong> Call 911 regardless of goals of care if acute onset &lt;24 hours. Hospice transition only appropriate for known stroke history or symptoms &gt;24h and stable.</div>
 
     <div class="flow-group">
@@ -1239,9 +1346,8 @@ body {
 <!-- AMS / AGITATION -->
 <!-- ============================================================ -->
 <div class="section" id="ams">
-  <div class="section-header"><span class="icon">🧠</span> Agitation, Altered Mental Status, or Abnormal Behavior</div>
+  <div class="section-header"><span class="section-header-left"><span class="icon">🧠</span> Agitation, Altered Mental Status, or Abnormal Behavior</span><button class="add-to-summary-btn" data-summary-btn="ams" onclick="addToSummary('ams', 'AMS / Agitation')">+ Add To Summary</button></div>
   <div class="section-body">
-    <button class="add-to-summary-btn" data-summary-btn="ams" onclick="addToSummary('ams', 'AMS / Agitation')">+ Add To Summary</button>
 
 
     <div class="alert red"><span class="alert-icon">🚨</span> <strong>Is the patient and family safe?</strong> If not → <strong>Call 911</strong></div>
@@ -1364,9 +1470,8 @@ body {
 <!-- FEVER -->
 <!-- ============================================================ -->
 <div class="section" id="fever">
-  <div class="section-header"><span class="icon">🌡️</span> Fever</div>
+  <div class="section-header"><span class="section-header-left"><span class="icon">🌡️</span> Fever</span><button class="add-to-summary-btn" data-summary-btn="fever" onclick="addToSummary('fever', 'Fever')">+ Add To Summary</button></div>
   <div class="section-body">
-    <button class="add-to-summary-btn" data-summary-btn="fever" onclick="addToSummary('fever', 'Fever')">+ Add To Summary</button>
 <div class="alert red">
       <span class="alert-icon">🚨</span>
       <div><strong>IMMEDIATE ESCALATION if any:</strong><br>
@@ -1433,9 +1538,8 @@ body {
 <!-- FALLS -->
 <!-- ============================================================ -->
 <div class="section" id="falls">
-  <div class="section-header"><span class="icon">⚠️</span> Falls</div>
+  <div class="section-header"><span class="section-header-left"><span class="icon">⚠️</span> Falls</span><button class="add-to-summary-btn" data-summary-btn="falls" onclick="addToSummary('falls', 'Falls')">+ Add To Summary</button></div>
   <div class="section-body">
-    <button class="add-to-summary-btn" data-summary-btn="falls" onclick="addToSummary('falls', 'Falls')">+ Add To Summary</button>
 <div class="alert green"><span class="alert-icon">📋</span> Assess for injury — <strong>non-urgent unless concern for fracture</strong>.</div>
     <div class="alert orange"><span class="alert-icon">🦴</span> Concern for break → <strong>order home X-ray or send to ED, then notify NP</strong>.</div>
     <div class="alert orange"><span class="alert-icon">💊</span> On anticoagulation? → <strong>Notify NP URGENTLY</strong></div>
@@ -1560,9 +1664,8 @@ body {
 <!-- PAIN -->
 <!-- ============================================================ -->
 <div class="section" id="pain">
-  <div class="section-header"><span class="icon">🩺</span> Pain</div>
+  <div class="section-header"><span class="section-header-left"><span class="icon">🩺</span> Pain</span><button class="add-to-summary-btn" data-summary-btn="pain" onclick="addToSummary('pain', 'Pain')">+ Add To Summary</button></div>
   <div class="section-body">
-    <button class="add-to-summary-btn" data-summary-btn="pain" onclick="addToSummary('pain', 'Pain')">+ Add To Summary</button>
 <div class="flow-group">
       <div class="flow-group-title">Assessment</div>
       <ul class="question-list">
@@ -1616,9 +1719,8 @@ body {
 <!-- CONSTIPATION -->
 <!-- ============================================================ -->
 <div class="section" id="constipation">
-  <div class="section-header"><span class="icon">🔶</span> Constipation</div>
+  <div class="section-header"><span class="section-header-left"><span class="icon">🔶</span> Constipation</span><button class="add-to-summary-btn" data-summary-btn="constipation" onclick="addToSummary('constipation', 'Constipation')">+ Add To Summary</button></div>
   <div class="section-body">
-    <button class="add-to-summary-btn" data-summary-btn="constipation" onclick="addToSummary('constipation', 'Constipation')">+ Add To Summary</button>
 <div class="flow-group">
       <div class="flow-group-title">Triage Questions</div>
       <ul class="question-list">
@@ -1692,9 +1794,8 @@ body {
 <!-- DIARRHEA -->
 <!-- ============================================================ -->
 <div class="section" id="diarrhea">
-  <div class="section-header"><span class="icon">🔷</span> Diarrhea</div>
+  <div class="section-header"><span class="section-header-left"><span class="icon">🔷</span> Diarrhea</span><button class="add-to-summary-btn" data-summary-btn="diarrhea" onclick="addToSummary('diarrhea', 'Diarrhea')">+ Add To Summary</button></div>
   <div class="section-body">
-    <button class="add-to-summary-btn" data-summary-btn="diarrhea" onclick="addToSummary('diarrhea', 'Diarrhea')">+ Add To Summary</button>
 <div class="flow-group">
       <div class="flow-group-title">Triage Questions</div>
       <ul class="question-list">
@@ -1782,9 +1883,8 @@ body {
 <!-- NAUSEA / VOMITING -->
 <!-- ============================================================ -->
 <div class="section" id="nausea">
-  <div class="section-header"><span class="icon">🤢</span> Nausea / Vomiting</div>
+  <div class="section-header"><span class="section-header-left"><span class="icon">🤢</span> Nausea / Vomiting</span><button class="add-to-summary-btn" data-summary-btn="nausea" onclick="addToSummary('nausea', 'Nausea / Vomiting')">+ Add To Summary</button></div>
   <div class="section-body">
-    <button class="add-to-summary-btn" data-summary-btn="nausea" onclick="addToSummary('nausea', 'Nausea / Vomiting')">+ Add To Summary</button>
 <div class="flow-group">
       <div class="flow-group-title">Triage Questions</div>
       <ul class="question-list">
@@ -1877,9 +1977,8 @@ body {
 <!-- ABDOMINAL PAIN -->
 <!-- ============================================================ -->
 <div class="section" id="abd-pain">
-  <div class="section-header"><span class="icon">🩻</span> Abdominal Pain</div>
+  <div class="section-header"><span class="section-header-left"><span class="icon">🩻</span> Abdominal Pain</span><button class="add-to-summary-btn" data-summary-btn="abd-pain" onclick="addToSummary('abd-pain', 'Abdominal Pain')">+ Add To Summary</button></div>
   <div class="section-body">
-    <button class="add-to-summary-btn" data-summary-btn="abd-pain" onclick="addToSummary('abd-pain', 'Abdominal Pain')">+ Add To Summary</button>
 
     <div class="flow-group">
       <div class="flow-group-title">Initial Questions</div>
@@ -1966,9 +2065,8 @@ body {
 <!-- UTI -->
 <!-- ============================================================ -->
 <div class="section" id="uti">
-  <div class="section-header"><span class="icon">🔬</span> UTI / Suprapubic Pain</div>
+  <div class="section-header"><span class="section-header-left"><span class="icon">🔬</span> UTI / Suprapubic Pain</span><button class="add-to-summary-btn" data-summary-btn="uti" onclick="addToSummary('uti', 'UTI / Suprapubic Pain')">+ Add To Summary</button></div>
   <div class="section-body">
-    <button class="add-to-summary-btn" data-summary-btn="uti" onclick="addToSummary('uti', 'UTI / Suprapubic Pain')">+ Add To Summary</button>
 
     <div class="flow-group">
       <div class="flow-group-title">Assessment</div>
@@ -2038,7 +2136,7 @@ body {
 <!-- PART 3: DOCUMENTATION -->
 <!-- ============================================================ -->
 <div class="section" id="documentation">
-  <div class="section-header teal-header"><span class="icon">📝</span> Part 3: Documentation Requirements</div>
+  <div class="section-header teal-header"><span class="section-header-left"><span class="icon">📝</span> Part 3: Documentation Requirements</span><button class="add-to-summary-btn" data-summary-btn="documentation" onclick="addToSummary('documentation', 'Disposition')">+ Add To Summary</button></div>
   <div class="section-body">
     <p style="font-size:13px;color:var(--text-light);margin-bottom:12px"><strong>Document the following for every call:</strong></p>
     <ul class="checklist">
@@ -2323,18 +2421,65 @@ function toggleBranch(header) {
   chevron.classList.toggle('open');
 }
 
+function toggleNavGroup(groupId) {
+  var group = document.getElementById(groupId);
+  var header = group.querySelector('.nav-group-header');
+  var body = group.querySelector('.nav-group-body');
+  header.classList.toggle('collapsed');
+  body.classList.toggle('collapsed');
+}
+
+// Clicking the peeked area expands the collapsed nav group
+document.querySelectorAll('.nav-group.has-subnav .nav-group-body').forEach(function(body) {
+  body.addEventListener('click', function(e) {
+    if (body.classList.contains('collapsed')) {
+      e.stopPropagation();
+      var group = body.closest('.nav-group');
+      var header = group.querySelector('.nav-group-header');
+      body.classList.remove('collapsed');
+      header.classList.remove('collapsed');
+    }
+  });
+});
+
 function scrollToSection(id) {
   var container = document.getElementById('center-content');
   var el = document.getElementById(id);
   if (el && container) {
     var containerRect = container.getBoundingClientRect();
     var elRect = el.getBoundingClientRect();
-    var scrollTop = container.scrollTop + elRect.top - containerRect.top - 10;
-    container.scrollTo({ top: scrollTop, behavior: 'smooth' });
+    var targetTop = container.scrollTop + elRect.top - containerRect.top - 10;
+    var startTop = container.scrollTop;
+    var distance = targetTop - startTop;
+    var duration = 100;
+    var startTime = null;
+    function step(timestamp) {
+      if (!startTime) startTime = timestamp;
+      var progress = Math.min((timestamp - startTime) / duration, 1);
+      var ease = progress < 0.5 ? 2 * progress * progress : -1 + (4 - 2 * progress) * progress;
+      container.scrollTop = startTop + distance * ease;
+      if (progress < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
     el.style.transition = 'box-shadow 0.3s ease';
     el.style.boxShadow = '0 0 0 3px #326195, 0 4px 20px rgba(50,97,149,0.3)';
     setTimeout(function() { el.style.boxShadow = ''; }, 2000);
   }
+  // Expand parent nav group if the clicked sub-nav is inside a collapsed group
+  var allGroups = document.querySelectorAll('.nav-group');
+  allGroups.forEach(function(group) {
+    var body = group.querySelector('.nav-group-body');
+    var header = group.querySelector('.nav-group-header');
+    var btnsInGroup = body.querySelectorAll('.nav-btn');
+    btnsInGroup.forEach(function(btn) {
+      if (btn.getAttribute('onclick') && btn.getAttribute('onclick').indexOf(id) !== -1) {
+        if (body.classList.contains('collapsed')) {
+          body.classList.remove('collapsed');
+          header.classList.remove('collapsed');
+        }
+      }
+    });
+  });
   var btns = document.querySelectorAll('.left-nav .nav-btn');
   btns.forEach(function(btn) { btn.classList.remove('active'); });
   btns.forEach(function(btn) {
@@ -2371,6 +2516,11 @@ function removeFromSummary(sectionId) {
   saveToStorage();
 }
 
+function autoGrowTextarea(el) {
+  el.style.height = 'auto';
+  el.style.height = el.scrollHeight + 'px';
+}
+
 function updateNote(sectionId, value) {
   if (summaryItems[sectionId]) {
     summaryItems[sectionId].note = value;
@@ -2397,7 +2547,7 @@ function renderSummary() {
     html += '<span class="summary-item-title">' + escapeHtml(item.label) + '</span>';
     html += '<button class="summary-remove" onclick="removeFromSummary(\'' + key + '\')" title="Remove">\u2715</button>';
     html += '</div>';
-    html += '<textarea class="summary-note" placeholder="Type notes here..." oninput="updateNote(\'' + key + '\', this.value)">' + escapeHtml(item.note) + '</textarea>';
+    html += '<textarea class="summary-note" placeholder="Type notes here..." oninput="updateNote(\'' + key + '\', this.value); autoGrowTextarea(this)">' + escapeHtml(item.note) + '</textarea>';
     html += '</div>';
   });
 
