@@ -805,6 +805,9 @@ body {
 <!-- LEFT NAV -->
 <nav class="left-nav">
 
+  <!-- How To button -->
+  <button class="nav-btn nav-top util" onclick="showHowToModal()"><span class="icon">❓</span>How To</button>
+
   <!-- Every Patient — top-level -->
   <button class="nav-btn nav-top nav-blue" onclick="scrollToSection('every-patient')"><span class="icon">🔵</span>Every Patient</button>
 
@@ -2418,7 +2421,31 @@ function showWelcomeModal() {
       'Never use this tool on a public device or any device that does not have sufficient security safeguards in place (e.g. use only on a company-approved device).' +
     '</div>' +
     '<div class="modal-actions">' +
-      '<button class="modal-btn-primary" onclick="hideModal()">I Understand</button>' +
+      '<button class="modal-btn-primary" onclick="hideModal(); showHowToModal()">I Understand</button>' +
+    '</div>'
+  );
+}
+
+// How To modal
+function showHowToModal() {
+  showModal(
+    '<h3>How To Use This Tool</h3>' +
+    '<div class="modal-info">' +
+      '<strong>Step 1: Navigate & Review</strong><br>' +
+      'Use the navigation panel on the left to browse symptom categories and clinical references. Click any item to scroll to that section.' +
+    '</div>' +
+    '<div class="modal-info" style="margin-top: 10px;">' +
+      '<strong>Step 2: Build Your Summary</strong><br>' +
+      'As you work through the call, click the <strong>"+ Add To Summary"</strong> button at the top of any section to add it to the Summary panel on the right. ' +
+      'You can add notes to each item using the text area provided.' +
+    '</div>' +
+    '<div class="modal-info" style="margin-top: 10px;">' +
+      '<strong>Step 3: Copy & Share</strong><br>' +
+      'When you\'re ready, click the <strong>"📋 Copy to Clipboard"</strong> button at the bottom of the Summary panel. ' +
+      'This copies a formatted summary of all your selected items and notes, which you can then paste into your documentation tool.' +
+    '</div>' +
+    '<div class="modal-actions">' +
+      '<button class="modal-btn-primary" onclick="hideModal()">Got It</button>' +
     '</div>'
   );
 }
