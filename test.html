@@ -3625,15 +3625,44 @@ function toggleNavGroup(groupId) {
   body.classList.toggle('collapsed');
 }
 
+var _chiefComplaintSectionTextCache = null;
+function _getSectionIdFromBtn(btn) {
+  var onclick = btn.getAttribute('onclick') || '';
+  var m = onclick.match(/scrollToSection\(['"]([^'"]+)['"]\)/);
+  return m ? m[1] : null;
+}
+function _buildChiefComplaintSectionTextCache() {
+  var cache = {};
+  var group = document.getElementById('nav-symptoms');
+  if (!group) return cache;
+  group.querySelectorAll('.nav-group-body .nav-btn').forEach(function(btn) {
+    var id = _getSectionIdFromBtn(btn);
+    if (!id) return;
+    var section = document.getElementById(id);
+    cache[id] = section ? (section.textContent || '').toLowerCase().replace(/\s+/g, ' ') : '';
+  });
+  return cache;
+}
+
 function filterChiefComplaints(query) {
   var group = document.getElementById('nav-symptoms');
   if (!group) return;
   var wrap = group.querySelector('.nav-search-wrap');
   var q = (query || '').trim().toLowerCase();
   if (wrap) wrap.classList.toggle('has-value', q.length > 0);
+  if (q.length > 0 && !_chiefComplaintSectionTextCache) {
+    _chiefComplaintSectionTextCache = _buildChiefComplaintSectionTextCache();
+  }
   group.querySelectorAll('.nav-group-body .nav-btn').forEach(function(btn) {
+    if (q.length === 0) { btn.classList.remove('nav-hidden'); return; }
     var label = btn.textContent.trim().toLowerCase();
-    btn.classList.toggle('nav-hidden', q.length > 0 && label.indexOf(q) === -1);
+    var matches = label.indexOf(q) !== -1;
+    if (!matches) {
+      var id = _getSectionIdFromBtn(btn);
+      var sectionText = id && _chiefComplaintSectionTextCache ? _chiefComplaintSectionTextCache[id] : '';
+      matches = sectionText && sectionText.indexOf(q) !== -1;
+    }
+    btn.classList.toggle('nav-hidden', !matches);
   });
   if (q.length > 0) {
     var header = group.querySelector('.nav-group-header');
