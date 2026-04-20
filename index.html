@@ -198,7 +198,7 @@ body {
 .nav-group-body {
   overflow: hidden;
   transition: max-height 0.3s ease, opacity 0.25s ease;
-  max-height: 800px;
+  max-height: 1400px;
   opacity: 1;
   position: relative;
   padding-top: 4px;
@@ -223,6 +223,42 @@ body {
   margin-left: 12px;
   border-width: 1px;
 }
+.nav-search-wrap {
+  position: relative;
+  margin: 2px 12px 6px 12px;
+}
+.nav-search {
+  width: 100%;
+  box-sizing: border-box;
+  font-size: 12px;
+  padding: 6px 24px 6px 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  background: #fff;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.nav-search:focus {
+  border-color: var(--alive-teal, #0694a2);
+  box-shadow: 0 0 0 2px rgba(6, 148, 162, 0.15);
+}
+.nav-search-clear {
+  position: absolute;
+  top: 50%;
+  right: 4px;
+  transform: translateY(-50%);
+  display: none;
+  background: transparent;
+  border: none;
+  font-size: 16px;
+  line-height: 1;
+  padding: 2px 6px;
+  cursor: pointer;
+  color: #64748b;
+}
+.nav-search-clear:hover { color: #0f172a; }
+.nav-search-wrap.has-value .nav-search-clear { display: inline-block; }
+.nav-btn.nav-hidden { display: none !important; }
 /* Top-level nav items (no sub-nav) */
 .nav-group > .nav-btn.nav-top {
   margin-bottom: 6px;
@@ -777,6 +813,8 @@ body {
   .nav-group { display: inline-flex; flex-direction: column; min-width: 140px; flex-shrink: 0; }
   .nav-group-body { display: flex; flex-direction: row; gap: 4px; padding-top: 2px; }
   .nav-group-body .nav-btn { padding: 7px 10px; min-width: auto; }
+  .nav-search-wrap { margin: 0; flex-shrink: 0; }
+  .nav-search { width: 160px; }
   .nav-group.has-subnav .nav-group-body.collapsed { max-height: 18px; }
   .nav-btn.nav-top { flex-shrink: 0; }
   .right-summary { width: 100%; min-width: unset; max-height: 300px; border-left: none; border-top: 1px solid #E0DCD7; }
@@ -813,23 +851,38 @@ body {
 
   <!-- Symptoms — collapsible with sub-nav -->
   <div class="nav-group has-subnav" id="nav-symptoms">
-    <button class="nav-group-header collapsed" onclick="toggleNavGroup('nav-symptoms')"><span class="icon">🩺</span> Symptoms <span class="nav-chevron">&#9660;</span></button>
+    <button class="nav-group-header collapsed" onclick="toggleNavGroup('nav-symptoms')"><span class="icon">🩺</span> Chief Complaint <span class="nav-chevron">&#9660;</span></button>
     <div class="nav-group-body collapsed">
+      <div class="nav-search-wrap">
+        <input type="text" class="nav-search" id="chief-complaint-search" placeholder="Filter chief complaints…" oninput="filterChiefComplaints(this.value)" onclick="event.stopPropagation()" aria-label="Filter chief complaints">
+        <button type="button" class="nav-search-clear" id="chief-complaint-search-clear" onclick="clearChiefComplaintsFilter(event)" aria-label="Clear filter">&times;</button>
+      </div>
       <button class="nav-btn" onclick="scrollToSection('dyspnea')"><span class="icon">🫁</span>Dyspnea</button>
       <button class="nav-btn" onclick="scrollToSection('edema')"><span class="icon">🦵</span>Edema</button>
       <button class="nav-btn" onclick="scrollToSection('cough')"><span class="icon">💨</span>Cough</button>
       <button class="nav-btn" onclick="scrollToSection('chest-pain')"><span class="icon">❤️‍🩹</span>Chest Pain</button>
+      <button class="nav-btn" onclick="scrollToSection('arrhythmia')"><span class="icon">💓</span>Arrhythmia</button>
+      <button class="nav-btn" onclick="scrollToSection('hypertension')"><span class="icon">⬆️</span>Hypertension</button>
+      <button class="nav-btn" onclick="scrollToSection('hypotension')"><span class="icon">⬇️</span>Hypotension</button>
       <button class="nav-btn" onclick="scrollToSection('gen-weakness')"><span class="icon">💪</span>Gen. Weakness</button>
       <button class="nav-btn" onclick="scrollToSection('uni-weakness')"><span class="icon">⚡</span>Unilateral / Stroke</button>
       <button class="nav-btn" onclick="scrollToSection('ams')"><span class="icon">🧠</span>AMS / Agitation</button>
+      <button class="nav-btn" onclick="scrollToSection('hyperglycemia')"><span class="icon">🍬</span>Hyperglycemia</button>
+      <button class="nav-btn" onclick="scrollToSection('hypoglycemia')"><span class="icon">🍯</span>Hypoglycemia</button>
       <button class="nav-btn" onclick="scrollToSection('fever')"><span class="icon">🌡️</span>Fever</button>
       <button class="nav-btn" onclick="scrollToSection('falls')"><span class="icon">⚠️</span>Falls</button>
       <button class="nav-btn" onclick="scrollToSection('pain')"><span class="icon">🩺</span>Pain</button>
+      <button class="nav-btn" onclick="scrollToSection('abd-pain')"><span class="icon">🩻</span>Abdominal Pain</button>
       <button class="nav-btn" onclick="scrollToSection('constipation')"><span class="icon">🔶</span>Constipation</button>
       <button class="nav-btn" onclick="scrollToSection('diarrhea')"><span class="icon">🔷</span>Diarrhea</button>
       <button class="nav-btn" onclick="scrollToSection('nausea')"><span class="icon">🤢</span>Nausea / Vomiting</button>
-      <button class="nav-btn" onclick="scrollToSection('abd-pain')"><span class="icon">🩻</span>Abdominal Pain</button>
       <button class="nav-btn" onclick="scrollToSection('uti')"><span class="icon">🔬</span>UTI / Suprapubic</button>
+      <button class="nav-btn" onclick="scrollToSection('ua-alerts')"><span class="icon">🧫</span>UA Critical Alerts</button>
+      <button class="nav-btn" onclick="scrollToSection('cmp-alerts')"><span class="icon">⚗️</span>CMP / Electrolytes</button>
+      <button class="nav-btn" onclick="scrollToSection('inr-alerts')"><span class="icon">💊</span>Elevated INR</button>
+      <button class="nav-btn" onclick="scrollToSection('anemia')"><span class="icon">🩸</span>Anemia (Hgb)</button>
+      <button class="nav-btn" onclick="scrollToSection('thrombocytopenia')"><span class="icon">💧</span>Thrombocytopenia</button>
+      <button class="nav-btn" onclick="scrollToSection('neutropenia')"><span class="icon">🛡️</span>Neutropenia</button>
     </div>
   </div>
 
@@ -1717,8 +1770,8 @@ body {
         <li>New unilateral weakness? <span class="xref" onclick="scrollToSection('uni-weakness')">→ Unilateral Weakness</span></li>
         <li><strong>Blood pressure:</strong></li>
       </ul>
-      <div class="alert red"><span class="alert-icon">📉</span> If low → drink water, put feet up, assess meds, consider holding BP meds.</div>
-      <div class="alert orange"><span class="alert-icon">📈</span> If high → notify NP urgently with list of medications in the home.</div>
+      <div class="alert red"><span class="alert-icon">📉</span> If low → drink water, put feet up, assess meds, consider holding BP meds. <span class="xref" onclick="scrollToSection('hypotension')">→ Hypotension</span></div>
+      <div class="alert orange"><span class="alert-icon">📈</span> If high → notify NP urgently with list of medications in the home. <span class="xref" onclick="scrollToSection('hypertension')">→ Hypertension</span></div>
       <ul class="question-list">
         <li>Fever? <span class="xref" onclick="scrollToSection('fever')">→ Fever</span></li>
         <li>Chest pain? <span class="xref" onclick="scrollToSection('chest-pain')">→ Chest Pain</span></li>
@@ -2222,25 +2275,1038 @@ body {
 
 
 <!-- ============================================================ -->
+<!-- VITALS & CARDIAC: ARRHYTHMIA -->
+<!-- ============================================================ -->
+<div class="section" id="arrhythmia">
+  <div class="section-header" style="background:linear-gradient(135deg,var(--alive-magenta),#7B1F57)"><span class="section-header-left"><span class="icon">💓</span> Arrhythmia</span><button class="add-to-summary-btn" data-summary-btn="arrhythmia" onclick="addToSummary('arrhythmia', 'Arrhythmia')">+ Add To Summary</button></div>
+  <div class="section-body">
+
+    <div class="flow-group">
+      <div class="flow-group-title">Immediate RN Assessment</div>
+      <ul class="question-list">
+        <li>Instruct patient/caregiver to check pulse for 1 full minute and report rate and regularity</li>
+        <li>Ask patient to sit or lie down immediately if experiencing palpitations or dizziness</li>
+        <li>If patient has home BP monitor, obtain blood pressure reading</li>
+        <li>Assess for associated symptoms: chest pain <span class="xref" onclick="scrollToSection('chest-pain')">→ Chest Pain</span>, shortness of breath <span class="xref" onclick="scrollToSection('dyspnea')">→ Dyspnea</span>, dizziness, weakness</li>
+        <li>Patient's baseline heart rate if known</li>
+        <li>Current cardiac medications and last doses taken</li>
+        <li>Anticoagulation status (warfarin, apixaban, rivaroxaban)</li>
+      </ul>
+    </div>
+
+    <div class="divider"></div>
+    <div class="flow-group"><div class="flow-group-title">Disposition &amp; Management</div></div>
+
+    <div class="branch red-branch">
+      <div class="branch-header" onclick="toggleBranch(this)">🚨 CALL 911 IF (and patient/family desires aggressive intervention) <span class="chevron">▶</span></div>
+      <div class="branch-body"><ul class="question-list">
+        <li>New onset chest pain with dyspnea, diaphoresis, or altered mental status <span class="xref" onclick="scrollToSection('ams')">→ AMS</span></li>
+        <li>Syncope or near-syncope with ongoing symptoms</li>
+        <li>HR &lt;40 or &gt;150 bpm with hemodynamic instability (hypotension, AMS, severe dyspnea)</li>
+        <li>Patient/family reports "feels like dying" or severe distress</li>
+      </ul></div>
+    </div>
+    <div class="branch purple-branch">
+      <div class="branch-header" onclick="toggleBranch(this)">🏠 Hospice Transition Alternative <span class="chevron">▶</span></div>
+      <div class="branch-body"><div class="script-box"><div class="script-label hospice-alt">🟣 Script</div><p>"If your goal is comfort at home, hospice can manage rate-related symptoms with oxygen and medications. Many arrhythmias in elderly patients can be kept comfortable without going to the hospital. Would you like me to discuss this with the doctor?"</p></div>
+      <ul class="question-list">
+        <li>Patient enrolled in hospice or has documented comfort-focused goals</li>
+        <li>Symptoms manageable with comfort medications (oxygen, morphine for dyspnea)</li>
+        <li>Family/caregiver comfortable with symptom management at current location</li>
+        <li>Hospice nurse available for urgent home visit</li>
+      </ul></div>
+    </div>
+    <div class="branch blue-branch">
+      <div class="branch-header" onclick="toggleBranch(this)">📞 Escalate to Provider IF <span class="chevron">▶</span></div>
+      <div class="branch-body"><ul class="question-list">
+        <li>New irregular heartbeat with mild symptoms</li>
+        <li>HR 40–50 or 120–150 without severe symptoms</li>
+        <li>Palpitations causing anxiety but hemodynamically stable</li>
+        <li>Patient on anticoagulation with new arrhythmia</li>
+        <li>Uncertainty about goals of care</li>
+      </ul></div>
+    </div>
+    <div class="branch green-branch">
+      <div class="branch-header" onclick="toggleBranch(this)">☎ RN Telephone Management — Home Instructions <span class="chevron">▶</span></div>
+      <div class="branch-body"><div class="script-box"><div class="script-label phone">📞 Patient/Caregiver Instructions (Stable Patients)</div><ul>
+        <li>"Rest in a comfortable position — sitting upright or semi-recumbent"</li>
+        <li>"Avoid caffeine, alcohol, and stimulants"</li>
+        <li>"Stay hydrated with water or electrolyte drinks"</li>
+        <li>"Check your heart rate every 15–30 minutes and report changes"</li>
+        <li>"Keep a list of your current medications ready for the provider"</li>
+        <li>"If you are on a blood thinner, avoid activities with fall risk"</li>
+        <li>"Call back immediately if symptoms worsen or new chest pain develops"</li>
+      </ul></div>
+      <div class="alert blue">
+        <span class="alert-icon">📋</span>
+        <div><strong>Documentation:</strong> Heart rate, rhythm description (regular/irregular), BP if available, duration of symptoms, triggers, current cardiac meds and last doses, patient's baseline HR.</div>
+      </div></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- VITALS & CARDIAC: HYPERTENSION -->
+<!-- ============================================================ -->
+<div class="section" id="hypertension">
+  <div class="section-header" style="background:linear-gradient(135deg,var(--alive-magenta),#7B1F57)"><span class="section-header-left"><span class="icon">⬆️</span> Hypertension</span><button class="add-to-summary-btn" data-summary-btn="hypertension" onclick="addToSummary('hypertension', 'Hypertension')">+ Add To Summary</button></div>
+  <div class="section-body">
+
+    <div class="flow-group">
+      <div class="flow-group-title">Immediate RN Assessment</div>
+      <ul class="question-list">
+        <li>Instruct patient to rest in quiet, comfortable environment</li>
+        <li>Recheck BP after 5–10 minutes of rest in seated position</li>
+        <li>Assess for symptoms: headache, chest pain <span class="xref" onclick="scrollToSection('chest-pain')">→ Chest Pain</span>, shortness of breath <span class="xref" onclick="scrollToSection('dyspnea')">→ Dyspnea</span>, visual changes, weakness or numbness <span class="xref" onclick="scrollToSection('uni-weakness')">→ Unilateral / Stroke</span></li>
+        <li>Review medication adherence — did patient take BP meds today?</li>
+        <li>Recent sodium intake, stress, pain, or new meds (including OTC)?</li>
+      </ul>
+    </div>
+
+    <div class="divider"></div>
+    <div class="flow-group"><div class="flow-group-title">Disposition &amp; Management</div></div>
+
+    <div class="branch red-branch">
+      <div class="branch-header" onclick="toggleBranch(this)">🚨 CALL 911 IF (and patient/family desires aggressive intervention) <span class="chevron">▶</span></div>
+      <div class="branch-body"><ul class="question-list">
+        <li>SBP &gt;180 mmHg with acute chest pain, severe headache, visual changes, or neurological symptoms (stroke) <span class="xref" onclick="scrollToSection('uni-weakness')">→ Stroke</span></li>
+        <li>Hypertensive emergency with end-organ damage signs</li>
+      </ul></div>
+    </div>
+    <div class="branch purple-branch">
+      <div class="branch-header" onclick="toggleBranch(this)">🏠 Hospice Transition Alternative <span class="chevron">▶</span></div>
+      <div class="branch-body"><div class="script-box"><div class="script-label hospice-alt">🟣 Script</div><p>"For hospice patients, we can focus on keeping you comfortable — managing headache and anxiety with medications — rather than aggressively lowering the number. Would that fit your goals?"</p></div>
+      <ul class="question-list">
+        <li>Severe hypertension in hospice patient with comfort-focused goals</li>
+        <li>Symptoms (headache, anxiety) manageable with comfort medications</li>
+        <li>No acute end-organ damage</li>
+      </ul></div>
+    </div>
+    <div class="branch blue-branch">
+      <div class="branch-header" onclick="toggleBranch(this)">📞 Escalate to Provider IF <span class="chevron">▶</span></div>
+      <div class="branch-body"><ul class="question-list">
+        <li>SBP &gt;180 or DBP &gt;110 mmHg, asymptomatic or mild symptoms</li>
+        <li>SBP 160–180 mmHg with symptoms (headache, dizziness)</li>
+        <li>Medication non-adherence or recent medication change</li>
+        <li>Uncertainty about BP targets in palliative care patient</li>
+      </ul></div>
+    </div>
+    <div class="branch green-branch">
+      <div class="branch-header" onclick="toggleBranch(this)">☎ RN Telephone Management — Home Instructions <span class="chevron">▶</span></div>
+      <div class="branch-body"><div class="script-box"><div class="script-label phone">📞 Patient Instructions (Elevated BP Without Severe Symptoms)</div><ul>
+        <li>"Rest in a seated or semi-recumbent position in a quiet room"</li>
+        <li>"Practice slow deep breathing — inhale 4 counts, exhale 6 counts — for 5–10 minutes"</li>
+        <li>"Avoid caffeine, alcohol, and tobacco"</li>
+        <li>"Take your prescribed BP medication if you missed a dose today"</li>
+        <li>"Recheck BP every 30–60 minutes and keep a log with time and position"</li>
+        <li>"For older adults: check BP seated, then standing after 1–2 minutes, to look for orthostatic changes" <span class="xref" onclick="scrollToSection('hypotension')">→ Hypotension</span></li>
+      </ul></div>
+      <div class="alert orange">
+        <span class="alert-icon">⚠️</span>
+        <div><strong>Teach warning signs requiring immediate attention:</strong> chest pain, severe headache, vision changes, weakness. Explain difference between hypertensive <em>urgency</em> (high BP, no symptoms) and <em>emergency</em> (high BP with organ damage).</div>
+      </div>
+      <div class="alert blue">
+        <span class="alert-icon">📋</span>
+        <div><strong>Documentation:</strong> BP readings (multiple if available) with time and position, presence/absence of symptoms, medication adherence and last doses, recent dietary sodium or other triggers, goals of care status.</div>
+      </div></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- VITALS & CARDIAC: HYPOTENSION -->
+<!-- ============================================================ -->
+<div class="section" id="hypotension">
+  <div class="section-header" style="background:linear-gradient(135deg,var(--alive-magenta),#7B1F57)"><span class="section-header-left"><span class="icon">⬇️</span> Hypotension</span><button class="add-to-summary-btn" data-summary-btn="hypotension" onclick="addToSummary('hypotension', 'Hypotension')">+ Add To Summary</button></div>
+  <div class="section-body">
+
+    <div class="flow-group">
+      <div class="flow-group-title">Immediate RN Assessment</div>
+      <ul class="question-list">
+        <li>Instruct patient to lie down immediately with legs elevated 12 inches if tolerated</li>
+        <li>If standing or sitting, assist to safe lying position to prevent falls <span class="xref" onclick="scrollToSection('falls')">→ Falls</span></li>
+        <li>Assess symptoms: dizziness, lightheadedness, weakness, nausea, blurred vision, confusion <span class="xref" onclick="scrollToSection('ams')">→ AMS</span></li>
+        <li>Check for orthostatic changes if able: BP lying, then after standing 1–2 minutes (drop ≥20 mmHg SBP or ≥10 mmHg DBP = orthostatic)</li>
+        <li>Review recent events: medication changes, vomiting, diarrhea <span class="xref" onclick="scrollToSection('diarrhea')">→ Diarrhea</span>, decreased oral intake, prolonged standing, hot environment</li>
+      </ul>
+    </div>
+
+    <div class="divider"></div>
+    <div class="flow-group"><div class="flow-group-title">Disposition &amp; Management</div></div>
+
+    <div class="branch red-branch">
+      <div class="branch-header" onclick="toggleBranch(this)">🚨 CALL 911 IF (and patient/family desires aggressive intervention) <span class="chevron">▶</span></div>
+      <div class="branch-body"><ul class="question-list">
+        <li>SBP &lt;90 mmHg with altered mental status, chest pain, or severe dyspnea</li>
+        <li>Signs of shock (cold/clammy skin, rapid weak pulse, confusion)</li>
+        <li>Suspected sepsis (fever, hypotension, AMS) <span class="xref" onclick="scrollToSection('fever')">→ Fever</span></li>
+        <li>Syncope with ongoing altered mental status</li>
+      </ul></div>
+    </div>
+    <div class="branch purple-branch">
+      <div class="branch-header" onclick="toggleBranch(this)">🏠 Hospice Transition Alternative <span class="chevron">▶</span></div>
+      <div class="branch-body"><div class="script-box"><div class="script-label hospice-alt">🟣 Script</div><p>"Low blood pressure can be part of the natural dying process. We can focus on keeping your loved one comfortable — with positioning and small sips — rather than taking them to the hospital."</p></div>
+      <ul class="question-list">
+        <li>Hypotension in actively dying patient</li>
+        <li>Goals of care prioritize comfort over BP management</li>
+        <li>Symptoms manageable with positioning, small fluid boluses if appropriate</li>
+        <li>Hospice team available for assessment</li>
+      </ul></div>
+    </div>
+    <div class="branch blue-branch">
+      <div class="branch-header" onclick="toggleBranch(this)">📞 Escalate to Provider IF <span class="chevron">▶</span></div>
+      <div class="branch-body"><ul class="question-list">
+        <li>SBP 80–90 mmHg, alert and mentating normally</li>
+        <li>Orthostatic hypotension with falls risk</li>
+        <li>New hypotension with medication change</li>
+        <li>Dehydration suspected but patient able to take oral fluids</li>
+      </ul></div>
+    </div>
+    <div class="branch green-branch">
+      <div class="branch-header" onclick="toggleBranch(this)">☎ RN Telephone Management — Home Instructions <span class="chevron">▶</span></div>
+      <div class="branch-body"><div class="script-box"><div class="script-label phone">📞 Patient Instructions (Symptomatic Hypotension)</div><ul>
+        <li>"Stay lying down with legs elevated until symptoms improve"</li>
+        <li>"When you sit up, wait 2–3 minutes before standing"</li>
+        <li>"Sit at the edge of the bed, wait, then stand — never jump up"</li>
+        <li>"Drink 8 oz of water or an electrolyte drink every hour if you can"</li>
+        <li>"If it's OK for you, increase salt — salty snacks, broth, electrolyte drinks"</li>
+        <li>"Avoid hot showers, prolonged standing, and alcohol"</li>
+      </ul></div>
+      <div class="script-box"><div class="script-label phone">📞 Orthostatic Hypotension Specifics</div><ul>
+        <li>"Do ankle pumps at the edge of the bed before standing"</li>
+        <li>"Use compression stockings (thigh-high preferred) if you have them"</li>
+        <li>"Aim for 1.5–2 liters of fluid daily"</li>
+        <li>"Elevate the head of the bed 30–45 degrees at night"</li>
+        <li>"Eat smaller, more frequent meals — large meals can drop BP"</li>
+      </ul></div>
+      <div class="alert blue">
+        <span class="alert-icon">💊</span>
+        <div><strong>Medication review — flag for provider (do NOT stop without provider approval):</strong><br>
+        <span class="med-tag">diuretics</span> <span class="med-tag">antihypertensives</span> <span class="med-tag">nitrates</span> <span class="med-tag">alpha-blockers</span> <span class="med-tag">TCAs</span></div>
+      </div>
+      <div class="alert blue">
+        <span class="alert-icon">📋</span>
+        <div><strong>Documentation:</strong> BP readings (lying and standing if obtained), symptoms and severity, recent fluid/food intake, meds in past 24h (especially diuretics and antihypertensives), recent illness/vomiting/diarrhea, fall risk.</div>
+      </div></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- ENDOCRINE: HYPERGLYCEMIA -->
+<!-- ============================================================ -->
+<div class="section" id="hyperglycemia">
+  <div class="section-header" style="background:linear-gradient(135deg,var(--alive-brown),#5E3F30)"><span class="section-header-left"><span class="icon">🍬</span> Hyperglycemia (High Blood Sugar)</span><button class="add-to-summary-btn" data-summary-btn="hyperglycemia" onclick="addToSummary('hyperglycemia', 'Hyperglycemia')">+ Add To Summary</button></div>
+  <div class="section-body">
+
+    <div class="flow-group">
+      <div class="flow-group-title">Immediate RN Assessment</div>
+      <ul class="question-list">
+        <li>Confirm blood glucose reading and time of last meal</li>
+        <li>Assess symptoms: increased thirst, frequent urination, blurred vision, weakness, nausea <span class="xref" onclick="scrollToSection('nausea')">→ N/V</span>, confusion <span class="xref" onclick="scrollToSection('ams')">→ AMS</span></li>
+        <li>Review recent food intake, illness, medication adherence, stress factors</li>
+        <li>Has patient taken diabetes medications as prescribed today?</li>
+      </ul>
+    </div>
+
+    <div class="divider"></div>
+    <div class="flow-group"><div class="flow-group-title">Disposition &amp; Management</div></div>
+
+    <div class="branch red-branch">
+      <div class="branch-header" onclick="toggleBranch(this)">🚨 CALL 911 IF (and patient/family desires aggressive intervention) <span class="chevron">▶</span></div>
+      <div class="branch-body"><ul class="question-list">
+        <li>BG &gt;400 mg/dL with AMS, severe dehydration, or inability to take oral fluids</li>
+        <li>Signs of DKA (fruity breath, rapid breathing, severe nausea/vomiting)</li>
+        <li>BG &gt;600 mg/dL</li>
+      </ul></div>
+    </div>
+    <div class="branch purple-branch">
+      <div class="branch-header" onclick="toggleBranch(this)">🏠 Hospice Transition Alternative <span class="chevron">▶</span></div>
+      <div class="branch-body"><div class="script-box"><div class="script-label hospice-alt">🟣 Script</div><p>"For end-of-life care, the goal is preventing symptoms — not hitting normal glucose numbers. Relaxed glucose targets are appropriate when comfort is the priority."</p></div>
+      <ul class="question-list">
+        <li>Patient in end-of-life care with goal to avoid symptomatic hyperglycemia (&gt;250 mg/dL) but not requiring aggressive management</li>
+        <li>Symptoms manageable with comfort measures and hydration</li>
+        <li>Hospice enrolled with documented acceptance of relaxed glycemic targets</li>
+      </ul></div>
+    </div>
+    <div class="branch blue-branch">
+      <div class="branch-header" onclick="toggleBranch(this)">📞 Escalate to Provider IF <span class="chevron">▶</span></div>
+      <div class="branch-body"><ul class="question-list">
+        <li>BG 250–400 mg/dL with symptoms (polyuria, polydipsia, weakness)</li>
+        <li>Two or more readings &gt;250 mg/dL within 24 hours with clinical status change</li>
+        <li>Consistent readings &gt;300 mg/dL over 2 consecutive days</li>
+        <li>Meter reads "HI" (&gt;600 mg/dL) but patient alert and stable</li>
+        <li>Patient on palliative care requiring medication adjustment</li>
+      </ul></div>
+    </div>
+    <div class="branch green-branch">
+      <div class="branch-header" onclick="toggleBranch(this)">☎ RN Telephone Management — Home Instructions <span class="chevron">▶</span></div>
+      <div class="branch-body"><div class="script-box"><div class="script-label phone">📞 Patient Instructions (BG 250–400 mg/dL)</div><ul>
+        <li>"Drink 8 oz of water every hour if you can"</li>
+        <li>"If you take insulin, confirm you've taken your scheduled doses"</li>
+        <li>"Avoid sugary foods and beverages"</li>
+        <li>"Check your blood glucose every 2–4 hours and keep a log"</li>
+        <li>"Watch for worsening symptoms — confusion, vomiting, rapid breathing — and call us immediately"</li>
+        <li>"A short walk, if you feel up to it, may help lower your glucose"</li>
+      </ul></div>
+      <div class="script-box"><div class="script-label hospice-alt">📞 Palliative / Hospice Patients</div><ul>
+        <li>"The goal is symptom management, not strict glucose control"</li>
+        <li>"Small sips of water or ice chips will help with thirst and dry mouth"</li>
+        <li>"Relaxed glucose targets are appropriate for your goals of care"</li>
+      </ul></div>
+      <div class="alert blue">
+        <span class="alert-icon">📋</span>
+        <div><strong>Documentation:</strong> BG value, time checked, meter used; recent food intake and medication administration; presence/absence of symptoms; fluid intake past 24h; goals of care status.</div>
+      </div></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- ENDOCRINE: HYPOGLYCEMIA -->
+<!-- ============================================================ -->
+<div class="section" id="hypoglycemia">
+  <div class="section-header" style="background:linear-gradient(135deg,var(--alive-brown),#5E3F30)"><span class="section-header-left"><span class="icon">🍯</span> Hypoglycemia (Low Blood Sugar)</span><button class="add-to-summary-btn" data-summary-btn="hypoglycemia" onclick="addToSummary('hypoglycemia', 'Hypoglycemia')">+ Add To Summary</button></div>
+  <div class="section-body">
+
+    <div class="alert red">
+      <span class="alert-icon">⚡</span>
+      <div><strong>TREAT FIRST, THEN CALL PROVIDER.</strong> Do not wait to begin treatment while awaiting callback.</div>
+    </div>
+
+    <div class="flow-group">
+      <div class="flow-group-title">Immediate RN Assessment</div>
+      <ul class="question-list">
+        <li>Confirm glucose value, time of last meal, and last insulin/sulfonylurea dose</li>
+        <li>Assess for symptoms: shakiness, sweating, confusion <span class="xref" onclick="scrollToSection('ams')">→ AMS</span>, irritability, rapid heartbeat, lightheadedness</li>
+        <li>Can patient swallow safely? Any recent falls? <span class="xref" onclick="scrollToSection('falls')">→ Falls</span></li>
+        <li>Is glucagon available in the home and is a caregiver trained?</li>
+      </ul>
+    </div>
+
+    <div class="flow-group">
+      <div class="flow-group-title">The Rule of 15 — Give 15 g Fast-Acting Carbohydrate</div>
+      <ul class="question-list">
+        <li>4 oz (½ cup) fruit juice or regular soda</li>
+        <li>3–4 glucose tablets</li>
+        <li>1 tablespoon honey or sugar</li>
+        <li>6–8 hard candies</li>
+      </ul>
+      <div class="alert orange"><span class="alert-icon">🔁</span><div><strong>Recheck in 15 minutes.</strong> If still &lt;70 mg/dL, repeat with another 15 g. Once &gt;70 mg/dL, give a small snack with protein (crackers with peanut butter, cheese and crackers).</div></div>
+    </div>
+
+    <div class="flow-group">
+      <div class="flow-group-title">If Patient Cannot Swallow or Is Unconscious</div>
+      <ul class="question-list">
+        <li>If glucagon available and caregiver trained — administer glucagon per kit instructions</li>
+        <li>Position patient on side to prevent aspiration</li>
+        <li>Do NOT give food or fluids by mouth</li>
+        <li><strong>Call 911 immediately</strong></li>
+      </ul>
+    </div>
+
+    <div class="divider"></div>
+    <div class="flow-group"><div class="flow-group-title">Disposition &amp; Management</div></div>
+
+    <div class="branch red-branch">
+      <div class="branch-header" onclick="toggleBranch(this)">🚨 CALL 911 IF (and patient/family desires aggressive intervention) <span class="chevron">▶</span></div>
+      <div class="branch-body"><ul class="question-list">
+        <li>BG &lt;50 mg/dL with AMS, seizure, or loss of consciousness</li>
+        <li>Unable to treat orally and no caregiver trained in glucagon</li>
+        <li>Persistent hypoglycemia despite oral treatment</li>
+      </ul></div>
+    </div>
+    <div class="branch purple-branch">
+      <div class="branch-header" onclick="toggleBranch(this)">🏠 Hospice Transition Alternative <span class="chevron">▶</span></div>
+      <div class="branch-body"><div class="script-box"><div class="script-label hospice-alt">🟣 Script</div><p>"In end-stage disease with poor oral intake, repeat lows are often a sign that diabetes medications need to be reduced. Hospice can manage this at home with glucose gel and medication deintensification."</p></div>
+      <ul class="question-list">
+        <li>Recurrent hypoglycemia in end-stage disease with poor oral intake</li>
+        <li>Goals of care focus on comfort; family/hospice can manage with glucose gel or small amounts of juice</li>
+        <li>Medication deintensification already planned</li>
+      </ul></div>
+    </div>
+    <div class="branch blue-branch">
+      <div class="branch-header" onclick="toggleBranch(this)">📞 Escalate to Provider Immediately IF <span class="chevron">▶</span></div>
+      <div class="branch-body"><ul class="question-list">
+        <li>BG &lt;70 mg/dL (treat first, then call)</li>
+        <li>BG 70–100 mg/dL with symptoms or recurrent pattern</li>
+        <li>Hypoglycemia in patient on insulin or sulfonylureas requiring med adjustment</li>
+        <li>Any hypoglycemia in frail elderly or cognitive impairment</li>
+      </ul></div>
+    </div>
+    <div class="branch green-branch">
+      <div class="branch-header" onclick="toggleBranch(this)">☎ RN Telephone Management — After Treatment <span class="chevron">▶</span></div>
+      <div class="branch-body"><div class="script-box"><div class="script-label phone">📞 Patient Instructions</div><ul>
+        <li>"Rest for 30–60 minutes after your glucose is back to normal"</li>
+        <li>"No driving or operating machinery for at least 1 hour"</li>
+        <li>"Check your blood glucose every 1–2 hours for the next 4–6 hours"</li>
+        <li>"Eat your regular meals and snacks as scheduled"</li>
+        <li>"Try to identify the trigger — skipped meal, extra exercise, alcohol — and avoid it"</li>
+        <li>"Carry fast-acting carbohydrate with you at all times"</li>
+      </ul></div>
+      <div class="alert blue">
+        <span class="alert-icon">📋</span>
+        <div><strong>Documentation:</strong> Initial BG and time, treatment given and amount, BG at 15 minutes and after treatment completion, symptoms before/after, recent food/exercise/medication timing, number of hypo episodes in past week.</div>
+      </div></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- LAB ALERTS: CMP / ELECTROLYTES -->
+<!-- ============================================================ -->
+<div class="section" id="cmp-alerts">
+  <div class="section-header" style="background:linear-gradient(135deg,var(--alive-green),#4A6B2E)"><span class="section-header-left"><span class="icon">⚗️</span> CMP / Electrolyte Critical Alerts</span><button class="add-to-summary-btn" data-summary-btn="cmp-alerts" onclick="addToSummary('cmp-alerts', 'CMP / Electrolyte Alerts')">+ Add To Summary</button></div>
+  <div class="section-body">
+
+    <div class="alert blue">
+      <span class="alert-icon">ℹ️</span>
+      <div>Use this section when a CMP returns with a critical value. Related algorithms: <span class="xref" onclick="scrollToSection('hyperglycemia')">→ Hyperglycemia</span> <span class="xref" onclick="scrollToSection('hypoglycemia')">→ Hypoglycemia</span> <span class="xref" onclick="scrollToSection('ams')">→ AMS</span> <span class="xref" onclick="scrollToSection('inr-alerts')">→ INR</span></div>
+    </div>
+
+    <div class="flow-group"><div class="flow-group-title">Disposition — Critical Values</div></div>
+
+    <div class="branch red-branch">
+      <div class="branch-header" onclick="toggleBranch(this)">🚨 CALL 911 IF (and patient/family desires aggressive intervention) <span class="chevron">▶</span></div>
+      <div class="branch-body"><ul class="question-list">
+        <li>Sodium &lt;120 or &gt;155 mEq/L with AMS or seizures</li>
+        <li>Potassium &lt;2.5 or &gt;6.5 mEq/L with cardiac symptoms or ECG changes</li>
+        <li>Glucose &lt;50 mg/dL with AMS (see <span class="xref" onclick="scrollToSection('hypoglycemia')">→ Hypoglycemia</span>)</li>
+        <li>Calcium &lt;6.5 or &gt;13 mg/dL with severe symptoms</li>
+      </ul></div>
+    </div>
+
+    <div class="branch blue-branch">
+      <div class="branch-header" onclick="toggleBranch(this)">📞 Escalate to Provider Immediately IF <span class="chevron">▶</span></div>
+      <div class="branch-body"><ul class="question-list">
+        <li>Sodium &lt;125 or &gt;150 mEq/L</li>
+        <li>Potassium &lt;2.8 or &gt;5.5 mEq/L</li>
+        <li>Bicarbonate &lt;15 or &gt;40 mEq/L</li>
+        <li>Creatinine &gt;3.0 mg/dL or doubling from baseline</li>
+        <li>Calcium &lt;7.0 or &gt;12.0 mg/dL</li>
+        <li>Any critical value in palliative care patient requiring goals of care discussion</li>
+      </ul></div>
+    </div>
+
+    <div class="divider"></div>
+    <div class="flow-group"><div class="flow-group-title">RN Telephone Management by Abnormality</div></div>
+
+    <div class="branch default">
+      <div class="branch-header" onclick="toggleBranch(this)">🔺 Hyperkalemia (K+ &gt;5.5 mEq/L) <span class="chevron">▶</span></div>
+      <div class="branch-body">
+        <div class="flow-group">
+          <div class="flow-group-title">Immediate Actions</div>
+          <ul class="question-list">
+            <li>Assess for symptoms: muscle weakness, palpitations, nausea, slow or irregular heartbeat</li>
+            <li>Review meds: ACE inhibitors, ARBs, potassium-sparing diuretics, NSAIDs, potassium supplements</li>
+            <li>Ask about recent dietary intake of high-potassium foods</li>
+          </ul>
+        </div>
+        <div class="script-box"><div class="script-label phone">📞 Home Management (Provider-Directed Only)</div><ul>
+          <li>"Do NOT take potassium supplements or salt substitutes"</li>
+          <li>"Avoid high-potassium foods: bananas, oranges, tomatoes, potatoes, spinach, beans, nuts"</li>
+          <li>"Hold potassium supplements and potassium-sparing diuretics until the provider advises"</li>
+          <li>"Watch for chest pain, severe weakness, or palpitations — call back immediately"</li>
+        </ul></div>
+      </div>
+    </div>
+
+    <div class="branch default">
+      <div class="branch-header" onclick="toggleBranch(this)">🔻 Hypokalemia (K+ &lt;2.8 mEq/L) <span class="chevron">▶</span></div>
+      <div class="branch-body">
+        <div class="flow-group">
+          <div class="flow-group-title">Immediate Actions</div>
+          <ul class="question-list">
+            <li>Assess for symptoms: muscle weakness, cramps, fatigue, palpitations, constipation <span class="xref" onclick="scrollToSection('constipation')">→ Constipation</span></li>
+            <li>Review meds: diuretics, laxatives, insulin</li>
+            <li>Ask about recent vomiting <span class="xref" onclick="scrollToSection('nausea')">→ N/V</span>, diarrhea <span class="xref" onclick="scrollToSection('diarrhea')">→ Diarrhea</span>, poor oral intake</li>
+          </ul>
+        </div>
+        <div class="script-box"><div class="script-label phone">📞 Home Management (Provider-Directed)</div><ul>
+          <li>"If you can eat, potassium-rich foods help: bananas, oranges, potatoes, tomatoes, yogurt"</li>
+          <li>"Stay well hydrated"</li>
+          <li>"Call back for worsening weakness or irregular heartbeat"</li>
+          <li>"If you're on a diuretic, note the last dose for the provider"</li>
+        </ul></div>
+      </div>
+    </div>
+
+    <div class="branch default">
+      <div class="branch-header" onclick="toggleBranch(this)">🔻 Hyponatremia (Na+ &lt;125 mEq/L) <span class="chevron">▶</span></div>
+      <div class="branch-body">
+        <div class="flow-group">
+          <div class="flow-group-title">Immediate Actions</div>
+          <ul class="question-list">
+            <li>Assess for symptoms: confusion <span class="xref" onclick="scrollToSection('ams')">→ AMS</span>, headache, nausea, weakness, seizures, lethargy</li>
+            <li>Review fluid intake over past 24–48 hours</li>
+            <li>Review meds: diuretics, SSRIs, carbamazepine</li>
+            <li>Ask about vomiting, diarrhea, excessive sweating</li>
+          </ul>
+        </div>
+        <div class="script-box"><div class="script-label phone">📞 Home Management (Provider-Directed)</div><ul>
+          <li>"If the provider orders fluid restriction for mild hyponatremia with fluid overload, follow the exact amount given"</li>
+          <li>"For hyponatremia with dehydration — increase fluids with electrolytes as directed"</li>
+          <li>"Avoid plain water if fluid restriction is ordered; use electrolyte drinks instead"</li>
+          <li>"Monitor mental status closely and call for any worsening confusion"</li>
+        </ul></div>
+      </div>
+    </div>
+
+    <div class="branch default">
+      <div class="branch-header" onclick="toggleBranch(this)">🔺 Hypernatremia (Na+ &gt;150 mEq/L) <span class="chevron">▶</span></div>
+      <div class="branch-body">
+        <div class="flow-group">
+          <div class="flow-group-title">Immediate Actions</div>
+          <ul class="question-list">
+            <li>Assess for symptoms: confusion, irritability, muscle twitching, seizures, extreme thirst</li>
+            <li>Review fluid intake — often due to dehydration or inability to access water</li>
+            <li>Ask about fever <span class="xref" onclick="scrollToSection('fever')">→ Fever</span>, vomiting, diarrhea, diabetes insipidus history</li>
+          </ul>
+        </div>
+        <div class="script-box"><div class="script-label phone">📞 Home Management (Provider-Directed)</div><ul>
+          <li>"Increase oral fluids gradually — water, diluted juice, electrolyte drinks"</li>
+          <li>"Small, frequent sips if the patient has difficulty drinking"</li>
+          <li>"For elderly or cognitively impaired patients — make sure fluids are nearby and offered regularly"</li>
+          <li>"Call back for worsening confusion or any new seizure activity"</li>
+        </ul></div>
+      </div>
+    </div>
+
+    <div class="branch default">
+      <div class="branch-header" onclick="toggleBranch(this)">🩺 Acute Kidney Injury (Creatinine &gt;3.0 or doubling from baseline) <span class="chevron">▶</span></div>
+      <div class="branch-body">
+        <div class="flow-group">
+          <div class="flow-group-title">Immediate Actions</div>
+          <ul class="question-list">
+            <li>Assess for symptoms: decreased urine output, swelling <span class="xref" onclick="scrollToSection('edema')">→ Edema</span>, confusion, nausea, shortness of breath <span class="xref" onclick="scrollToSection('dyspnea')">→ Dyspnea</span></li>
+            <li>Review recent meds: NSAIDs, ACE inhibitors, ARBs, antibiotics, contrast dye exposure</li>
+            <li>Ask about recent illness, dehydration, or urinary symptoms <span class="xref" onclick="scrollToSection('uti')">→ UTI</span></li>
+          </ul>
+        </div>
+        <div class="script-box"><div class="script-label phone">📞 Home Management (Provider-Directed)</div><ul>
+          <li>"Track your urine — color, how much, how often"</li>
+          <li>"Stay well hydrated unless the provider tells you to restrict fluids"</li>
+          <li>"Avoid NSAIDs — ibuprofen, naproxen"</li>
+          <li>"Hold any medications the provider asks you to hold"</li>
+          <li>"Call back for decreased urination, swelling, or confusion"</li>
+        </ul></div>
+      </div>
+    </div>
+
+    <div class="alert blue">
+      <span class="alert-icon">📋</span>
+      <div><strong>Documentation:</strong> specific lab value(s), symptoms, meds reviewed (including any held), fluid intake, last meal, goals of care, provider notified with time.</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- LAB ALERTS: INR -->
+<!-- ============================================================ -->
+<div class="section" id="inr-alerts">
+  <div class="section-header" style="background:linear-gradient(135deg,var(--alive-green),#4A6B2E)"><span class="section-header-left"><span class="icon">💊</span> Elevated INR</span><button class="add-to-summary-btn" data-summary-btn="inr-alerts" onclick="addToSummary('inr-alerts', 'Elevated INR')">+ Add To Summary</button></div>
+  <div class="section-body">
+
+    <div class="flow-group">
+      <div class="flow-group-title">Immediate RN Assessment</div>
+      <ul class="question-list">
+        <li>Assess for signs of bleeding: bruising, nosebleeds, blood in urine or stool, gum bleeding, unusual headache</li>
+        <li>Review recent warfarin doses — any missed or extra doses?</li>
+        <li>Ask about recent dietary changes (vitamin K intake), new medications, antibiotics, alcohol</li>
+        <li>Assess fall risk and recent trauma <span class="xref" onclick="scrollToSection('falls')">→ Falls</span></li>
+      </ul>
+    </div>
+
+    <div class="divider"></div>
+    <div class="flow-group"><div class="flow-group-title">Disposition &amp; Management</div></div>
+
+    <div class="branch red-branch">
+      <div class="branch-header" onclick="toggleBranch(this)">🚨 CALL 911 IF (and patient/family desires aggressive intervention) <span class="chevron">▶</span></div>
+      <div class="branch-body"><ul class="question-list">
+        <li>INR &gt;8 with active bleeding</li>
+        <li>INR &gt;10 with any symptoms</li>
+        <li>Any signs of serious bleeding: severe headache, vision changes, weakness, black tarry stools, bright red blood in stool/vomit</li>
+      </ul></div>
+    </div>
+    <div class="branch blue-branch">
+      <div class="branch-header" onclick="toggleBranch(this)">📞 Escalate to Provider Immediately IF <span class="chevron">▶</span></div>
+      <div class="branch-body"><ul class="question-list">
+        <li>INR &gt;5 (even if asymptomatic)</li>
+        <li>INR &gt;3.5 in patient on warfarin for atrial fibrillation</li>
+        <li>Any supratherapeutic INR with fall or trauma risk</li>
+      </ul></div>
+    </div>
+
+    <div class="branch green-branch">
+      <div class="branch-header" onclick="toggleBranch(this)">☎ RN Telephone Management — INR 3.5–5.0 (Provider-Directed) <span class="chevron">▶</span></div>
+      <div class="branch-body"><div class="script-box"><div class="script-label phone">📞 Patient Instructions</div><ul>
+        <li>"Hold your next 1–2 warfarin doses as the provider directs"</li>
+        <li>"No contact sports or activities with bleeding risk"</li>
+        <li>"Use a soft toothbrush and an electric razor instead of a blade"</li>
+        <li>"No aspirin, NSAIDs, or alcohol unless approved by the provider"</li>
+        <li>"Watch for bruising, nosebleeds, blood in urine or stool — call back if any new bleeding"</li>
+      </ul></div></div>
+    </div>
+
+    <div class="branch green-branch">
+      <div class="branch-header" onclick="toggleBranch(this)">☎ RN Telephone Management — INR &gt;5.0 (Provider-Directed) <span class="chevron">▶</span></div>
+      <div class="branch-body"><div class="script-box"><div class="script-label phone">📞 Patient Instructions</div><ul>
+        <li>"Hold warfarin until the provider advises"</li>
+        <li>"Strict fall precautions — use assistive devices, remove tripping hazards, avoid stairs if possible"</li>
+        <li>"The provider may order vitamin K — we'll let you know"</li>
+        <li>"Avoid foods high in vitamin K until INR stabilizes: kale, spinach, broccoli, Brussels sprouts"</li>
+        <li>"No NSAIDs, aspirin products, or alcohol"</li>
+      </ul></div>
+      <div class="alert orange">
+        <span class="alert-icon">⚠️</span>
+        <div><strong>Teach warning signs for 911:</strong> severe headache, vision changes, weakness, large bruises, black tarry stools, bright red blood in stool or vomit.</div>
+      </div>
+      <div class="alert blue">
+        <span class="alert-icon">💊</span>
+        <div><strong>Bleeding precautions:</strong> soft toothbrush, electric razor, avoid sharp objects. <strong>Consistent</strong> vitamin K intake matters — don't suddenly increase or decrease green leafy vegetables.</div>
+      </div></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- LAB ALERTS: UA CRITICAL ALERTS -->
+<!-- ============================================================ -->
+<div class="section" id="ua-alerts">
+  <div class="section-header" style="background:linear-gradient(135deg,var(--alive-green),#4A6B2E)"><span class="section-header-left"><span class="icon">🧫</span> Urinalysis (UA) Critical Alerts</span><button class="add-to-summary-btn" data-summary-btn="ua-alerts" onclick="addToSummary('ua-alerts', 'UA Critical Alerts')">+ Add To Summary</button></div>
+  <div class="section-body">
+
+    <div class="alert blue">
+      <span class="alert-icon">ℹ️</span>
+      <div>For symptom-driven UTI triage, see <span class="xref" onclick="scrollToSection('uti')">→ UTI / Suprapubic</span>. Use this section when a UA result requires action.</div>
+    </div>
+
+    <div class="flow-group">
+      <div class="flow-group-title">Immediate RN Assessment</div>
+      <ul class="question-list">
+        <li>Assess UTI symptoms: burning with urination, frequency, urgency, suprapubic pain, flank pain</li>
+        <li>Take temperature if available (&gt;100.4°F suggests infection) <span class="xref" onclick="scrollToSection('fever')">→ Fever</span></li>
+        <li>Recent urinary catheter use, urologic procedures, or instrumentation?</li>
+        <li>For elderly/cognitively impaired — assess atypical symptoms: new confusion <span class="xref" onclick="scrollToSection('ams')">→ AMS</span>, falls <span class="xref" onclick="scrollToSection('falls')">→ Falls</span>, decreased appetite, functional decline, agitation</li>
+        <li>Review recent fluid intake and urine output</li>
+        <li>Suggest family obtain and use an over-the-counter dipstick to test the urine if possible</li>
+      </ul>
+    </div>
+
+    <div class="flow-group">
+      <div class="flow-group-title">Critical Distinction — Symptomatic UTI vs. Asymptomatic Bacteriuria</div>
+      <div class="alert orange">
+        <span class="alert-icon">⚠️</span>
+        <div><strong>Symptomatic UTI requires ≥2 of:</strong> fever, new/worsened urinary urgency or frequency, acute dysuria, suprapubic tenderness, costovertebral angle pain or tenderness.<br><br>
+        <strong>Asymptomatic bacteriuria:</strong> positive urine culture without localizing GU symptoms or systemic signs of infection.<br><br>
+        <strong>In older adults with cognitive impairment:</strong> confusion or delirium alone WITHOUT fever or localizing urinary symptoms does NOT indicate UTI and should NOT be treated with antibiotics.</div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+    <div class="flow-group"><div class="flow-group-title">Disposition &amp; Management</div></div>
+
+    <div class="branch red-branch">
+      <div class="branch-header" onclick="toggleBranch(this)">🚨 CALL 911 IF (and patient/family desires aggressive intervention) <span class="chevron">▶</span></div>
+      <div class="branch-body"><ul class="question-list">
+        <li>Positive UA with signs of sepsis: fever &gt;101°F, hypotension (SBP &lt;90) <span class="xref" onclick="scrollToSection('hypotension')">→ Hypotension</span>, AMS, rigors</li>
+        <li>Suspected pyelonephritis with severe symptoms: high fever, severe flank pain, persistent vomiting, inability to take oral fluids</li>
+        <li>Gross hematuria with hemodynamic instability or urinary retention</li>
+      </ul></div>
+    </div>
+    <div class="branch purple-branch">
+      <div class="branch-header" onclick="toggleBranch(this)">🏠 Hospice Transition Alternative <span class="chevron">▶</span></div>
+      <div class="branch-body"><div class="script-box"><div class="script-label hospice-alt">🟣 Script</div><p>"UTIs can often be managed at home with antibiotics and comfort medications, without a hospital trip. If avoiding the ED matters to you, hospice can provide this care at home."</p></div>
+      <ul class="question-list">
+        <li>Symptoms manageable with comfort medications (antibiotics if available through hospice, pain management, antiemetics)</li>
+        <li>Hospice nurse available for urgent home visit</li>
+        <li>Family/caregiver comfortable with symptom management at current location</li>
+      </ul></div>
+    </div>
+    <div class="branch blue-branch">
+      <div class="branch-header" onclick="toggleBranch(this)">📞 Escalate to Provider IF <span class="chevron">▶</span></div>
+      <div class="branch-body"><ul class="question-list">
+        <li>Positive UA with UTI symptoms: dysuria, frequency, urgency, suprapubic pain, fever ≤101°F</li>
+        <li>Asymptomatic bacteriuria in catheterized patient with clinical change (new confusion, functional decline, fever)</li>
+        <li>Gross hematuria without hemodynamic instability</li>
+        <li>Pyuria with symptoms in patient at risk for complicated UTI (diabetes, immunosuppression, recent urologic procedure)</li>
+        <li>Positive UA in male patient (all men require urine culture before treatment)</li>
+        <li>Uncertainty about goals of care or appropriateness of antibiotic treatment</li>
+      </ul></div>
+    </div>
+    <div class="branch green-branch">
+      <div class="branch-header" onclick="toggleBranch(this)">☎ RN Telephone Management — Home Instructions <span class="chevron">▶</span></div>
+      <div class="branch-body"><div class="script-box"><div class="script-label phone">📞 Comfort Measures Pending Provider Callback</div><ul>
+        <li>"Drink more fluids — aim for 8–10 glasses of water a day if it's safe for you"</li>
+        <li>"Urinate every 2–3 hours while awake — don't hold it"</li>
+        <li>"A heating pad on your lower abdomen or back for 15–20 minutes can help"</li>
+        <li>"Avoid bladder irritants: caffeine, alcohol, spicy foods, artificial sweeteners, acidic foods"</li>
+        <li>"If you have Pyridium from before, it can help with the burning — your urine will turn orange"</li>
+      </ul></div>
+      <div class="script-box"><div class="script-label phone">📞 For Catheterized Patients</div><ul>
+        <li>"Make sure the bag is below bladder level at all times"</li>
+        <li>"Empty the bag every 8 hours or when it's two-thirds full"</li>
+        <li>"Keep the catheter and surrounding area clean with soap and water"</li>
+        <li>"Call back immediately if the catheter is leaking, blocked, or dislodged"</li>
+      </ul></div>
+      <div class="alert orange">
+        <span class="alert-icon">⚠️</span>
+        <div><strong>Do NOT treat asymptomatic bacteriuria</strong> in catheterized patients unless fever or systemic symptoms present.</div>
+      </div>
+      <div class="alert purple">
+        <span class="alert-icon">🟣</span>
+        <div><strong>Palliative/Hospice:</strong> For actively dying patients, antibiotics may not improve comfort and may prolong dying. Bacteriuria is common in advanced illness and does not always require treatment. Treat only if symptomatic and the patient has weeks to months of life expectancy and desires symptom relief.</div>
+      </div>
+      <div class="alert blue">
+        <span class="alert-icon">📋</span>
+        <div><strong>Documentation:</strong> UA values (bacteria, WBCs, nitrites, leukocyte esterase, blood, protein), symptoms and duration, vitals if available, catheter/urologic history, current meds, recurrent UTI/resistance history, goals of care, teach-back confirmation.</div>
+      </div></div>
+    </div>
+
+    <div class="flow-group" style="margin-top:12px">
+      <div class="flow-group-title">When to Call Back — Patient/Caregiver Education</div>
+      <ul class="question-list">
+        <li>Fever &gt;101°F or worsening fever</li>
+        <li>Severe back or flank pain</li>
+        <li>Nausea, vomiting, inability to keep fluids down</li>
+        <li>Blood in urine (new or worsening)</li>
+        <li>Confusion or altered mental status (new or worsening)</li>
+        <li>No improvement after 48 hours of antibiotics</li>
+        <li>Inability to urinate or severe urinary retention</li>
+      </ul>
+    </div>
+
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- LAB ALERTS: ANEMIA -->
+<!-- ============================================================ -->
+<div class="section" id="anemia">
+  <div class="section-header" style="background:linear-gradient(135deg,var(--alive-green),#4A6B2E)"><span class="section-header-left"><span class="icon">🩸</span> Anemia (Low Hemoglobin)</span><button class="add-to-summary-btn" data-summary-btn="anemia" onclick="addToSummary('anemia', 'Anemia')">+ Add To Summary</button></div>
+  <div class="section-body">
+
+    <div class="flow-group">
+      <div class="flow-group-title">Immediate RN Assessment</div>
+      <ul class="question-list">
+        <li>Assess for symptoms: fatigue, weakness, shortness of breath <span class="xref" onclick="scrollToSection('dyspnea')">→ Dyspnea</span>, chest pain <span class="xref" onclick="scrollToSection('chest-pain')">→ Chest Pain</span>, dizziness, palpitations, pale skin/mucous membranes</li>
+        <li>Ask about recent bleeding: menstrual (if applicable), GI (black tarry stools, bright red blood, vomiting blood), urinary, nosebleeds, bruising</li>
+        <li>Review recent activity tolerance and changes from baseline</li>
+        <li>Assess fall risk <span class="xref" onclick="scrollToSection('falls')">→ Falls</span></li>
+        <li>Check BP and HR if available</li>
+      </ul>
+    </div>
+
+    <div class="divider"></div>
+    <div class="flow-group"><div class="flow-group-title">Disposition &amp; Management</div></div>
+
+    <div class="branch red-branch">
+      <div class="branch-header" onclick="toggleBranch(this)">🚨 CALL 911 IF (and patient/family desires aggressive intervention) <span class="chevron">▶</span></div>
+      <div class="branch-body"><ul class="question-list">
+        <li>Hgb &lt;7 g/dL with symptoms: chest pain, severe dyspnea, AMS, syncope</li>
+        <li>Hgb &lt;6 g/dL regardless of symptoms</li>
+        <li>Signs of active severe bleeding: hematemesis, melena, bright red blood per rectum, severe epistaxis</li>
+        <li>Hemodynamic instability: hypotension <span class="xref" onclick="scrollToSection('hypotension')">→ Hypotension</span>, tachycardia, AMS <span class="xref" onclick="scrollToSection('ams')">→ AMS</span></li>
+      </ul></div>
+    </div>
+    <div class="branch purple-branch">
+      <div class="branch-header" onclick="toggleBranch(this)">🏠 Hospice Transition Alternative <span class="chevron">▶</span></div>
+      <div class="branch-body"><div class="script-box"><div class="script-label hospice-alt">🟣 Script</div><p>"Transfusions give temporary relief for a few days to weeks, but require a trip to the hospital or infusion center. Hospice can focus on managing the fatigue and breathing symptoms at home with oxygen and activity modification. Would you like to talk about this option?"</p></div>
+      <ul class="question-list">
+        <li>Patient enrolled in hospice with expected anemia from underlying disease</li>
+        <li>Goals of care prioritize comfort over transfusion</li>
+        <li>Symptoms manageable with oxygen, rest, activity modification</li>
+      </ul></div>
+    </div>
+    <div class="branch blue-branch">
+      <div class="branch-header" onclick="toggleBranch(this)">📞 Escalate to Provider Immediately IF <span class="chevron">▶</span></div>
+      <div class="branch-body"><ul class="question-list">
+        <li>Hgb 7–8 g/dL with mild to moderate symptoms</li>
+        <li>Hgb &lt;7 g/dL in asymptomatic patient</li>
+        <li>New anemia (drop ≥2 g/dL from baseline) with symptoms</li>
+        <li>Evidence of ongoing bleeding without hemodynamic instability</li>
+        <li>Anemia requiring transfusion consideration in context of goals of care</li>
+      </ul></div>
+    </div>
+    <div class="branch green-branch">
+      <div class="branch-header" onclick="toggleBranch(this)">☎ RN Telephone Management — Home Instructions <span class="chevron">▶</span></div>
+      <div class="branch-body"><div class="script-box"><div class="script-label phone">📞 Patient Instructions (Mild to Moderate Anemia)</div><ul>
+        <li>"Rest and avoid strenuous activity"</li>
+        <li>"Rise slowly from sitting or lying down"</li>
+        <li>"Sit or lie down immediately if you feel dizzy or lightheaded"</li>
+        <li>"If you eat meat, iron-rich foods help: red meat, poultry, fish, beans, lentils, fortified cereals, dark leafy greens"</li>
+        <li>"Take iron supplements with orange juice (vitamin C) if prescribed"</li>
+        <li>"Don't take tea, coffee, or calcium within 2 hours of iron — they block absorption"</li>
+        <li>"Check your stool color — black/tarry = upper GI bleeding, bright red = lower GI bleeding; call back either way"</li>
+      </ul></div>
+      <div class="script-box"><div class="script-label phone">📞 Activity Modifications</div><ul>
+        <li>"Avoid driving or operating machinery if dizzy"</li>
+        <li>"Use assistive devices to prevent falls"</li>
+        <li>"Pace yourself — alternate activity with rest"</li>
+        <li>"Avoid hot showers or baths — they can make dizziness worse"</li>
+      </ul></div>
+      <div class="alert purple">
+        <span class="alert-icon">🟣</span>
+        <div><strong>Palliative/Hospice:</strong> Focus on energy conservation, oxygen for dyspnea (typically for SpO₂ &lt;90%), and reassurance about expected fatigue in advanced illness.</div>
+      </div></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- LAB ALERTS: THROMBOCYTOPENIA -->
+<!-- ============================================================ -->
+<div class="section" id="thrombocytopenia">
+  <div class="section-header" style="background:linear-gradient(135deg,var(--alive-green),#4A6B2E)"><span class="section-header-left"><span class="icon">💧</span> Thrombocytopenia (Low Platelets)</span><button class="add-to-summary-btn" data-summary-btn="thrombocytopenia" onclick="addToSummary('thrombocytopenia', 'Thrombocytopenia')">+ Add To Summary</button></div>
+  <div class="section-body">
+
+    <div class="flow-group">
+      <div class="flow-group-title">Immediate RN Assessment</div>
+      <ul class="question-list">
+        <li>Assess for signs of bleeding: petechiae (pinpoint red/purple spots), purpura, bruising, nosebleeds, gum bleeding, blood in urine or stool, heavy menstrual bleeding</li>
+        <li>Review medications affecting platelets: aspirin, NSAIDs (ibuprofen, naproxen), clopidogrel, warfarin <span class="xref" onclick="scrollToSection('inr-alerts')">→ INR</span>, heparin, certain antibiotics, chemotherapy</li>
+        <li>Assess recent trauma, procedures, or falls <span class="xref" onclick="scrollToSection('falls')">→ Falls</span></li>
+        <li>Check for signs of serious bleeding: severe headache, vision changes, weakness, confusion <span class="xref" onclick="scrollToSection('ams')">→ AMS</span>, severe abdominal pain <span class="xref" onclick="scrollToSection('abd-pain')">→ Abd Pain</span></li>
+      </ul>
+    </div>
+
+    <div class="divider"></div>
+    <div class="flow-group"><div class="flow-group-title">Disposition &amp; Management</div></div>
+
+    <div class="branch red-branch">
+      <div class="branch-header" onclick="toggleBranch(this)">🚨 CALL 911 IF (and patient/family desires aggressive intervention) <span class="chevron">▶</span></div>
+      <div class="branch-body"><ul class="question-list">
+        <li>Platelets &lt;10,000/μL with active bleeding (any site)</li>
+        <li>Platelets &lt;20,000/μL with major bleeding: intracranial, GI, GU, pulmonary</li>
+        <li>Signs of intracranial bleeding: severe headache, vision changes, weakness, seizures, AMS</li>
+        <li>Hemodynamic instability with bleeding</li>
+      </ul></div>
+    </div>
+    <div class="branch purple-branch">
+      <div class="branch-header" onclick="toggleBranch(this)">🏠 Hospice Transition Alternative <span class="chevron">▶</span></div>
+      <div class="branch-body"><div class="script-box"><div class="script-label hospice-alt">🟣 Script</div><p>"Platelet transfusions give temporary benefit — usually 2–4 days — and require hospital visits. Hospice can focus on bleeding prevention and comfort at home. Would that fit your goals?"</p></div>
+      <ul class="question-list">
+        <li>Patient enrolled in hospice with expected thrombocytopenia (bone marrow failure, malignancy)</li>
+        <li>Goals of care prioritize comfort over platelet transfusion</li>
+        <li>Bleeding manageable with local measures and comfort care</li>
+      </ul></div>
+    </div>
+    <div class="branch blue-branch">
+      <div class="branch-header" onclick="toggleBranch(this)">📞 Escalate to Provider Immediately IF <span class="chevron">▶</span></div>
+      <div class="branch-body"><ul class="question-list">
+        <li>Platelets &lt;50,000/μL regardless of symptoms</li>
+        <li>Platelets 50,000–100,000/μL with bleeding (petechiae, bruising, nosebleeds, gum bleeding)</li>
+        <li>Any platelet count with signs of bleeding requiring intervention</li>
+        <li>Patient on antiplatelet or anticoagulant medications</li>
+      </ul></div>
+    </div>
+    <div class="branch green-branch">
+      <div class="branch-header" onclick="toggleBranch(this)">☎ RN Telephone Management — Bleeding Precautions <span class="chevron">▶</span></div>
+      <div class="branch-body">
+        <div class="script-box"><div class="script-label phone">📞 Personal Care</div><ul>
+          <li>"Use a soft toothbrush and brush gently"</li>
+          <li>"Don't floss if platelets are under 20,000"</li>
+          <li>"Use an electric razor — not a blade"</li>
+          <li>"File your nails instead of cutting them"</li>
+          <li>"Blow your nose gently — not forcefully"</li>
+          <li>"Avoid rectal thermometers, suppositories, and enemas"</li>
+        </ul></div>
+        <div class="script-box"><div class="script-label phone">📞 Medication &amp; Activity</div><ul>
+          <li>"Avoid aspirin and NSAIDs — ibuprofen, naproxen, ketorolac"</li>
+          <li>"Use acetaminophen (Tylenol) for pain instead"</li>
+          <li>"Check all OTC medications — many contain aspirin or NSAIDs"</li>
+          <li>"Avoid contact sports and activities with injury risk"</li>
+          <li>"Wear protective footwear — don't go barefoot"</li>
+          <li>"Avoid constipation — straining can cause bleeding; use stool softeners, fluids, fiber" <span class="xref" onclick="scrollToSection('constipation')">→ Constipation</span></li>
+        </ul></div>
+        <div class="script-box"><div class="script-label phone">📞 Managing Bleeding at Home</div><ul>
+          <li>"For minor cuts — direct pressure for 10–15 minutes without peeking"</li>
+          <li>"For nosebleeds — sit upright, lean forward, pinch the soft part for 10–15 minutes; ice on the bridge of the nose"</li>
+          <li>"For gum bleeding — pressure with gauze or a tea bag (the tannin helps clotting)"</li>
+          <li>"For bruising — ice pack for 15–20 minutes"</li>
+        </ul></div>
+        <div class="alert orange">
+          <span class="alert-icon">⚠️</span>
+          <div><strong>Teach warning signs for 911:</strong> severe headache, vision changes, weakness, black tarry stools, vomiting blood, severe abdominal pain.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- LAB ALERTS: NEUTROPENIA -->
+<!-- ============================================================ -->
+<div class="section" id="neutropenia">
+  <div class="section-header" style="background:linear-gradient(135deg,var(--alive-green),#4A6B2E)"><span class="section-header-left"><span class="icon">🛡️</span> Leukopenia / Neutropenia (Low WBC)</span><button class="add-to-summary-btn" data-summary-btn="neutropenia" onclick="addToSummary('neutropenia', 'Neutropenia')">+ Add To Summary</button></div>
+  <div class="section-body">
+
+    <div class="alert red">
+      <span class="alert-icon">🚨</span>
+      <div><strong>Febrile neutropenia is an oncologic emergency.</strong> Any fever (&gt;100.4°F) in a patient with ANC &lt;1,000/μL requires immediate provider contact.</div>
+    </div>
+
+    <div class="flow-group">
+      <div class="flow-group-title">Immediate RN Assessment</div>
+      <ul class="question-list">
+        <li>Assess for signs of infection: fever <span class="xref" onclick="scrollToSection('fever')">→ Fever</span>, chills, cough <span class="xref" onclick="scrollToSection('cough')">→ Cough</span>, sore throat, urinary symptoms <span class="xref" onclick="scrollToSection('uti')">→ UTI</span>, skin infections, mouth sores</li>
+        <li>Take temperature if available — fever in a neutropenic patient is an emergency</li>
+        <li>Recent exposures to illness or sick contacts?</li>
+        <li>Is patient on chemotherapy, immunosuppressive medications, or does patient have underlying immunodeficiency?</li>
+        <li>Calculate ANC if available: <strong>ANC = WBC × (% neutrophils + % bands) ÷ 100</strong></li>
+      </ul>
+    </div>
+
+    <div class="divider"></div>
+    <div class="flow-group"><div class="flow-group-title">Disposition &amp; Management</div></div>
+
+    <div class="branch red-branch">
+      <div class="branch-header" onclick="toggleBranch(this)">🚨 CALL 911 IF (and patient/family desires aggressive intervention) <span class="chevron">▶</span></div>
+      <div class="branch-body"><ul class="question-list">
+        <li>ANC &lt;500/μL with fever &gt;100.4°F (38°C) = <strong>febrile neutropenia</strong></li>
+        <li>Signs of sepsis: fever, hypotension, AMS, rigors, severe illness</li>
+        <li>Neutropenia with signs of severe infection: pneumonia, cellulitis, abscess</li>
+      </ul></div>
+    </div>
+    <div class="branch purple-branch">
+      <div class="branch-header" onclick="toggleBranch(this)">🏠 Hospice Transition Alternative <span class="chevron">▶</span></div>
+      <div class="branch-body"><div class="script-box"><div class="script-label hospice-alt">🟣 Script</div><p>"For advanced illness, we can manage fevers and infections at home with oral antibiotics and comfort medications — rather than admitting you for IV antibiotics. Would that fit your goals?"</p></div>
+      <ul class="question-list">
+        <li>Patient enrolled in hospice with expected neutropenia from underlying disease or chemotherapy</li>
+        <li>Goals of care prioritize comfort over aggressive infection treatment</li>
+        <li>Symptoms manageable with oral antibiotics and comfort care through hospice</li>
+      </ul></div>
+    </div>
+    <div class="branch blue-branch">
+      <div class="branch-header" onclick="toggleBranch(this)">📞 Escalate to Provider Immediately IF <span class="chevron">▶</span></div>
+      <div class="branch-body"><ul class="question-list">
+        <li>ANC &lt;1,000/μL with any signs of infection (fever, cough, sore throat, urinary symptoms, skin infection)</li>
+        <li>ANC &lt;500/μL even without fever (high risk for rapid deterioration)</li>
+        <li>Neutropenia in patient on chemotherapy or immunosuppressive medications</li>
+        <li>Any fever in a neutropenic patient</li>
+        <li>Uncertainty about goals of care or appropriateness of antibiotic prophylaxis</li>
+      </ul></div>
+    </div>
+    <div class="branch green-branch">
+      <div class="branch-header" onclick="toggleBranch(this)">☎ RN Telephone Management — Neutropenic Precautions <span class="chevron">▶</span></div>
+      <div class="branch-body">
+        <div class="script-box"><div class="script-label phone">📞 Infection Prevention</div><ul>
+          <li>"Avoid crowds and people who are sick — including children with colds"</li>
+          <li>"Wash hands frequently with soap and water for at least 20 seconds"</li>
+          <li>"Wear a mask in public if your ANC is under 500"</li>
+          <li>"Avoid anyone who got a live vaccine in the last 2 weeks (chickenpox, MMR, nasal flu)"</li>
+        </ul></div>
+        <div class="script-box"><div class="script-label phone">📞 Food Safety</div><ul>
+          <li>"No raw or undercooked eggs, meat, fish, or shellfish"</li>
+          <li>"No unpasteurized dairy, juices, or honey"</li>
+          <li>"Wash and peel fruits and vegetables"</li>
+          <li>"No deli meats or soft cheeses unless heated until steaming"</li>
+          <li>"Avoid buffets, salad bars, and street vendors"</li>
+        </ul></div>
+        <div class="script-box"><div class="script-label phone">📞 Environmental &amp; Personal Hygiene</div><ul>
+          <li>"Avoid gardening and contact with soil, plants, fresh flowers (fungal spores)"</li>
+          <li>"Don't clean litter boxes, bird cages, or fish tanks"</li>
+          <li>"Shower or bathe daily; keep skin moisturized to prevent cracks"</li>
+          <li>"Brush teeth gently with a soft toothbrush after meals"</li>
+          <li>"Don't cut cuticles — push back gently"</li>
+          <li>"Report any skin breaks, cuts, or rashes immediately"</li>
+        </ul></div>
+        <div class="script-box"><div class="script-label phone">📞 Temperature Monitoring</div><ul>
+          <li>"Check your temperature twice daily if your ANC is under 1,000"</li>
+          <li>"Check immediately if you feel feverish, chilled, or unwell"</li>
+          <li>"Fever = 100.4°F (38°C) once, or 100°F (37.8°C) sustained over an hour"</li>
+          <li>"Call us right away for any fever, chills, new cough, shortness of breath, severe sore throat, mouth sores, diarrhea, painful urination, or skin redness/drainage"</li>
+        </ul></div>
+        <div class="alert purple">
+          <span class="alert-icon">🟣</span>
+          <div><strong>Palliative/Hospice:</strong> Modified precautions — focus on hand hygiene and avoiding obviously sick contacts, but allow meaningful activities (gardening, pet contact) if important to the patient. For actively dying patients, precautions may be relaxed to allow family contact and meaningful activities.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ============================================================ -->
 <!-- PART 3: DOCUMENTATION -->
 <!-- ============================================================ -->
 <div class="section" id="documentation">
-  <div class="section-header teal-header"><span class="section-header-left"><span class="icon">📝</span> Part 3: Documentation Requirements</span><button class="add-to-summary-btn" data-summary-btn="documentation" onclick="addToSummary('documentation', 'Disposition')">+ Add To Summary</button></div>
+  <div class="section-header teal-header"><span class="section-header-left"><span class="icon">📝</span> Part 3: Disposition</span></div>
   <div class="section-body">
-    <p style="font-size:13px;color:var(--text-light);margin-bottom:12px"><strong>Document the following for every call:</strong></p>
-    <ul class="checklist">
-      <li>Date, time, and duration of call</li>
-      <li>Patient name, DOB, and callback number</li>
-      <li>Chief complaint in patient's own words</li>
-      <li>Current hospice status and goals of care</li>
-      <li>Symptom assessment details</li>
-      <li>Relevant medical history and current medications</li>
-      <li>Disposition decision and rationale</li>
-      <li>Instructions provided</li>
-      <li>Patient/caregiver verbalized understanding (teach-back)</li>
-      <li>Provider notified (name and time, if applicable)</li>
-      <li>Follow-up plan</li>
-    </ul>
+    <p style="font-size:13px;color:var(--text-light);margin-bottom:14px"><strong>Select all that apply to document the call disposition. Each selection can be added to the summary and annotated with details.</strong></p>
+
+    <div style="display:grid;grid-template-columns:1fr;gap:10px;">
+
+      <!-- Chief Complaint & Plan Summary -->
+      <div style="border-left:4px solid var(--alive-teal);padding:12px 14px;background:rgba(36,86,100,0.05);border-radius:6px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;">
+        <div style="display:flex;align-items:center;gap:12px;min-width:0;flex:1;">
+          <span style="font-size:24px;flex-shrink:0;">📋</span>
+          <div style="min-width:0;">
+            <div style="font-weight:700;color:var(--alive-teal);font-size:15px;">Chief Complaint &amp; Plan Summary</div>
+            <div style="font-size:12px;color:var(--text-light);margin-top:2px;">Brief narrative of the call — concern and plan.</div>
+          </div>
+        </div>
+        <button class="add-to-summary-btn" data-summary-btn="disp-plan" onclick="addToSummary('disp-plan', 'Chief Complaint &amp; Plan')">+ Add To Summary</button>
+      </div>
+
+      <!-- RN Resolved -->
+      <div style="border-left:4px solid var(--alive-green);padding:12px 14px;background:rgba(99,140,61,0.06);border-radius:6px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;">
+        <div style="display:flex;align-items:center;gap:12px;min-width:0;flex:1;">
+          <span style="font-size:24px;flex-shrink:0;">✅</span>
+          <div style="min-width:0;">
+            <div style="font-weight:700;color:var(--alive-green);font-size:15px;">RN Resolved</div>
+            <div style="font-size:12px;color:var(--text-light);margin-top:2px;">Concern addressed at RN level — no escalation needed.</div>
+          </div>
+        </div>
+        <button class="add-to-summary-btn" data-summary-btn="disp-rn-resolved" onclick="addToSummary('disp-rn-resolved', 'RN Resolved')">+ Add To Summary</button>
+      </div>
+
+      <!-- APP Contacted -->
+      <div style="border-left:4px solid var(--alive-blue);padding:12px 14px;background:rgba(50,97,149,0.06);border-radius:6px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;">
+        <div style="display:flex;align-items:center;gap:12px;min-width:0;flex:1;">
+          <span style="font-size:24px;flex-shrink:0;">👩‍⚕️</span>
+          <div style="min-width:0;">
+            <div style="font-weight:700;color:var(--alive-blue);font-size:15px;">APP Contacted</div>
+            <div style="font-size:12px;color:var(--text-light);margin-top:2px;">Escalated to provider for orders, direction, or clinical decision-making.</div>
+          </div>
+        </div>
+        <button class="add-to-summary-btn" data-summary-btn="disp-app-contacted" onclick="addToSummary('disp-app-contacted', 'APP Contacted')">+ Add To Summary</button>
+      </div>
+
+      <!-- Patient to ED / Hospital -->
+      <div style="border-left:4px solid #C92A2A;padding:12px 14px;background:rgba(201,42,42,0.06);border-radius:6px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;">
+        <div style="display:flex;align-items:center;gap:12px;min-width:0;flex:1;">
+          <span style="font-size:24px;flex-shrink:0;">🚑</span>
+          <div style="min-width:0;">
+            <div style="font-weight:700;color:#C92A2A;font-size:15px;">Patient to ED / Hospital</div>
+            <div style="font-size:12px;color:var(--text-light);margin-top:2px;">911 called, EMS dispatched, or patient transported to acute care.</div>
+          </div>
+        </div>
+        <button class="add-to-summary-btn" data-summary-btn="disp-to-ed" onclick="addToSummary('disp-to-ed', 'Patient to ED / Hospital')">+ Add To Summary</button>
+      </div>
+
+      <!-- ED / Hospital Avoided -->
+      <div style="border-left:4px solid var(--alive-magenta);padding:12px 14px;background:rgba(157,41,109,0.06);border-radius:6px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;">
+        <div style="display:flex;align-items:center;gap:12px;min-width:0;flex:1;">
+          <span style="font-size:24px;flex-shrink:0;">🛡️</span>
+          <div style="min-width:0;">
+            <div style="font-weight:700;color:var(--alive-magenta);font-size:15px;">ED / Hospital Avoided</div>
+            <div style="font-size:12px;color:var(--text-light);margin-top:2px;">Care provided at home through the hospice benefit — acute care prevented.</div>
+          </div>
+        </div>
+        <button class="add-to-summary-btn" data-summary-btn="disp-ed-avoided" onclick="addToSummary('disp-ed-avoided', 'ED / Hospital Avoided')">+ Add To Summary</button>
+      </div>
+
+    </div>
   </div>
 </div>
 
@@ -2267,6 +3333,20 @@ body {
         <tr><td><span class="sym-link" onclick="scrollToSection('diarrhea')">Diarrhea</span></td><td>Severe dehydration, bloody</td><td>Anti-diarrheals</td><td>Fever, blood, &gt;6/day</td><td>Loperamide, hydration</td></tr>
         <tr><td><span class="sym-link" onclick="scrollToSection('nausea')">N/V</span></td><td>Hematemesis, obstruction</td><td>Antiemetics</td><td>Can't keep meds down</td><td>Clear fluids, antiemetics</td></tr>
         <tr><td><span class="sym-link" onclick="scrollToSection('uti')">UTI/Cystitis</span></td><td>Sepsis signs, AMS</td><td>Oral Abx at home</td><td>With fever, in males</td><td>Fluids, acetaminophen</td></tr>
+        <tr><td colspan="5" style="background:var(--alive-magenta);color:#fff;font-weight:700;padding:6px 10px;">Vitals &amp; Cardiac</td></tr>
+        <tr><td><span class="sym-link" onclick="scrollToSection('arrhythmia')">Arrhythmia</span></td><td>Unstable, syncope, CP, AMS</td><td>Rate control, comfort</td><td>New/sustained, symptomatic</td><td>Rest, recheck, reassure</td></tr>
+        <tr><td><span class="sym-link" onclick="scrollToSection('hypertension')">Hypertension</span></td><td>SBP ≥180 + end-organ sx</td><td>Comfort-focused mgmt</td><td>SBP ≥180 asymptomatic</td><td>Recheck, PRN meds, calm</td></tr>
+        <tr><td><span class="sym-link" onclick="scrollToSection('hypotension')">Hypotension</span></td><td>SBP &lt;90 + shock/AMS</td><td>Expected dying trajectory</td><td>Symptomatic, new onset</td><td>Position, hydrate PO, recheck</td></tr>
+        <tr><td colspan="5" style="background:var(--alive-brown);color:#fff;font-weight:700;padding:6px 10px;">Endocrine</td></tr>
+        <tr><td><span class="sym-link" onclick="scrollToSection('hyperglycemia')">Hyperglycemia</span></td><td>BG &gt;400 + AMS/DKA signs</td><td>Deintensify at EOL</td><td>BG &gt;300 persistent</td><td>Hydration, med review</td></tr>
+        <tr><td><span class="sym-link" onclick="scrollToSection('hypoglycemia')">Hypoglycemia</span></td><td>BG &lt;54 + AMS/unresponsive</td><td>D/C hypoglycemics at EOL</td><td>Recurrent &lt;70, symptomatic</td><td>15/15 rule, recheck, snack</td></tr>
+        <tr><td colspan="5" style="background:var(--alive-green);color:#fff;font-weight:700;padding:6px 10px;">Lab Alerts</td></tr>
+        <tr><td><span class="sym-link" onclick="scrollToSection('cmp-alerts')">CMP/Electrolytes</span></td><td>K+ ≥6.5, Na critical + AMS</td><td>Stop labs if EOL</td><td>Critical values, symptomatic</td><td>Recheck, PO fluids, med review</td></tr>
+        <tr><td><span class="sym-link" onclick="scrollToSection('inr-alerts')">Elevated INR</span></td><td>INR &gt;10 + active bleed</td><td>Hold anticoag, comfort</td><td>INR &gt;5 asymptomatic</td><td>Hold dose, bleeding precaut.</td></tr>
+        <tr><td><span class="sym-link" onclick="scrollToSection('ua-alerts')">UA Critical</span></td><td>UTI + sepsis/AMS</td><td>Oral Abx or comfort</td><td>Positive UA + symptoms</td><td>Fluids, monitor, PRN</td></tr>
+        <tr><td><span class="sym-link" onclick="scrollToSection('anemia')">Anemia</span></td><td>Hgb &lt;7 + hemodynamic instab.</td><td>Transfusion or comfort</td><td>Hgb &lt;8 symptomatic</td><td>Rest, iron, monitor</td></tr>
+        <tr><td><span class="sym-link" onclick="scrollToSection('thrombocytopenia')">Thrombocytopenia</span></td><td>Plts &lt;20 + active bleed</td><td>Bleeding precautions</td><td>Plts &lt;50, new bruising</td><td>Fall precautions, soft tb</td></tr>
+        <tr><td><span class="sym-link" onclick="scrollToSection('neutropenia')">Neutropenia</span></td><td>ANC &lt;500 + fever/sepsis</td><td>Comfort Abx or withhold</td><td>ANC &lt;1000 + any fever</td><td>Infection precautions</td></tr>
       </tbody>
     </table>
   </div>
@@ -2322,7 +3402,7 @@ body {
   <p>This document is a conceptual clinical decision-support prototype intended to illustrate a potential workflow for trained nursing professionals. It does not constitute medical advice, replace clinical judgment, or establish a standard of care. All clinical decisions must be made by a qualified healthcare provider based on the individual patient's condition, history, and goals of care.</p>
   <p style="margin-top:8px;">The authors and contributors assume no liability for clinical outcomes resulting from the use or misuse of this prototype. The information contained herein, including medication names, dosages, and clinical pathways, is provided for illustrative purposes and has not been independently verified for accuracy or completeness. Users are solely responsible for verifying all clinical content with authoritative sources before any application in a care setting.</p>
   <p style="margin-top:8px;">This prototype is provided "as is" without warranty of any kind, express or implied, including but not limited to warranties of accuracy, completeness, or fitness for a particular purpose.</p>
-  <p style="margin-top:12px;color:#5A5A5A;"><strong>Reviewed by:</strong> Martha Presley Tran &nbsp;|&nbsp; <strong>Date:</strong> April 4, 2026 &nbsp;|&nbsp; <strong>Version:</strong> 2.0 (Proof of Concept)</p>
+  <p style="margin-top:12px;color:#5A5A5A;"><strong>Reviewed by:</strong> Martha Presley Tran &nbsp;|&nbsp; <strong>Date:</strong> April 18, 2026 &nbsp;|&nbsp; <strong>Version:</strong> 2.1 (Proof of Concept)</p>
 </div>
 
 </div><!-- /center-inner -->
@@ -2543,6 +3623,63 @@ function toggleNavGroup(groupId) {
   var body = group.querySelector('.nav-group-body');
   header.classList.toggle('collapsed');
   body.classList.toggle('collapsed');
+}
+
+var _chiefComplaintSectionTextCache = null;
+function _getSectionIdFromBtn(btn) {
+  var onclick = btn.getAttribute('onclick') || '';
+  var m = onclick.match(/scrollToSection\(['"]([^'"]+)['"]\)/);
+  return m ? m[1] : null;
+}
+function _buildChiefComplaintSectionTextCache() {
+  var cache = {};
+  var group = document.getElementById('nav-symptoms');
+  if (!group) return cache;
+  group.querySelectorAll('.nav-group-body .nav-btn').forEach(function(btn) {
+    var id = _getSectionIdFromBtn(btn);
+    if (!id) return;
+    var section = document.getElementById(id);
+    cache[id] = section ? (section.textContent || '').toLowerCase().replace(/\s+/g, ' ') : '';
+  });
+  return cache;
+}
+
+function filterChiefComplaints(query) {
+  var group = document.getElementById('nav-symptoms');
+  if (!group) return;
+  var wrap = group.querySelector('.nav-search-wrap');
+  var q = (query || '').trim().toLowerCase();
+  if (wrap) wrap.classList.toggle('has-value', q.length > 0);
+  if (q.length > 0 && !_chiefComplaintSectionTextCache) {
+    _chiefComplaintSectionTextCache = _buildChiefComplaintSectionTextCache();
+  }
+  group.querySelectorAll('.nav-group-body .nav-btn').forEach(function(btn) {
+    if (q.length === 0) { btn.classList.remove('nav-hidden'); return; }
+    var label = btn.textContent.trim().toLowerCase();
+    var matches = label.indexOf(q) !== -1;
+    if (!matches) {
+      var id = _getSectionIdFromBtn(btn);
+      var sectionText = id && _chiefComplaintSectionTextCache ? _chiefComplaintSectionTextCache[id] : '';
+      matches = sectionText && sectionText.indexOf(q) !== -1;
+    }
+    btn.classList.toggle('nav-hidden', !matches);
+  });
+  if (q.length > 0) {
+    var header = group.querySelector('.nav-group-header');
+    var body = group.querySelector('.nav-group-body');
+    if (header) header.classList.remove('collapsed');
+    if (body) body.classList.remove('collapsed');
+  }
+}
+
+function clearChiefComplaintsFilter(e) {
+  if (e) e.stopPropagation();
+  var input = document.getElementById('chief-complaint-search');
+  if (input) {
+    input.value = '';
+    filterChiefComplaints('');
+    input.focus();
+  }
 }
 
 // Clicking the peeked area expands the collapsed nav group
