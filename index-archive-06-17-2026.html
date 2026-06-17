@@ -944,7 +944,6 @@ body {
       <button class="nav-btn" onclick="scrollToSection('gen-weakness')"><span class="icon">💪</span>Gen. Weakness</button>
       <button class="nav-btn" onclick="scrollToSection('uni-weakness')"><span class="icon">⚡</span>Unilateral / Stroke</button>
       <button class="nav-btn" onclick="scrollToSection('ams')"><span class="icon">🧠</span>AMS / Agitation</button>
-      <button class="nav-btn" onclick="scrollToSection('anxiety')"><span class="icon">😰</span>Anxiety</button>
       <button class="nav-btn" onclick="scrollToSection('hyperglycemia')"><span class="icon">🍬</span>Hyperglycemia</button>
       <button class="nav-btn" onclick="scrollToSection('hypoglycemia')"><span class="icon">🍯</span>Hypoglycemia</button>
       <button class="nav-btn" onclick="scrollToSection('fever')"><span class="icon">🌡️</span>Fever</button>
@@ -970,7 +969,6 @@ body {
       <button class="nav-btn" style="padding-left:34px;font-size:13px" onclick="scrollToSection('wound-lines')"><span class="icon">💉</span>Central Lines &amp; Ports</button>
       <button class="nav-btn" style="padding-left:34px;font-size:13px" onclick="scrollToSection('wound-drains')"><span class="icon">🧪</span>Surgical &amp; Pleural Drains</button>
       <button class="nav-btn" style="padding-left:34px;font-size:13px" onclick="scrollToSection('wound-peritoneal')"><span class="icon">💧</span>Peritoneal Drains / Ascites</button>
-      <button class="nav-btn" style="padding-left:34px;font-size:13px" onclick="scrollToSection('wound-foley')"><span class="icon">🚰</span>Foley / Urinary Catheter</button>
     </div>
   </div>
 
@@ -1134,7 +1132,7 @@ body {
           <li>New medications or increased doses?</li>
           <li class="sub">ASA?</li>
           <li>Have you been in bed more recently? Why?</li>
-          <li>Recent social or health changes that are stressful? <span class="xref" onclick="scrollToSection('anxiety')">→ Anxiety</span></li>
+          <li>Recent social or health changes that are stressful?</li>
         </ul>
       </div>
     </div>
@@ -1892,7 +1890,6 @@ body {
           <li>New medications?</li>
           <li>New pain?</li>
           <li>Environmental change?</li>
-          <li>Anxiety, restlessness, or terminal agitation? <span class="xref" onclick="scrollToSection('anxiety')">→ Anxiety</span></li>
           <li>What medications in the home?</li>
         </ul>
       </div>
@@ -2020,157 +2017,6 @@ body {
 </div>
 
 <!-- ============================================================ -->
-<!-- ANXIETY -->
-<!-- ============================================================ -->
-<div class="section" id="anxiety">
-  <div class="section-header"><span class="section-header-left"><span class="icon">😰</span> Anxiety</span><button class="add-to-summary-btn" data-summary-btn="anxiety" onclick="addToSummary('anxiety', 'Anxiety')">+ Add To Summary</button></div>
-  <div class="section-body">
-
-    <div class="alert red">
-      <span class="alert-icon">🚨</span>
-      <div><strong>Two things first, every anxiety call:</strong> (1) screen for safety (suicide/self-harm — see Safety Screen below), and (2) rule out a medical mimic. <strong>New-onset anxiety after age 45 with no prior psychiatric history is uncommon</strong> and should raise suspicion for a medical cause (cardiac, PE, hypoxia, hypoglycemia, thyroid, delirium, sepsis, medications) before being treated as primary anxiety.</div>
-    </div>
-
-    <div class="flow-group">
-      <div class="flow-group-title">Triage Assessment</div>
-      <ul class="question-list">
-        <li>Onset, duration, severity (0–10); new symptom vs. worsening/recurrent; identifiable trigger</li>
-        <li>Associated symptoms: racing heart, shortness of breath, sweating, trembling, chest tightness, impending doom</li>
-        <li>Functional impact (eating, sleeping, taking meds); what helped before</li>
-        <li>Recent medication changes, abrupt stops, alcohol/caffeine/substance use</li>
-      </ul>
-    </div>
-
-    <div class="branch acute">
-      <div class="branch-header" onclick="toggleBranch(this)">🛟 Step 1 — Safety Screen (ASQ) <span class="chevron">▶</span></div>
-      <div class="branch-body">
-        <ul class="question-list">
-          <li>"In the past few weeks, have you wished you were dead?"</li>
-          <li>"…felt that you or your family would be better off if you were dead?"</li>
-          <li>"In the past week, have you had thoughts about killing yourself?"</li>
-          <li>"Have you ever tried to kill yourself?"</li>
-          <li class="sub">If YES to any → ask: "Are you having thoughts of killing yourself right now?"</li>
-          <li>"Are you having thoughts of hurting anyone else?"</li>
-        </ul>
-        <div class="alert red"><span class="alert-icon">🚨</span><div><strong>Thoughts of suicide right now</strong> (or active attempt), or homicidal intent with a target/plan → <strong>psychiatric emergency: call 911</strong> (per goals of care). Do not leave the patient alone, stay on the line until help arrives, and have the caregiver secure firearms, medications, and sharps.</div></div>
-        <div class="alert orange"><span class="alert-icon">📞</span><div><strong>YES to any screen but NO to "right now"</strong>, or prior attempt with current exacerbation → escalate to provider for safety assessment; advise removal of lethal means; don't leave the patient alone until the provider is reached.</div></div>
-      </div>
-    </div>
-
-    <div class="branch acute">
-      <div class="branch-header" onclick="toggleBranch(this)">🩺 Step 2 — Medical Mimic Screen (rule out emergencies) <span class="chevron">▶</span></div>
-      <div class="branch-body">
-        <ul class="question-list">
-          <li><strong>Cardiac:</strong> chest pain/pressure, palpitations, dizziness/near-syncope? <span class="xref" onclick="scrollToSection('chest-pain')">→ Chest Pain</span> <span class="xref" onclick="scrollToSection('arrhythmia')">→ Arrhythmia</span></li>
-          <li><strong>Pulmonary:</strong> sudden dyspnea, pleuritic pain, unilateral leg swelling (PE/DVT)? <span class="xref" onclick="scrollToSection('dyspnea')">→ Dyspnea</span> <span class="xref" onclick="scrollToSection('edema')">→ Edema</span></li>
-          <li><strong>Metabolic:</strong> diabetic + shaky/sweaty/confused (hypoglycemia)? fever/infection? <span class="xref" onclick="scrollToSection('hypoglycemia')">→ Hypoglycemia</span> <span class="xref" onclick="scrollToSection('fever')">→ Fever</span></li>
-          <li><strong>Neurologic:</strong> focal weakness/speech change (stroke), or fluctuating attention (delirium)? <span class="xref" onclick="scrollToSection('uni-weakness')">→ Unilateral / Stroke</span> <span class="xref" onclick="scrollToSection('ams')">→ AMS / Agitation</span></li>
-        </ul>
-      </div>
-    </div>
-
-    <div class="divider"></div>
-    <div class="flow-group"><div class="flow-group-title">Disposition &amp; Management</div></div>
-
-    <div class="branch red-branch">
-      <div class="branch-header" onclick="toggleBranch(this)">🚨 CALL 911 IF (and patient/family desires aggressive intervention) <span class="chevron">▶</span></div>
-      <div class="branch-body"><ul class="question-list">
-        <li>Anxiety + chest pain/pressure with diaphoresis, jaw/arm pain (ACS), or palpitations with instability</li>
-        <li>Sudden severe dyspnea with pleuritic pain/tachycardia (PE), or severe respiratory distress/cyanosis</li>
-        <li>Hypoglycemia &lt;54 mg/dL or with altered mental status; sepsis (fever &gt;101°F + hypotension/AMS)</li>
-        <li>Focal neurologic deficits (stroke) or seizure activity</li>
-        <li><strong>Psychiatric emergency:</strong> active suicidal ideation with plan/intent or attempt; homicidal intent with target; severe agitation with imminent danger</li>
-      </ul></div>
-    </div>
-
-    <div class="branch purple-branch">
-      <div class="branch-header" onclick="toggleBranch(this)">🏠 Hospice Transition Alternative <span class="chevron">▶</span></div>
-      <div class="branch-body">
-        <div class="script-box"><div class="script-label hospice-alt">🟣 Script</div><p>"Anxiety and restlessness are common with serious illness and near the end of life. If your goal is comfort at home, hospice can manage this with medications and support — including a nurse visit — rather than a trip to the hospital. Would you like me to arrange that?"</p></div>
-        <div class="alert purple"><span class="alert-icon">🟣</span><div>For comfort-focused patients with anxiety, existential distress, or <strong>terminal restlessness</strong>, hospice can treat actively at home — scheduled/PRN <span class="med-tag">lorazepam</span> 0.5–2 mg PO/SL q3–6h ± low-dose <span class="med-tag">haloperidol</span>, opioids for dyspnea-related anxiety, plus chaplain/social-work support. Reassure family that comfort medications are appropriate and do not hasten death.</div></div>
-      </div>
-    </div>
-
-    <div class="branch blue-branch">
-      <div class="branch-header" onclick="toggleBranch(this)">📞 Escalate to Provider IF <span class="chevron">▶</span></div>
-      <div class="branch-body"><ul class="question-list">
-        <li><strong>New-onset anxiety, no prior psychiatric history</strong>, or atypical features (onset &gt;45, vertigo, LOC, slurred speech, incontinence, amnesia) — needs medical workup</li>
-        <li><strong>First-time panic attack in an elderly patient</strong> — always rule out cardiac/pulmonary/metabolic causes first</li>
-        <li>Known anxiety worsening despite treatment; not responding to PRN/non-pharmacologic measures; interfering with eating/sleep/meds/treatment</li>
-        <li>Passive suicidal ideation without plan, or prior attempt with current exacerbation (911 if imminent)</li>
-        <li><strong>Suspected benzodiazepine or alcohol withdrawal</strong> (tremor, sweating, tachycardia) — <em>urgent</em>, seizure risk; do NOT abruptly stop; medication-related anxiety; request for new/adjusted anxiolytic</li>
-        <li>Delirium features (acute, fluctuating, inattention, hallucinations) <span class="xref" onclick="scrollToSection('ams')">→ AMS / Agitation</span>; severe dementia-related agitation</li>
-      </ul></div>
-    </div>
-
-    <div class="branch green-branch">
-      <div class="branch-header" onclick="toggleBranch(this)">☎ RN Telephone Management — Scripts <span class="chevron">▶</span></div>
-      <div class="branch-body">
-        <div class="script-box"><div class="script-label phone">📞 Immediate Calming (stay on the line)</div><ul>
-          <li><strong>Breathing:</strong> "Breathe in through your nose for 4… hold for 4… out through your mouth for 6. Let's do it together 5–10 times." (For hyperventilation, coach slow breathing — <strong>no paper bag</strong>.)</li>
-          <li><strong>Grounding (5-4-3-2-1):</strong> name 5 things you see, 4 you can touch, 3 you hear, 2 you smell, 1 you taste.</li>
-          <li><strong>Validate, don't dismiss:</strong> "It makes sense you feel anxious — we'll work through this together." Avoid "just calm down."</li>
-        </ul></div>
-        <div class="script-box"><div class="script-label phone">📞 Environment &amp; Coping (caregiver)</div><ul>
-          <li>Reduce stimulation (lower noise/lights), comfortable temperature, warm non-caffeinated drink, calm reassuring presence.</li>
-          <li>Gentle movement, distraction (music, photos, simple task), social/spiritual connection as the patient prefers.</li>
-        </ul></div>
-        <div class="script-box"><div class="script-label phone">📞 Existing PRN Anxiolytic — review before giving</div><ul>
-          <li>Confirm med/dose/route/frequency and time of last dose; check for over-sedation, recent alcohol, fall and respiratory-depression risk.</li>
-          <li><span class="med-tag">lorazepam</span> 0.25–1 mg PO/SL q4–6h PRN (short-acting; SL if can't swallow) · <span class="med-tag">hydroxyzine</span> 10–25 mg PO q6h PRN (anticholinergic caution).</li>
-          <li><span class="med-tag">buspirone</span> is NOT a PRN — needs 2–4 weeks scheduled. Do NOT stop/skip a <em>scheduled</em> benzodiazepine (withdrawal-seizure risk).</li>
-          <li><strong>Beers caution:</strong> benzodiazepines raise fall/delirium risk in elders <span class="xref" onclick="scrollToSection('falls')">→ Falls</span> and compound opioid respiratory depression — but are appropriate for end-of-life care and withdrawal. After a dose: fall precautions, recheck in 30–60 min; over-sedation/resp depression → 911.</li>
-        </ul></div>
-        <div class="alert blue"><span class="alert-icon">🔵</span><div><strong>Treat the driver:</strong> anxiety often resolves when the underlying symptom is controlled — <span class="xref" onclick="scrollToSection('dyspnea')">→ Dyspnea</span> (fan to face, upright, PRN opioid ± benzo), <span class="xref" onclick="scrollToSection('pain')">→ Pain</span> (treat pain first), or causes of agitation in dementia like <span class="xref" onclick="scrollToSection('constipation')">→ Constipation</span>/urinary retention. <strong>Callback in 30–60 min</strong>; escalate if not improved.</div></div>
-        <div class="alert purple"><span class="alert-icon">🟣</span><div><strong>Existential anxiety / fear of dying</strong> (up to ~48% of palliative patients) is a normal response, not an emergency — listen, validate, identify the specific fear, and offer chaplain/social work/counseling. <strong>Terminal restlessness</strong> (last hours–days, ~50–70%) is usually delirium — keep a calm environment, check for reversible causes (full bladder, impaction, pain), and use hospice comfort meds (see below). <strong>Caregiver anxiety:</strong> validate, screen the caregiver's own safety, offer respite/support.</div></div>
-      </div>
-    </div>
-
-    <div class="branch hospice-enrolled-branch">
-      <div class="branch-header" onclick="toggleBranch(this)">🏥 If Patient Is Already Enrolled on Hospice <span class="chevron">▶</span></div>
-      <div class="branch-body">
-        <div class="hospice-visit-note">
-          <span class="hospice-visit-icon">🚪</span>
-          <div>Walk the patient or caregiver through the <strong>Comfort Kit</strong> on the phone — standing orders are already in place to treat symptoms at home. <strong>If you feel this cannot be safely managed by phone</strong>, offer a nursing visit this evening or first thing tomorrow.</div>
-        </div>
-        <div class="comfort-kit-box">
-          <div class="comfort-kit-label">🧰 Comfort Kit — Standing Orders &amp; Starting Doses</div>
-          <ul class="comfort-kit-list">
-            <li class="comfort-kit-item highlighted">
-              <div class="ck-symptom">Anxiety / Agitation</div>
-              <div class="ck-rx">
-                <div class="ck-rx-row"><span class="med-tag">lorazepam</span><span class="ck-dose">0.5mg PO/SL q6h PRN</span></div>
-                <div class="ck-rx-row"><span class="med-tag">haldol</span><span class="ck-dose">2mg/mL oral concentrate — give 0.5mL (1mg) PO q6h PRN</span></div>
-              </div>
-            </li>
-            <li class="comfort-kit-item">
-              <div class="ck-symptom">Dyspnea / Pain</div>
-              <div class="ck-rx">
-                <div class="ck-rx-row"><span class="med-tag">morphine</span><span class="ck-dose">20mg/mL oral solution — give 0.25mL (5mg) PO q4h PRN</span></div>
-              </div>
-            </li>
-            <li class="comfort-kit-item">
-              <div class="ck-symptom">Nausea</div>
-              <div class="ck-rx">
-                <div class="ck-rx-row"><span class="med-tag">haldol</span><span class="ck-dose">2mg/mL oral concentrate — give 0.5mL (1mg) PO q6h PRN</span></div>
-              </div>
-            </li>
-            <li class="comfort-kit-item">
-              <div class="ck-symptom">Secretions</div>
-              <div class="ck-rx">
-                <div class="ck-rx-row"><span class="med-tag">hyoscyamine</span><span class="ck-dose">0.125mg SL q4h PRN</span></div>
-              </div>
-            </li>
-          </ul>
-        </div>
-        <div class="alert purple"><span class="alert-icon">🟣</span><div>For refractory terminal agitation, <span class="med-tag">lorazepam</span> + <span class="med-tag">haloperidol</span> together often work better than either alone; escalate to the hospice provider/medical director for proportional or palliative sedation if needed.</div></div>
-      </div>
-    </div>
-
-  </div>
-</div>
-
-<!-- ============================================================ -->
 <!-- FEVER -->
 <!-- ============================================================ -->
 <div class="section" id="fever">
@@ -2224,7 +2070,7 @@ body {
     </div>
 <div class="branch purple-branch">
       <div class="branch-header" onclick="toggleBranch(this)">🏠 Hospice Transition Alternative <span class="chevron">▶</span></div>
-      <div class="branch-body"><div class="script-box"><div class="script-label hospice-alt">🟣 Script</div><p>"Fever is common in serious illness and doesn't always need aggressive treatment. If comfort is the goal, we can manage fever symptoms at home with medications — and if the infection is causing distress, hospice can still provide antibiotics when they help with comfort. Whether antibiotics help depends on the cause, and we'll match the plan to your goals."</p></div></div>
+      <div class="branch-body"><div class="script-box"><div class="script-label hospice-alt">🟣 Script</div><p>"Fever is common in serious illness and doesn't always need aggressive treatment. If comfort is the goal, we can manage fever symptoms at home with medications. Antibiotics may or may not help depending on the cause."</p></div></div>
     </div>
 <div class="branch blue-branch">
       <div class="branch-header" onclick="toggleBranch(this)">📞 Escalate to Provider IF <span class="chevron">▶</span></div>
@@ -2473,7 +2319,6 @@ body {
         <li>Tried anything to make it better?</li>
         <li>Location and radiation?</li>
         <li>Quality — ripping, tight, sharp, etc.?</li>
-        <li>Anxiety or distress worsening the pain? <span class="xref" onclick="scrollToSection('anxiety')">→ Anxiety</span></li>
         <li>Severity?</li>
         <li>Associated symptoms?</li>
         <li>What medications available at home?</li>
@@ -3144,7 +2989,7 @@ body {
     </div>
     <div class="branch purple-branch">
       <div class="branch-header" onclick="toggleBranch(this)">🏠 Hospice Transition Alternative <span class="chevron">▶</span></div>
-      <div class="branch-body"><div class="script-box"><div class="script-label hospice-alt">🟣 Script</div><p>"UTIs are common and can often be treated at home. If comfort is your goal, hospice can still provide antibiotics for a symptomatic infection plus medications for any pain or spasms, and monitor you at home — without an ED trip."</p></div></div>
+      <div class="branch-body"><div class="script-box"><div class="script-label hospice-alt">🟣 Script</div><p>"UTIs are common and can often be treated at home with antibiotics. If comfort is your goal, hospice can provide treatment and monitor you at home."</p></div></div>
     </div>
     <div class="branch blue-branch">
       <div class="branch-header" onclick="toggleBranch(this)">📞 Escalate to Provider IF <span class="chevron">▶</span></div>
@@ -4421,7 +4266,6 @@ body {
       <button class="xref" style="display:block;text-align:left;padding:12px 14px" onclick="scrollToSection('wound-lines')">💉 <strong>Central Lines &amp; Ports</strong><br><small>PICC, port, Hickman/Broviac</small></button>
       <button class="xref" style="display:block;text-align:left;padding:12px 14px" onclick="scrollToSection('wound-drains')">🧪 <strong>Surgical &amp; Pleural Drains</strong><br><small>JP, Hemovac, Blake, PleurX chest</small></button>
       <button class="xref" style="display:block;text-align:left;padding:12px 14px" onclick="scrollToSection('wound-peritoneal')">💧 <strong>Peritoneal Drains / Ascites</strong><br><small>PleurX peritoneal, Tenckhoff</small></button>
-      <button class="xref" style="display:block;text-align:left;padding:12px 14px" onclick="scrollToSection('wound-foley')">🚰 <strong>Foley / Urinary Catheter</strong><br><small>Urethral &amp; suprapubic</small></button>
     </div>
 
     <div class="divider"></div>
@@ -4439,7 +4283,7 @@ body {
     <div class="branch purple-branch">
       <div class="branch-header" onclick="toggleBranch(this)">🏠 Palliative / Hospice Wound Principles <span class="chevron">▶</span></div>
       <div class="branch-body">
-        <div class="alert purple"><span class="alert-icon">🟣</span><div>In advanced illness, the goal often shifts from <strong>healing</strong> to <strong>comfort</strong>: control pain (pre-medicate before dressing changes, non-adherent dressings), odor (topical metronidazole, charcoal/honey dressings), exudate, and bleeding. Hospice is <strong>active comfort care, not the absence of treatment</strong> — antibiotics for a symptomatic infection, antispasmodics, irrigation, and other targeted measures remain appropriate whenever they relieve distress (asymptomatic findings are not treated). Simplify regimens to reduce caregiver burden, minimize dressing-change frequency, and reassure families that skin breakdown — including <strong>Kennedy terminal ulcers</strong> — is common at end of life and not a care failure.</div></div>
+        <div class="alert purple"><span class="alert-icon">🟣</span><div>In advanced illness, the goal often shifts from <strong>healing</strong> to <strong>comfort</strong>: control pain (pre-medicate before dressing changes, non-adherent dressings), odor (topical metronidazole, charcoal/honey dressings), exudate, and bleeding. Simplify regimens to reduce caregiver burden, minimize dressing-change frequency, and reassure families that skin breakdown — including <strong>Kennedy terminal ulcers</strong> — is common at end of life and not a care failure.</div></div>
       </div>
     </div>
 
@@ -4956,94 +4800,6 @@ body {
         </ul></div>
         <div class="alert blue"><span class="alert-icon">🔵</span><div><strong>Infection &amp; metabolic:</strong> most peritonitis/SBP is treated with antibiotics with the catheter <em>in place</em> (removal for refractory &gt;5 days, fungal, or relapsing). PD patients need prompt empiric intraperitoneal antibiotics. Chronic drainage loses protein → high-protein diet (1.2–1.5 g/kg/day); watch hyponatremia (~11%) and rising creatinine (~8%).</div></div>
         <div class="alert purple"><span class="alert-icon">🟣</span><div><strong>Palliative:</strong> indwelling peritoneal catheters relieve symptoms in &gt;90% and keep most patients home (median survival after placement for malignant ascites ≈36–40 days). Drain by symptoms (distension, dyspnea, nausea), not a rigid timetable. If actively dying or drainage causes more distress than benefit, it may be stopped — the catheter can stay in place; manage with positioning, antiemetics, and opioids for dyspnea/pain.</div></div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ============================================================ -->
-<!-- WOUND CARE — FOLEY / URINARY CATHETER -->
-<!-- ============================================================ -->
-<div class="section" id="wound-foley">
-  <div class="section-header"><span class="section-header-left"><span class="icon">🚰</span> Foley / Urinary Catheter — Indwelling Urethral &amp; Suprapubic</span><button class="add-to-summary-btn" data-summary-btn="wound-foley" onclick="addToSummary('wound-foley', 'Foley / Urinary Catheter')">+ Add To Summary</button></div>
-  <div class="section-body">
-    <div class="flow-group">
-      <div class="flow-group-title">Triage Assessment</div>
-      <ul class="question-list">
-        <li>Catheter type (urethral vs suprapubic), size (Fr), balloon volume, date of last change</li>
-        <li>Problem: no output, leakage (bypass), hematuria, pain/spasms, dislodgement, infection signs, site issues</li>
-        <li><strong>Spinal cord injury at or above T6?</strong> → risk of autonomic dysreflexia (see red flag)</li>
-        <li>Fluid intake; last bowel movement (constipation/impaction can obstruct); anticoagulants; vitals if available</li>
-      </ul>
-    </div>
-    <div class="divider"></div>
-    <div class="flow-group"><div class="flow-group-title">Disposition &amp; Management</div></div>
-
-    <div class="branch red-branch">
-      <div class="branch-header" onclick="toggleBranch(this)">🚨 CALL 911 IF (+ universal red flags) <span class="chevron">▶</span></div>
-      <div class="branch-body"><ul class="question-list">
-        <li><strong>Autonomic dysreflexia (SCI ≥T6):</strong> sudden severe headache, sweating/flushing above injury, nasal congestion, blurred vision, anxiety + hypertension (SBP &gt;150 or &gt;20 above baseline) triggered by obstruction/distension — can cause stroke, seizure, MI, death</li>
-        <li><strong>Urosepsis:</strong> fever &gt;101°F with hypotension, AMS, rigors, or tachycardia</li>
-        <li><strong>Uncontrolled hemorrhage:</strong> frank bloody urine with clots obstructing catheter + instability; or bright bleeding at SP site not stopping after 15 min pressure</li>
-        <li><strong>Obstruction + systemic compromise:</strong> no output, severe suprapubic pain, distended bladder + fever/AMS/vomiting, not relieved at bedside</li>
-      </ul></div>
-    </div>
-
-    <div class="branch purple-branch">
-      <div class="branch-header" onclick="toggleBranch(this)">🏠 Hospice Transition Alternative <span class="chevron">▶</span></div>
-      <div class="branch-body">
-        <div class="script-box"><div class="script-label hospice-alt">🟣 Script</div><p>"If your goal is to stay comfortable at home, hospice can troubleshoot, irrigate, or replace the catheter, and treat infection or bladder spasms here rather than at the hospital. Would you like me to arrange a nurse to come out?"</p></div>
-        <div class="alert purple"><span class="alert-icon">🟣</span><div><strong>Hospice is active comfort care, not "no care."</strong> When they serve comfort, the following are appropriate in hospice: <strong>oral antibiotics</strong> for a <em>symptomatic</em> CAUTI (fever, pain, delirium), <strong>antispasmodics / B&amp;O suppositories / opioids</strong> for bladder spasms, <strong>catheter irrigation</strong> for clot/obstruction, and <strong>catheter replacement</strong> for comfort. Do <em>not</em> treat asymptomatic bacteriuria. Transfusion or palliative radiation for malignant hematuria are decided per goals of care.</div></div>
-      </div>
-    </div>
-
-    <div class="branch blue-branch">
-      <div class="branch-header" onclick="toggleBranch(this)">📞 Escalate to Provider IF <span class="chevron">▶</span></div>
-      <div class="branch-body"><ul class="question-list">
-        <li>Suspected symptomatic CAUTI: fever &gt;100.4°F with new flank/suprapubic pain, CVA tenderness, or new AMS — <span class="xref" onclick="scrollToSection('uti')">→ UTI / Suprapubic</span>, <span class="xref" onclick="scrollToSection('fever')">→ Fever</span></li>
-        <li>Obstruction not relieved by flushing; recurrent blockages; no output &gt;4–6 h despite hydration &amp; patent tubing</li>
-        <li>New gross hematuria, clots causing intermittent obstruction, or hematuria on anticoagulants</li>
-        <li><strong>Suprapubic catheter dislodged</strong> (time-sensitive — tract closes in hours) or urethral catheter pulled out with trauma/bleeding</li>
-        <li>Severe spasms uncontrolled by current regimen; persistent bypass leakage; SP exit-site infection or hypergranulation</li>
-        <li>Balloon won't deflate for change; catheter won't pass on replacement; skin breakdown at meatus/SP site</li>
-      </ul></div>
-    </div>
-
-    <div class="branch green-branch">
-      <div class="branch-header" onclick="toggleBranch(this)">☎ RN Telephone Management <span class="chevron">▶</span></div>
-      <div class="branch-body">
-        <div class="script-box"><div class="script-label phone">📞 Obstruction / No Output (most common emergency)</div><ul>
-          <li><strong>Check the system first:</strong> bag below bladder, no kinks/loops, empty a full bag, all clamps open, patient not lying on tubing.</li>
-          <li><strong>Check constipation:</strong> impaction can compress the catheter — if no BM &gt;3 days, start a bowel regimen. <span class="xref" onclick="scrollToSection('constipation')">→ Constipation</span></li>
-          <li><strong>Gentle flush</strong> (trained caregiver/nurse): 30–60 mL sterile saline, catheter-tip syringe; do NOT force; aspirate for clots; repeat 2–3×. If saline goes in but won't return (tip embedded/vacuum), briefly raise the bag above the bladder ~30 s, then lower.</li>
-          <li>Flush fails → catheter needs replacement (same size or one size up). Can't pass (urethral) → don't force; try smaller size, generous lidocaine gel, Coudé tip for prostatic obstruction; still unable → escalate.</li>
-          <li><strong>SCI ≥T6:</strong> relieve obstruction fast to prevent autonomic dysreflexia.</li>
-        </ul></div>
-        <div class="script-box"><div class="script-label phone">📞 CAUTI — treat the patient, not the urine</div><ul>
-          <li>Bacteriuria is near-universal in chronic catheters; <strong>cloudy/malodorous urine or pyuria alone is NOT a reason for antibiotics</strong> and screening cultures are not recommended.</li>
-          <li>Suspect true CAUTI with fever ≥100.4°F, new flank/suprapubic pain or CVA tenderness, rigors, new AMS, or acute hematuria. Sepsis signs → 911 per goals.</li>
-          <li>Provider should typically <strong>replace the catheter before culture/antibiotics</strong> (better outcomes &amp; cultures). Do not start antibiotics without an order.</li>
-        </ul></div>
-        <div class="script-box"><div class="script-label phone">📞 Hematuria</div><ul>
-          <li><strong>Mild</strong> (pink, no clots, draining): increase fluids, monitor — usually self-limited after a change.</li>
-          <li><strong>Moderate</strong> (red, small clots, draining): push fluids, gentle saline irrigation to clear clots, watch for obstruction, escalate.</li>
-          <li><strong>Severe</strong> (frank blood/large clots, obstructed): irrigate to relieve; unable or unstable → escalate urgently / 911 per goals (may need 3-way continuous bladder irrigation).</li>
-          <li>On anticoagulants: <strong>do NOT stop the blood thinner</strong> without provider direction; escalate for possible dose adjustment and workup.</li>
-        </ul></div>
-        <div class="script-box"><div class="script-label phone">📞 Bladder Spasms &amp; Bypass Leakage</div><ul>
-          <li><strong>Rule out obstruction first</strong> — a blocked catheter is the most common correctable cause.</li>
-          <li>Check size/balloon: smaller catheter (14–16 Fr) &amp; balloon at 5–10 mL irritate less; overinflation worsens spasms. Secure catheter to prevent traction. Treat constipation; warm compress.</li>
-          <li>Meds (per orders/provider): <span class="med-tag">oxybutynin</span>, <span class="med-tag">tolterodine</span>, or <span class="med-tag">mirabegron</span> (preferred in elderly — fewer anticholinergic effects); <span class="med-tag">B&amp;O suppository</span> for refractory spasms. Watch anticholinergic effects (confusion, falls) in elderly.</li>
-          <li><strong>Bypass leakage</strong> is usually from spasm/obstruction — treat those; <strong>do NOT upsize the catheter</strong> (worsens irritation). Protect skin with barrier cream.</li>
-        </ul></div>
-        <div class="script-box"><div class="script-label phone">📞 Dislodgement, SP Site Care &amp; Balloon</div><ul>
-          <li><strong>Suprapubic dislodged — TIME-SENSITIVE:</strong> cover stoma with gauze; if trained &amp; same-size available, lubricate and gently reinsert into the tract; if not, a red-rubber/smaller Foley keeps the tract patent (don't use for drainage until confirmed). Placed &lt;4 weeks ago → do NOT reinsert (peritoneal-entry risk) → escalate/911.</li>
-          <li><strong>Urethral pulled out:</strong> if balloon was inflated (trauma), gentle pressure for meatal oozing, don't reinsert immediately, escalate; if it simply fell out, replace if needed or assess spontaneous voiding.</li>
-          <li><strong>SP site:</strong> daily soap-and-water cleaning, split-gauze dressing, secure to abdomen; hypergranulation → silver nitrate or topical steroid; exit-site infection → escalate for antibiotics (removal rarely needed).</li>
-          <li><strong>Balloon won't deflate:</strong> aspirate with gentle traction; if not, cut the inflation port above the valve; <strong>never burst by overinflation</strong>; persistent → provider (US-guided puncture/urology).</li>
-        </ul></div>
-        <div class="alert green"><span class="alert-icon">✅</span><div><strong>Prevention:</strong> closed system, bag below bladder, empty at ⅔ full, daily meatal cleaning with soap &amp; water (no antiseptics/ointments), adequate hydration, secure to prevent traction, proactive bowel regimen. Routine irrigation does NOT prevent CAUTI.</div></div>
-        <div class="alert blue"><span class="alert-icon">🔵</span><div><strong>Alternatives to indwelling catheter</strong> (discuss with provider): external/condom catheters when post-void residual &lt;300 mL, clean intermittent catheterization, or absorbent products. Suprapubic is the preferred chronic option (less urethral trauma, lower CAUTI, better comfort).</div></div>
       </div>
     </div>
   </div>
