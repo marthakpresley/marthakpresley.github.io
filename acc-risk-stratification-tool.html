@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ACC Risk Stratification &amp; Visit Cadence Tool</title>
+<style>
+  :root{
+    --blue:#326195;
+    --green:#638C3D;
+    --magenta:#9D296D;
+    --brown:#91634C;
+    --teal:#245664;
+    --gold:#F4B21B;
+    --ink:#2b2f33;
+    --muted:#6b7075;
+    --line:#dde3e8;
+    --bg:#f5f7f9;
+    --card:#ffffff;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:Calibri, 'Segoe UI', Arial, sans-serif;
+    background:var(--bg);
+    color:var(--ink);
+    font-size:16px;
+    line-height:1.45;
+  }
+  h1,h2,h3{font-family:Georgia, 'Times New Roman', serif;font-weight:normal}
+
+  header{background:var(--blue);color:#fff;padding:22px 28px}
+  header h1{font-size:1.5rem;letter-spacing:.2px}
+  header p{opacity:.85;font-size:.95rem;margin-top:4px}
+
+  .wrap{
+    max-width:1180px;margin:0 auto;padding:24px 20px 60px;
+    display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);
+    gap:24px;align-items:start;
+  }
+  @media(max-width:900px){
+    .wrap{grid-template-columns:1fr}
+    .results{position:static !important}
+  }
+
+  .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:22px 24px;margin-bottom:20px}
+  .card h2{
+    color:var(--teal);font-size:1.15rem;padding-bottom:10px;margin-bottom:16px;
+    border-bottom:2px solid var(--line);display:flex;align-items:baseline;gap:10px;
+  }
+  .card h2 .tag{
+    font-family:Calibri, sans-serif;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;
+    color:#fff;background:var(--teal);border-radius:4px;padding:2px 8px;position:relative;top:-2px;
+  }
+
+  .q{margin-bottom:18px}
+  .q:last-child{margin-bottom:0}
+  .q-label{font-weight:bold;margin-bottom:2px}
+  .q-help{font-size:.85rem;color:var(--muted);margin-bottom:8px}
+
+  .opts{display:flex;flex-wrap:wrap;gap:8px}
+  .opt{
+    border:1.5px solid var(--line);border-radius:8px;padding:8px 14px;background:#fff;cursor:pointer;
+    font-size:.92rem;font-family:inherit;color:var(--ink);transition:border-color .12s, background .12s;
+  }
+  .opt:hover{border-color:var(--blue)}
+  .opt.sel{border-color:var(--blue);background:var(--blue);color:#fff;font-weight:bold}
+  .opt .pts{font-size:.78rem;opacity:.75;margin-left:6px}
+  .opt:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+
+  /* CCI sub-panel */
+  .cci-panel{
+    border:1px solid var(--line);border-radius:10px;background:#fafbfc;padding:16px 16px 14px;margin-top:6px;
+  }
+  .cci-panel .q-label{font-size:.95rem}
+  .cci-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+  @media(max-width:620px){.cci-grid{grid-template-columns:1fr}}
+  .cci-item{
+    border:1.5px solid var(--line);border-radius:8px;padding:7px 11px;background:#fff;cursor:pointer;
+    font-size:.88rem;font-family:inherit;color:var(--ink);text-align:left;
+    display:flex;justify-content:space-between;align-items:center;gap:8px;
+    transition:border-color .12s, background .12s;
+  }
+  .cci-item:hover{border-color:var(--blue)}
+  .cci-item.sel{border-color:var(--blue);background:var(--blue);color:#fff;font-weight:bold}
+  .cci-item .pts{
+    font-size:.75rem;background:#eef2f6;border-radius:4px;padding:1px 7px;color:var(--teal);white-space:nowrap;
+  }
+  .cci-item.sel .pts{background:rgba(255,255,255,.25);color:#fff}
+  .cci-item:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+  .cci-graded{margin-bottom:12px}
+  .cci-graded .g-name{font-size:.88rem;font-weight:bold;margin-bottom:5px}
+  .cci-graded .opts .opt{padding:5px 11px;font-size:.85rem}
+  .cci-total{
+    border-top:1px dashed var(--line);padding-top:11px;margin-top:4px;
+    font-size:.9rem;display:flex;flex-wrap:wrap;gap:6px 22px;
+  }
+  .cci-total b{color:var(--blue)}
+
+  .flag{display:flex;align-items:flex-start;gap:12px;padding:11px 0;border-bottom:1px solid var(--line)}
+  .flag:last-child{border-bottom:none}
+  .flag input{margin-top:4px;width:17px;height:17px;accent-color:var(--blue);cursor:pointer}
+  .flag label{cursor:pointer;flex:1}
+  .flag .f-name{font-weight:bold}
+  .flag .f-why{font-size:.83rem;color:var(--muted)}
+
+  .flag-counter{
+    margin-top:12px;font-size:.88rem;color:var(--muted);
+    background:#fafbfc;border:1px dashed var(--line);border-radius:8px;padding:9px 12px;
+  }
+  .flag-counter.hot{color:var(--magenta);border-color:var(--magenta);background:#faeef5;font-weight:bold}
+
+  .results{position:sticky;top:16px}
+  .score-row{display:flex;gap:14px;margin-bottom:16px}
+  .score-box{flex:1;border:1px solid var(--line);border-radius:10px;padding:12px 14px;text-align:center;background:#fafbfc}
+  .score-box .n{font-family:Georgia, serif;font-size:1.9rem;color:var(--blue);line-height:1.1}
+  .score-box .l{font-size:.76rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+  .score-box .trend{font-size:.8rem;margin-top:2px}
+  .trend.down{color:var(--magenta);font-weight:bold}
+  .trend.flat{color:var(--muted)}
+
+  .tier-band{display:flex;border-radius:8px;overflow:hidden;margin-bottom:6px;border:1px solid var(--line)}
+  .tier-seg{
+    flex:1;text-align:center;padding:9px 4px;font-size:.8rem;letter-spacing:.05em;text-transform:uppercase;
+    color:#fff;opacity:.32;transition:opacity .15s;font-weight:bold;
+  }
+  .tier-seg.low{background:var(--green)}
+  .tier-seg.mod{background:var(--gold);color:#4a3a05}
+  .tier-seg.high{background:var(--magenta)}
+  .tier-seg.on{opacity:1}
+
+  .bump{
+    display:none;font-size:.86rem;color:#5a1240;background:#faeef5;
+    border:1px solid #e8c7da;border-radius:8px;padding:9px 12px;margin:10px 0 4px;
+  }
+  .bump.show{display:block}
+  .bump b{color:var(--magenta)}
+  .bump ul{margin:4px 0 0 18px}
+
+  .traj{
+    display:none;font-size:.86rem;background:#fdf6e3;border:1px solid var(--gold);
+    border-radius:8px;padding:9px 12px;margin:8px 0 4px;
+  }
+  .traj.show{display:block}
+  .traj b{color:var(--brown)}
+
+  .cadence{margin-top:14px;border-radius:10px;padding:16px 18px;color:#fff;display:flex;align-items:center;gap:14px}
+  .cadence.low{background:var(--green)}
+  .cadence.mod{background:var(--gold);color:#4a3a05}
+  .cadence.high{background:var(--magenta)}
+  .cadence .big{font-family:Georgia, serif;font-size:1.6rem;white-space:nowrap}
+  .cadence .sub{font-size:.9rem;opacity:.92}
+
+  .plan h3{color:var(--teal);font-size:1.02rem;margin:18px 0 8px;border-bottom:1px solid var(--line);padding-bottom:5px}
+  .plan ul{list-style:none}
+  .plan li{padding:7px 0 7px 24px;position:relative;font-size:.93rem;border-bottom:1px dotted #edf0f2}
+  .plan li:last-child{border-bottom:none}
+  .plan li::before{content:"";position:absolute;left:2px;top:13px;width:9px;height:9px;border-radius:50%;background:var(--green)}
+  .plan li.flagged::before{background:var(--gold)}
+  .plan li.urgent::before{background:var(--magenta)}
+  .plan li.chosen::before{background:var(--blue)}
+
+  .hospice-alert{
+    display:none;margin-top:14px;background:#fdf6e3;border:1.5px solid var(--gold);
+    border-radius:10px;padding:13px 15px;font-size:.92rem;
+  }
+  .hospice-alert.show{display:block}
+  .hospice-alert b{color:var(--brown)}
+
+  .empty-note{color:var(--muted);font-size:.92rem;font-style:italic}
+
+  .pills{display:flex;flex-wrap:wrap;gap:8px}
+  .pill{
+    border:1.5px solid var(--line);border-radius:999px;padding:7px 15px;background:#fff;cursor:pointer;
+    font-size:.9rem;font-family:inherit;color:var(--ink);transition:border-color .12s, background .12s;
+  }
+  .pill:hover{border-color:var(--teal)}
+  .pill.sel{background:var(--teal);border-color:var(--teal);color:#fff;font-weight:bold}
+  .pill:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+  .pill.suggested{
+    border-color:var(--gold);border-style:dashed;background:#fdf6e3;
+    animation:pillPulse 1.6s ease-in-out 2;
+  }
+  .pill.suggested::after{content:" \2022 suggested";font-size:.75rem;color:var(--brown)}
+  @keyframes pillPulse{
+    0%,100%{box-shadow:0 0 0 0 rgba(244,178,27,0)}
+    50%{box-shadow:0 0 0 5px rgba(244,178,27,.35)}
+  }
+  @media (prefers-reduced-motion: reduce){ .pill.suggested{animation:none} }
+
+  .btnrow{display:flex;gap:10px;margin-top:6px}
+  .btn{font-family:inherit;font-size:.92rem;border-radius:8px;padding:9px 18px;cursor:pointer;border:1.5px solid var(--blue)}
+  .btn.primary{background:var(--blue);color:#fff}
+  .btn.primary.copied{background:var(--green);border-color:var(--green)}
+  .btn.ghost{background:#fff;color:var(--blue)}
+  .btn:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+
+  footer{max-width:1180px;margin:0 auto;padding:0 20px 40px;font-size:.8rem;color:var(--muted)}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>ACC Risk Stratification &amp; Visit Cadence Tool</h1>
+  <p>LACE Index + Charlson Comorbidity Index + Palliative Performance Scale &middot; Alive Complex Care</p>
+</header>
+
+<div class="wrap">
+
+  <!-- ============ LEFT: DATA ENTRY ============ -->
+  <div>
+
+    <div class="card">
+      <h2>LACE Index <span class="tag">Required</span></h2>
+
+      <div class="q">
+        <div class="q-label">L &mdash; Length of stay, most recent admission</div>
+        <div class="q-help">If the patient has not been hospitalized in the past 6 months, select "No recent admission."</div>
+        <div class="opts" data-group="L" role="radiogroup" aria-label="Length of stay">
+          <button class="opt" data-pts="0">No recent admission<span class="pts">0</span></button>
+          <button class="opt" data-pts="0">&lt;1 day<span class="pts">0</span></button>
+          <button class="opt" data-pts="1">1 day<span class="pts">1</span></button>
+          <button class="opt" data-pts="2">2 days<span class="pts">2</span></button>
+          <button class="opt" data-pts="3">3 days<span class="pts">3</span></button>
+          <button class="opt" data-pts="4">4&ndash;6 days<span class="pts">4</span></button>
+          <button class="opt" data-pts="5">7&ndash;13 days<span class="pts">5</span></button>
+          <button class="opt" data-pts="7">&ge;14 days<span class="pts">7</span></button>
+        </div>
+      </div>
+
+      <div class="q">
+        <div class="q-label">A &mdash; Acuity of admission</div>
+        <div class="q-help">Was the most recent admission emergent (through the ED) or elective?</div>
+        <div class="opts" data-group="A" role="radiogroup" aria-label="Acuity of admission">
+          <button class="opt" data-pts="0">No recent admission / elective<span class="pts">0</span></button>
+          <button class="opt" data-pts="3">Emergent (via ED)<span class="pts">3</span></button>
+        </div>
+      </div>
+
+      <div class="q">
+        <div class="q-label">C &mdash; Comorbidity (Charlson Comorbidity Index)</div>
+        <div class="q-help">Complete the calculator below. The disease score feeds the LACE C component automatically; age points count toward the CCI total and survival estimate but not LACE, per the original LACE derivation.</div>
+
+        <div class="cci-panel">
+          <div class="q" style="margin-bottom:14px">
+            <div class="q-label">Age</div>
+            <div class="opts" data-group="CCIAGE" role="radiogroup" aria-label="Age">
+              <button class="opt" data-pts="0">&lt;50<span class="pts">0</span></button>
+              <button class="opt" data-pts="1">50&ndash;59<span class="pts">+1</span></button>
+              <button class="opt" data-pts="2">60&ndash;69<span class="pts">+2</span></button>
+              <button class="opt" data-pts="3">70&ndash;79<span class="pts">+3</span></button>
+              <button class="opt" data-pts="4">&ge;80<span class="pts">+4</span></button>
+            </div>
+          </div>
+
+          <div class="q-label" style="margin-bottom:6px">Conditions <span style="font-weight:normal;font-size:.83rem;color:var(--muted)">(select all that apply)</span></div>
+          <div class="cci-grid" id="cci-conditions">
+            <button class="cci-item" data-pts="1">Myocardial infarction<span class="pts">+1</span></button>
+            <button class="cci-item" data-pts="1" data-cond="hf">Congestive heart failure<span class="pts">+1</span></button>
+            <button class="cci-item" data-pts="1">Peripheral vascular disease<span class="pts">+1</span></button>
+            <button class="cci-item" data-pts="1">CVA or TIA<span class="pts">+1</span></button>
+            <button class="cci-item" data-pts="1" data-cond="dementia">Dementia<span class="pts">+1</span></button>
+            <button class="cci-item" data-pts="1" data-cond="copd">COPD / chronic pulmonary disease<span class="pts">+1</span></button>
+            <button class="cci-item" data-pts="1">Connective tissue disease<span class="pts">+1</span></button>
+            <button class="cci-item" data-pts="1">Peptic ulcer disease<span class="pts">+1</span></button>
+            <button class="cci-item" data-pts="2">Hemiplegia<span class="pts">+2</span></button>
+            <button class="cci-item" data-pts="2" data-cond="esrd">Moderate-severe CKD<span class="pts">+2</span></button>
+            <button class="cci-item" data-pts="2">Leukemia<span class="pts">+2</span></button>
+            <button class="cci-item" data-pts="2">Lymphoma<span class="pts">+2</span></button>
+            <button class="cci-item" data-pts="6">AIDS<span class="pts">+6</span></button>
+          </div>
+
+          <div class="cci-graded">
+            <div class="g-name">Liver disease</div>
+            <div class="opts" data-group="CCILIVER" role="radiogroup" aria-label="Liver disease">
+              <button class="opt sel" data-pts="0">None<span class="pts">0</span></button>
+              <button class="opt" data-pts="1">Mild<span class="pts">+1</span></button>
+              <button class="opt" data-pts="3">Moderate-severe<span class="pts">+3</span></button>
+            </div>
+          </div>
+
+          <div class="cci-graded">
+            <div class="g-name">Diabetes mellitus</div>
+            <div class="opts" data-group="CCIDM" role="radiogroup" aria-label="Diabetes">
+              <button class="opt sel" data-pts="0">None<span class="pts">0</span></button>
+              <button class="opt" data-pts="1">Uncomplicated<span class="pts">+1</span></button>
+              <button class="opt" data-pts="2">End-organ damage<span class="pts">+2</span></button>
+            </div>
+          </div>
+
+          <div class="cci-graded">
+            <div class="g-name">Solid tumor</div>
+            <div class="opts" data-group="CCITUMOR" role="radiogroup" aria-label="Solid tumor">
+              <button class="opt sel" data-pts="0">None<span class="pts">0</span></button>
+              <button class="opt" data-pts="2">Localized<span class="pts">+2</span></button>
+              <button class="opt" data-pts="6">Metastatic<span class="pts">+6</span></button>
+            </div>
+          </div>
+
+          <div class="cci-total">
+            <span>CCI total: <b id="cci-total">&ndash;</b></span>
+            <span>Est. 10-year survival: <b id="cci-surv">&ndash;</b></span>
+            <span>LACE C points: <b id="cci-lace">&ndash;</b></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="q">
+        <div class="q-label">E &mdash; ED visits in the past 6 months</div>
+        <div class="q-help">Count all ED visits, including those that led to admission.</div>
+        <div class="opts" data-group="E" role="radiogroup" aria-label="ED visits">
+          <button class="opt" data-pts="0">0<span class="pts">0</span></button>
+          <button class="opt" data-pts="1">1<span class="pts">1</span></button>
+          <button class="opt" data-pts="2">2<span class="pts">2</span></button>
+          <button class="opt" data-pts="3">3<span class="pts">3</span></button>
+          <button class="opt" data-pts="4">&ge;4<span class="pts">4</span></button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Hospital Utilization <span class="tag" style="background:var(--brown)">Optional</span></h2>
+      <div class="q">
+        <div class="q-label">Inpatient admissions in the past 6 months</div>
+        <div class="q-help">All inpatient admissions (any hospital), if known. More than 1 admission escalates the risk tier one level.</div>
+        <div class="opts" data-group="ADM" role="radiogroup" aria-label="Admissions in past 6 months">
+          <button class="opt" data-pts="0">0</button>
+          <button class="opt" data-pts="1">1</button>
+          <button class="opt" data-pts="2">2</button>
+          <button class="opt" data-pts="3">3 or more</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Palliative Performance Scale <span class="tag">Required</span></h2>
+      <div class="q">
+        <div class="q-label">PPS today</div>
+        <div class="q-help">PPS &le;40% escalates the risk tier one level.</div>
+        <div class="opts" data-group="PPS" role="radiogroup" aria-label="PPS today">
+          <button class="opt" data-pts="100">100%</button>
+          <button class="opt" data-pts="90">90%</button>
+          <button class="opt" data-pts="80">80%</button>
+          <button class="opt" data-pts="70">70%</button>
+          <button class="opt" data-pts="60">60%</button>
+          <button class="opt" data-pts="50">50%</button>
+          <button class="opt" data-pts="40">40%</button>
+          <button class="opt" data-pts="30">30%</button>
+          <button class="opt" data-pts="20">20%</button>
+          <button class="opt" data-pts="10">10%</button>
+        </div>
+        <div class="q-help" style="margin-top:8px">Anchors: 70% = reduced activity, unable to work &middot; 60% = occasional assistance &middot; 50% = considerable assistance, mainly sit/lie &middot; 40% = mainly in bed &middot; 30% = totally bed bound.</div>
+      </div>
+
+      <div class="q">
+        <div class="q-label">PPS on admission (trend)</div>
+        <div class="q-help">PPS at admission to ACC. A decline of &ge;20 points since admission indicates rapid functional decline and prompts trajectory documentation.</div>
+        <div class="opts" data-group="PPSPRIOR" role="radiogroup" aria-label="PPS on admission">
+          <button class="opt" data-pts="-1">Unknown / not assessed</button>
+          <button class="opt" data-pts="100">100%</button>
+          <button class="opt" data-pts="90">90%</button>
+          <button class="opt" data-pts="80">80%</button>
+          <button class="opt" data-pts="70">70%</button>
+          <button class="opt" data-pts="60">60%</button>
+          <button class="opt" data-pts="50">50%</button>
+          <button class="opt" data-pts="40">40%</button>
+          <button class="opt" data-pts="30">30%</button>
+          <button class="opt" data-pts="20">20%</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Additional Risk Indicators <span class="tag" style="background:var(--brown)">Escalate at &ge;2</span></h2>
+      <div class="q-help" style="margin-bottom:10px">Each factor adds targeted actions to the plan. Two or more together escalate the risk tier one level.</div>
+
+      <div class="flag">
+        <input type="checkbox" id="f-poly" data-flag="poly">
+        <label for="f-poly">
+          <div class="f-name">Polypharmacy (&ge;10 scheduled medications)</div>
+          <div class="f-why">Associated with adverse drug events and readmission</div>
+        </label>
+      </div>
+
+      <div class="flag">
+        <input type="checkbox" id="f-alone" data-flag="alone">
+        <label for="f-alone">
+          <div class="f-name">Lives alone or inadequate caregiver support</div>
+          <div class="f-why">Social isolation predicts ED use and readmission</div>
+        </label>
+      </div>
+
+      <div class="flag">
+        <input type="checkbox" id="f-falls" data-flag="falls">
+        <label for="f-falls">
+          <div class="f-name">&ge;2 falls in the past 6 months, or any fall with injury</div>
+          <div class="f-why">Strong predictor of ED visits, hip fracture, functional decline</div>
+        </label>
+      </div>
+
+      <div class="flag">
+        <input type="checkbox" id="f-wt" data-flag="wt">
+        <label for="f-wt">
+          <div class="f-name">Unintentional weight loss &gt;5% in 6 months</div>
+          <div class="f-why">Marker of disease trajectory decline; supports hospice LCD documentation</div>
+        </label>
+      </div>
+
+      <div class="flag">
+        <input type="checkbox" id="f-cog" data-flag="cog">
+        <label for="f-cog">
+          <div class="f-name">Cognitive impairment or dementia diagnosis</div>
+          <div class="f-why">Affects self-management, medication adherence, and decision-making capacity</div>
+        </label>
+      </div>
+
+      <div class="flag-counter" id="flag-counter">0 of 5 indicators selected &mdash; 2 or more escalates the tier</div>
+    </div>
+
+    <div class="card">
+      <h2>Plan Additions <span class="tag" style="background:var(--blue)">Provider-selected</span></h2>
+      <div class="q-help" style="margin-bottom:10px">Select any interventions to add to this patient's plan.</div>
+      <div class="pills" id="interventions">
+        <button class="pill" data-int="Social work referral">Social work referral</button>
+        <button class="pill" data-int="Pharmacist medication review">Pharmacist review</button>
+        <button class="pill" data-int="Physical therapy referral">PT referral</button>
+        <button class="pill" data-int="Occupational therapy referral">OT referral</button>
+        <button class="pill" data-int="Home safety evaluation">Home safety eval</button>
+        <button class="pill" data-int="Schedule family meeting">Family meeting</button>
+        <button class="pill" data-int="Cognitive assessment">Cognitive assessment</button>
+        <button class="pill" data-int="Bubble pack medications">Bubble pack meds</button>
+        <button class="pill" data-int="Complete advance directives, including surrogacy/POA evaluation">Advance directives / POA</button>
+        <button class="pill" data-int="Speech therapy evaluation">Speech eval</button>
+        <button class="pill" data-int="Hospice transition">Hospice transition</button>
+        <button class="pill" data-int="DME ordered">DME ordered</button>
+      </div>
+      <div class="q-help" style="margin:14px 0 8px">Initiate care pathway for:</div>
+      <div class="pills" id="pathways">
+        <button class="pill" data-int="Initiate care pathway: Heart failure" data-path="hf">Heart failure</button>
+        <button class="pill" data-int="Initiate care pathway: COPD" data-path="copd">COPD</button>
+        <button class="pill" data-int="Initiate care pathway: Dementia" data-path="dementia">Dementia</button>
+        <button class="pill" data-int="Initiate care pathway: Falls" data-path="falls">Falls</button>
+        <button class="pill" data-int="Initiate care pathway: ESRD" data-path="esrd">ESRD</button>
+      </div>
+    </div>
+
+    <div class="btnrow">
+      <button class="btn primary" id="copy-btn" onclick="copySummary()">Copy summary</button>
+      <button class="btn ghost" onclick="resetAll()">Clear form</button>
+    </div>
+  </div>
+
+  <!-- ============ RIGHT: RESULTS ============ -->
+  <div class="results">
+    <div class="card">
+      <h2>Risk Summary</h2>
+
+      <div class="score-row">
+        <div class="score-box"><div class="n" id="lace-n">&ndash;</div><div class="l">LACE Score</div></div>
+        <div class="score-box"><div class="n" id="cci-n">&ndash;</div><div class="l">CCI</div></div>
+        <div class="score-box">
+          <div class="n" id="pps-n">&ndash;</div>
+          <div class="l">PPS</div>
+          <div class="trend" id="pps-trend"></div>
+        </div>
+      </div>
+
+      <div class="tier-band" aria-hidden="true">
+        <div class="tier-seg low" id="seg-low">Low 0&ndash;4</div>
+        <div class="tier-seg mod" id="seg-mod">Mod 5&ndash;9</div>
+        <div class="tier-seg high" id="seg-high">High &ge;10</div>
+      </div>
+
+      <div class="bump" id="bump-note"></div>
+      <div class="traj" id="traj-note"></div>
+
+      <div class="cadence" id="cadence-box" style="display:none">
+        <div class="big" id="cadence-big"></div>
+        <div class="sub" id="cadence-sub"></div>
+      </div>
+
+      <div class="hospice-alert" id="hospice-alert">
+        <b>Hospice eligibility review indicated.</b> High risk with PPS &le;40% &mdash; discuss goals of care and evaluate against LCD criteria. Document functional decline (PPS trend, weight, intake) to support certification if appropriate.
+      </div>
+
+      <div class="plan" id="plan-area">
+        <p class="empty-note" id="plan-empty">Complete the LACE items (including age in the Charlson calculator) and PPS to generate the visit cadence and care plan.</p>
+        <div id="plan-content"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  For clinical decision support only; does not replace provider judgment. LACE: van Walraven et al., CMAJ 2010. CCI: Charlson et al., 1987. PPS: Victoria Hospice, v2. This tool stores no patient data.
+</footer>
+
+<script>
+const state = {
+  L:null, A:null, E:null, ADM:null, PPS:null, PPSPRIOR:null,
+  CCIAGE:null, CCILIVER:0, CCIDM:0, CCITUMOR:0,
+  flags:{}, ints:{}
+};
+const cciChecks = new Set(); // indices of selected condition buttons
+let lastTierLabel = null, lastCadence = null, lastLace = null, lastEsc = [], lastBaseTier = null;
+let lastRapid = false, lastHospice = false, lastCci = null, lastSurv = null;
+
+document.querySelectorAll('.opts').forEach(group=>{
+  const key = group.dataset.group;
+  group.querySelectorAll('.opt').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      group.querySelectorAll('.opt').forEach(b=>b.classList.remove('sel'));
+      btn.classList.add('sel');
+      state[key] = parseInt(btn.dataset.pts,10);
+      render();
+    });
+  });
+});
+
+document.querySelectorAll('#cci-conditions .cci-item').forEach((btn,i)=>{
+  btn.addEventListener('click', ()=>{
+    btn.classList.toggle('sel');
+    if(btn.classList.contains('sel')) cciChecks.add(i); else cciChecks.delete(i);
+    render();
+  });
+});
+
+document.querySelectorAll('.flag input').forEach(cb=>{
+  cb.addEventListener('change', ()=>{ state.flags[cb.dataset.flag] = cb.checked; render(); });
+});
+
+document.querySelectorAll('#interventions .pill, #pathways .pill').forEach(p=>{
+  p.addEventListener('click', ()=>{
+    p.classList.toggle('sel');
+    state.ints[p.dataset.int] = p.classList.contains('sel');
+    render();
+  });
+});
+
+function resetAll(){
+  ['L','A','E','ADM','PPS','PPSPRIOR','CCIAGE'].forEach(k=>state[k]=null);
+  state.CCILIVER = 0; state.CCIDM = 0; state.CCITUMOR = 0;
+  state.flags = {}; state.ints = {};
+  cciChecks.clear();
+  document.querySelectorAll('.opt, .cci-item').forEach(b=>b.classList.remove('sel'));
+  // restore "None" defaults on graded CCI rows
+  ['CCILIVER','CCIDM','CCITUMOR'].forEach(g=>{
+    const grp = document.querySelector('.opts[data-group="'+g+'"]');
+    if(grp) grp.querySelector('.opt').classList.add('sel');
+  });
+  document.querySelectorAll('.flag input').forEach(cb=>cb.checked=false);
+  document.querySelectorAll('#interventions .pill, #pathways .pill').forEach(p=>p.classList.remove('sel'));
+  render();
+}
+
+const TIERS = {
+  low:  { label:'Low',      cadence:'q6 weeks', cls:'low' },
+  mod:  { label:'Moderate', cadence:'q4 weeks', cls:'mod' },
+  high: { label:'High',     cadence:'q2 weeks', cls:'high' }
+};
+const ORDER = ['low','mod','high'];
+
+const BASE_PLANS = {
+  low: [
+    'Provider or APP visit every 6 weeks',
+    'Telephonic touchpoint by RN/MA midway between visits',
+    'Medication reconciliation at each visit',
+    'Advance care planning conversation; document and bill ACP (99497) if \u226516 min',
+    'Confirm after-hours triage number is posted in the home'
+  ],
+  mod: [
+    'Provider or APP visit every 4 weeks',
+    'Telephonic touchpoint by RN/MA every 2 weeks between visits',
+    'Post-discharge call within 48\u201372 hours after any hospitalization or ED visit',
+    'Medication reconciliation and deprescribing review',
+    'Goals-of-care conversation this visit; update ACP documents',
+    'Verify PCM/APCM enrollment and consent are current',
+    'Caregiver burden assessment; social work referral if strained'
+  ],
+  high: [
+    'Provider or APP visit every 2 weeks; first visit within 7 days of tier assignment',
+    'Weekly telephonic touchpoint between visits',
+    'Same-week post-discharge visit after any hospitalization or ED visit',
+    'Goals-of-care conversation this visit; confirm code status and surrogate',
+    'Symptom management protocol review; ensure urgent-symptom orders in place',
+    'Medication simplification and deprescribing review',
+    'Home safety and equipment needs assessment',
+    'Review after-hours escalation plan with patient and caregiver'
+  ]
+};
+
+const FLAG_NAMES = {
+  poly:'Polypharmacy (\u226510 meds)', alone:'Lives alone / limited support',
+  falls:'Recurrent falls', wt:'Unintentional weight loss >5%', cog:'Cognitive impairment'
+};
+const FLAG_PLANS = {
+  poly:  { txt:'Polypharmacy \u2014 structured deprescribing review; consider pharmacist consult; prioritize Beers-list agents' },
+  alone: { txt:'Limited support \u2014 social work referral; establish emergency contact plan; consider personal emergency response system' },
+  falls: { txt:'Fall risk \u2014 home safety evaluation; PT referral; review orthostatic-risk and sedating medications' },
+  wt:    { txt:'Weight loss \u2014 nutrition support discussion; trend weights each visit; document decline (supports LCD criteria if hospice-eligible)' },
+  cog:   { txt:'Cognitive impairment \u2014 assess decision-making capacity; confirm healthcare surrogate documented; simplify medication regimen; caregiver education' }
+};
+
+function cciDiseasePoints(){
+  let pts = state.CCILIVER + state.CCIDM + state.CCITUMOR;
+  document.querySelectorAll('#cci-conditions .cci-item').forEach((btn,i)=>{
+    if(cciChecks.has(i)) pts += parseInt(btn.dataset.pts,10);
+  });
+  return pts;
+}
+function laceCFromDisease(d){ return d>=4 ? 5 : d; }
+
+function updatePathwaySuggestions(){
+  const condOn = k => {
+    const el = document.querySelector('#cci-conditions .cci-item[data-cond="'+k+'"]');
+    return el ? el.classList.contains('sel') : false;
+  };
+  const sug = {
+    hf: condOn('hf'),
+    copd: condOn('copd'),
+    dementia: condOn('dementia'),
+    esrd: condOn('esrd'),
+    falls: !!state.flags.falls
+  };
+  document.querySelectorAll('#pathways .pill').forEach(p=>{
+    const k = p.dataset.path;
+    p.classList.toggle('suggested', !!sug[k] && !p.classList.contains('sel'));
+  });
+}
+
+function render(){
+  updatePathwaySuggestions();
+  // --- CCI ---
+  const disease = cciDiseasePoints();
+  const laceC = laceCFromDisease(disease);
+  const cciTotal = state.CCIAGE===null ? null : disease + state.CCIAGE;
+  let surv = null;
+  if(cciTotal!==null){
+    surv = Math.round(100 * Math.pow(0.983, Math.exp(0.9 * cciTotal)));
+    surv = Math.max(0, Math.min(100, surv));
+  }
+  document.getElementById('cci-total').textContent = cciTotal===null ? '\u2013 (select age)' : cciTotal;
+  document.getElementById('cci-surv').textContent = surv===null ? '\u2013' : surv + '%';
+  document.getElementById('cci-lace').textContent = laceC;
+  document.getElementById('cci-n').innerHTML = cciTotal===null ? '&ndash;' : cciTotal;
+  lastCci = cciTotal; lastSurv = surv;
+
+  // --- LACE ---
+  const laceReady = state.L!==null && state.A!==null && state.E!==null && state.CCIAGE!==null;
+  const lace = laceReady ? state.L + state.A + laceC + state.E : null;
+  document.getElementById('lace-n').innerHTML = lace===null ? '&ndash;' : lace;
+  document.getElementById('pps-n').innerHTML = state.PPS===null ? '&ndash;' : state.PPS+'%';
+  lastLace = lace;
+
+  // --- Flags ---
+  const nFlags = Object.values(state.flags).filter(Boolean).length;
+  const fc = document.getElementById('flag-counter');
+  fc.textContent = nFlags + ' of 5 indicators selected \u2014 ' + (nFlags>=2 ? 'tier escalated one level' : '2 or more escalates the tier');
+  fc.classList.toggle('hot', nFlags>=2);
+
+  // --- PPS trend ---
+  const trendEl = document.getElementById('pps-trend');
+  const trajNote = document.getElementById('traj-note');
+  trajNote.classList.remove('show');
+  let rapidDecline = false;
+  if(state.PPS!==null && state.PPSPRIOR!==null && state.PPSPRIOR>0){
+    const delta = state.PPSPRIOR - state.PPS;
+    if(delta>0){
+      trendEl.textContent = '\u25BC ' + delta + ' pts since admission';
+      trendEl.className = 'trend down';
+      if(delta>=20){
+        rapidDecline = true;
+        trajNote.innerHTML = '<b>Rapid functional decline:</b> PPS dropped ' + delta + ' points since admission. Prioritize goals-of-care conversation and document trajectory (PPS trend, weights, intake) \u2014 supports LCD criteria if hospice referral becomes appropriate.';
+        trajNote.classList.add('show');
+      }
+    } else {
+      trendEl.textContent = delta===0 ? 'Stable since admission' : '\u25B2 improved ' + (-delta) + ' pts';
+      trendEl.className = 'trend flat';
+    }
+  } else {
+    trendEl.textContent = '';
+  }
+  lastRapid = rapidDecline;
+
+  ['seg-low','seg-mod','seg-high'].forEach(id=>document.getElementById(id).classList.remove('on'));
+  const bump = document.getElementById('bump-note');
+  bump.classList.remove('show');
+  const hospice = document.getElementById('hospice-alert');
+  hospice.classList.remove('show');
+  const cadBox = document.getElementById('cadence-box');
+  const planEmpty = document.getElementById('plan-empty');
+  const planContent = document.getElementById('plan-content');
+
+  if(lace===null || state.PPS===null){
+    cadBox.style.display='none';
+    planEmpty.style.display='block';
+    planContent.innerHTML='';
+    lastTierLabel = null;
+    return;
+  }
+
+  // Base tier from LACE
+  let idx = lace<=4 ? 0 : (lace<=9 ? 1 : 2);
+  const baseTier = ORDER[idx];
+
+  // Escalators
+  const escalators = [];
+  if(state.PPS<=40){ escalators.push('PPS \u226440%'); }
+  if(state.ADM!==null && state.ADM>1){ escalators.push(state.ADM + '+ admissions in 6 months'); }
+  if(nFlags>=2){ escalators.push(nFlags + ' additional risk indicators'); }
+
+  escalators.forEach(()=>{ idx = Math.min(idx+1, 2); });
+  const tier = ORDER[idx];
+  lastEsc = escalators; lastBaseTier = baseTier;
+
+  if(escalators.length && tier!==baseTier){
+    bump.innerHTML = 'Escalated from <b>'+TIERS[baseTier].label+'</b> to <b>'+TIERS[tier].label+'</b> risk:' +
+      '<ul>' + escalators.map(e=>'<li>'+e+'</li>').join('') + '</ul>';
+    bump.classList.add('show');
+  } else if(escalators.length && baseTier==='high'){
+    bump.innerHTML = '<b>High</b> risk with additional escalating factors present: ' + escalators.join('; ') + '.';
+    bump.classList.add('show');
+  }
+
+  const showHospice = (tier==='high' && state.PPS<=40);
+  if(showHospice){ hospice.classList.add('show'); }
+  lastHospice = showHospice;
+
+  document.getElementById('seg-'+tier).classList.add('on');
+
+  const t = TIERS[tier];
+  lastTierLabel = t.label; lastCadence = t.cadence;
+  cadBox.style.display='flex';
+  cadBox.className = 'cadence '+t.cls;
+  document.getElementById('cadence-big').textContent = t.cadence;
+  document.getElementById('cadence-sub').textContent = t.label+' risk \u2014 provider/APP visit cadence';
+
+  // Plan
+  planEmpty.style.display='none';
+  let html = '<h3>Suggested plan &mdash; '+t.label+' risk</h3><ul>';
+  BASE_PLANS[tier].forEach(item=>{ html += '<li>'+item+'</li>'; });
+  if(rapidDecline){
+    html += '<li class="urgent">Rapid PPS decline \u2014 document functional trajectory this visit; prioritize prognosis-framed goals-of-care conversation</li>';
+  }
+  html += '</ul>';
+
+  const activeFlags = Object.keys(state.flags).filter(k=>state.flags[k]);
+  if(activeFlags.length){
+    html += '<h3>Targeted actions from risk indicators</h3><ul>';
+    activeFlags.forEach(k=>{ html += '<li class="flagged">'+FLAG_PLANS[k].txt+'</li>'; });
+    html += '</ul>';
+  }
+
+  const chosen = Object.keys(state.ints).filter(k=>state.ints[k]);
+  if(chosen.length){
+    html += '<h3>Provider-selected interventions</h3><ul>';
+    chosen.forEach(i=>{ html += '<li class="chosen">'+i+'</li>'; });
+    html += '</ul>';
+  }
+
+  planContent.innerHTML = html;
+}
+
+function buildSummaryText(){
+  const lines = [];
+  lines.push('ACC RISK STRATIFICATION SUMMARY');
+  lines.push('Date: ' + new Date().toLocaleDateString());
+  lines.push('');
+  if(lastLace!==null){
+    lines.push('LACE score: ' + lastLace + ' (L=' + state.L + ', A=' + state.A + ', C=' + laceCFromDisease(cciDiseasePoints()) + ', E=' + state.E + ')');
+  }
+  if(lastCci!==null){
+    lines.push('Charlson Comorbidity Index: ' + lastCci + (lastSurv!==null ? ' (est. 10-year survival ' + lastSurv + '%)' : ''));
+  }
+  if(state.ADM!==null){ lines.push('Inpatient admissions, past 6 months: ' + (state.ADM===3 ? '3+' : state.ADM)); }
+  if(state.PPS!==null){
+    let ppsLine = 'PPS today: ' + state.PPS + '%';
+    if(state.PPSPRIOR!==null && state.PPSPRIOR>0){
+      const d = state.PPSPRIOR - state.PPS;
+      ppsLine += ' | PPS on admission: ' + state.PPSPRIOR + '%';
+      if(d>0) ppsLine += ' (declined ' + d + ' points)';
+      else if(d<0) ppsLine += ' (improved ' + (-d) + ' points)';
+      else ppsLine += ' (stable)';
+    }
+    lines.push(ppsLine);
+  }
+  const activeFlags = Object.keys(state.flags).filter(k=>state.flags[k]);
+  if(activeFlags.length){
+    lines.push('Additional risk indicators (' + activeFlags.length + '/5): ' + activeFlags.map(k=>FLAG_NAMES[k]).join('; '));
+  }
+  lines.push('');
+  if(lastTierLabel){
+    let tierLine = 'RISK TIER: ' + lastTierLabel.toUpperCase();
+    if(lastEsc.length && lastBaseTier && TIERS[lastBaseTier].label!==lastTierLabel){
+      tierLine += ' (base ' + TIERS[lastBaseTier].label + '; escalated by: ' + lastEsc.join(', ') + ')';
+    } else if(lastEsc.length){
+      tierLine += ' (escalating factors: ' + lastEsc.join(', ') + ')';
+    }
+    lines.push(tierLine);
+    lines.push('Visit cadence: ' + lastCadence + ' (provider/APP)');
+    if(lastHospice){ lines.push('** Hospice eligibility review indicated: High risk with PPS \u226440% **'); }
+    if(lastRapid){ lines.push('** Rapid functional decline: document PPS trajectory, weights, intake **'); }
+    lines.push('');
+    lines.push('PLAN:');
+    BASE_PLANS[ORDER[['Low','Moderate','High'].indexOf(lastTierLabel)]].forEach(item=>lines.push('- ' + item));
+    if(lastRapid){ lines.push('- Rapid PPS decline: document functional trajectory this visit; prioritize prognosis-framed goals-of-care conversation'); }
+    if(activeFlags.length){
+      lines.push('');
+      lines.push('TARGETED ACTIONS:');
+      activeFlags.forEach(k=>lines.push('- ' + FLAG_PLANS[k].txt));
+    }
+    const chosen = Object.keys(state.ints).filter(k=>state.ints[k]);
+    if(chosen.length){
+      lines.push('');
+      lines.push('PROVIDER-SELECTED INTERVENTIONS:');
+      chosen.forEach(i=>lines.push('- ' + i));
+    }
+  } else {
+    lines.push('(Assessment incomplete \u2014 complete LACE items, CCI age, and PPS to generate tier and plan)');
+  }
+  return lines.join('\n');
+}
+
+function copySummary(){
+  const text = buildSummaryText();
+  const btn = document.getElementById('copy-btn');
+  function done(){
+    btn.textContent = 'Copied \u2713';
+    btn.classList.add('copied');
+    setTimeout(()=>{ btn.textContent='Copy summary'; btn.classList.remove('copied'); }, 2000);
+  }
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(done).catch(()=>fallbackCopy(text, done));
+  } else {
+    fallbackCopy(text, done);
+  }
+}
+function fallbackCopy(text, done){
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.position = 'fixed'; ta.style.opacity = '0';
+  document.body.appendChild(ta);
+  ta.select();
+  try{ document.execCommand('copy'); done(); }catch(e){ alert('Copy failed \u2014 please select and copy manually.'); }
+  document.body.removeChild(ta);
+}
+
+render();
+</script>
+</body>
+</html>
