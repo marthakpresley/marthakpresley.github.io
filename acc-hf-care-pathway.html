@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HF Care Pathway &mdash; Visit Module</title>
+<style>
+  :root{
+    --blue:#326195; --green:#638C3D; --magenta:#9D296D; --brown:#91634C;
+    --teal:#245664; --gold:#F4B21B; --ink:#2b2f33; --muted:#6b7075;
+    --line:#dde3e8; --bg:#f5f7f9; --card:#ffffff;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:Calibri,'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--ink);font-size:16px;line-height:1.45}
+  h1,h2,h3{font-family:Georgia,'Times New Roman',serif;font-weight:normal}
+  header{background:var(--blue);color:#fff;padding:22px 28px}
+  header h1{font-size:1.5rem;letter-spacing:.2px}
+  header p{opacity:.85;font-size:.95rem;margin-top:4px}
+  .wrap{max-width:1180px;margin:0 auto;padding:24px 20px 60px;display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:24px;align-items:start}
+  @media(max-width:900px){.wrap{grid-template-columns:1fr}.results{position:static !important}}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:22px 24px;margin-bottom:20px}
+  .card h2{color:var(--teal);font-size:1.15rem;padding-bottom:10px;margin-bottom:16px;border-bottom:2px solid var(--line);display:flex;align-items:baseline;gap:10px}
+  .card h2 .tag{font-family:Calibri,sans-serif;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:#fff;background:var(--teal);border-radius:4px;padding:2px 8px;position:relative;top:-2px}
+  .q{margin-bottom:18px}
+  .q:last-child{margin-bottom:0}
+  .q-label{font-weight:bold;margin-bottom:2px}
+  .q-help{font-size:.85rem;color:var(--muted);margin-bottom:8px}
+  .opts{display:flex;flex-wrap:wrap;gap:8px}
+  .opt{border:1.5px solid var(--line);border-radius:8px;padding:8px 14px;background:#fff;cursor:pointer;font-size:.92rem;font-family:inherit;color:var(--ink);transition:border-color .12s,background .12s}
+  .opt:hover{border-color:var(--blue)}
+  .opt.sel{border-color:var(--blue);background:var(--blue);color:#fff;font-weight:bold}
+  .opt:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+  .numrow{display:flex;flex-wrap:wrap;gap:12px}
+  .numfield{display:flex;flex-direction:column;gap:3px}
+  .numfield label{font-size:.8rem;color:var(--muted);letter-spacing:.03em}
+  .numfield input{border:1.5px solid var(--line);border-radius:8px;padding:8px 10px;width:96px;font-family:inherit;font-size:.95rem;color:var(--ink)}
+  .numfield input:focus{outline:none;border-color:var(--blue)}
+  .textfield{width:100%;border:1.5px solid var(--line);border-radius:8px;padding:9px 12px;font-family:inherit;font-size:.95rem;color:var(--ink)}
+  .textfield:focus{outline:none;border-color:var(--blue)}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  @media(max-width:620px){.grid2{grid-template-columns:1fr}}
+  .chk{border:1.5px solid var(--line);border-radius:8px;padding:7px 11px;background:#fff;cursor:pointer;font-size:.88rem;font-family:inherit;color:var(--ink);text-align:left;display:flex;justify-content:space-between;align-items:center;gap:8px;transition:border-color .12s,background .12s}
+  .chk:hover{border-color:var(--blue)}
+  .chk.sel{border-color:var(--blue);background:var(--blue);color:#fff;font-weight:bold}
+  .chk:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+  .chk.red.sel{border-color:var(--magenta);background:var(--magenta)}
+  .subhead{font-size:.85rem;font-weight:bold;color:var(--teal);letter-spacing:.05em;text-transform:uppercase;margin:14px 0 7px}
+  .gdmt-row{display:grid;grid-template-columns:150px 1fr;gap:10px;align-items:start;padding:10px 0;border-bottom:1px solid var(--line)}
+  .gdmt-row:last-child{border-bottom:none}
+  .gdmt-row .g-name{font-weight:bold;font-size:.92rem;padding-top:6px}
+  .gdmt-row .g-sub{font-weight:normal;font-size:.78rem;color:var(--muted);display:block}
+  .gdmt-row .opts .opt{padding:5px 10px;font-size:.83rem}
+  @media(max-width:620px){.gdmt-row{grid-template-columns:1fr}}
+  .pills{display:flex;flex-wrap:wrap;gap:8px}
+  .pill{border:1.5px solid var(--line);border-radius:999px;padding:7px 15px;background:#fff;cursor:pointer;font-size:.9rem;font-family:inherit;color:var(--ink);transition:border-color .12s,background .12s}
+  .pill:hover{border-color:var(--teal)}
+  .pill.sel{background:var(--teal);border-color:var(--teal);color:#fff;font-weight:bold}
+  .pill:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+  .results{position:sticky;top:16px}
+  .alert{display:none;font-size:.88rem;border-radius:8px;padding:10px 13px;margin-bottom:10px}
+  .alert.show{display:block}
+  .alert.ed{background:#faeef5;border:1.5px solid var(--magenta);color:#5a1240}
+  .alert.ed b{color:var(--magenta)}
+  .alert.home{background:#f2f6ec;border:1.5px solid var(--green);color:#33491d}
+  .alert.home b{color:var(--green)}
+  .alert.note{background:#fdf6e3;border:1px solid var(--gold);color:#4a3a05}
+  .alert.note b{color:var(--brown)}
+  .alert ul{margin:4px 0 0 18px}
+  .dispo-banner{margin-bottom:14px;border-radius:10px;padding:14px 17px;color:#fff;display:none}
+  .dispo-banner.show{display:block}
+  .dispo-banner.routine{background:var(--green)}
+  .dispo-banner.home{background:var(--gold);color:#4a3a05}
+  .dispo-banner.ed{background:var(--magenta)}
+  .dispo-banner.hospice{background:var(--teal)}
+  .dispo-banner .big{font-family:Georgia,serif;font-size:1.25rem}
+  .dispo-banner .sub{font-size:.88rem;opacity:.92;margin-top:2px}
+  .plan h3{color:var(--teal);font-size:1.02rem;margin:18px 0 8px;border-bottom:1px solid var(--line);padding-bottom:5px}
+  .plan ul{list-style:none}
+  .plan li{padding:7px 0 7px 24px;position:relative;font-size:.93rem;border-bottom:1px dotted #edf0f2}
+  .plan li:last-child{border-bottom:none}
+  .plan li::before{content:"";position:absolute;left:2px;top:13px;width:9px;height:9px;border-radius:50%;background:var(--green)}
+  .plan li.flagged::before{background:var(--gold)}
+  .plan li.urgent::before{background:var(--magenta)}
+  .plan li.chosen::before{background:var(--blue)}
+  .empty-note{color:var(--muted);font-size:.92rem;font-style:italic}
+  .btnrow{display:flex;gap:10px;margin-top:6px}
+  .btn{font-family:inherit;font-size:.92rem;border-radius:8px;padding:9px 18px;cursor:pointer;border:1.5px solid var(--blue)}
+  .btn.primary{background:var(--blue);color:#fff}
+  .btn.primary.copied{background:var(--green);border-color:var(--green)}
+  .btn.ghost{background:#fff;color:var(--blue)}
+  .btn:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+  footer{max-width:1180px;margin:0 auto;padding:0 20px 40px;font-size:.8rem;color:var(--muted)}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Heart Failure Care Pathway &mdash; Visit Module</h1>
+  <p>Assessment &middot; Monitoring &middot; Medications &middot; Escalation &middot; E-Kit &middot; Alive Complex Care</p>
+</header>
+
+<div class="wrap">
+
+  <!-- ============ LEFT: DATA ENTRY ============ -->
+  <div>
+
+    <div class="card">
+      <h2>I. Assessment at This Visit <span class="tag">Every visit</span></h2>
+
+      <div class="q">
+        <div class="q-label">Vitals</div>
+        <div class="numrow">
+          <div class="numfield"><label>SBP</label><input type="number" id="v-sbp" min="40" max="260"></div>
+          <div class="numfield"><label>DBP</label><input type="number" id="v-dbp" min="20" max="160"></div>
+          <div class="numfield"><label>HR</label><input type="number" id="v-hr" min="20" max="220"></div>
+          <div class="numfield"><label>SpO&#8322; %</label><input type="number" id="v-spo2" min="50" max="100"></div>
+          <div class="numfield"><label>Weight (lb)</label><input type="number" id="v-wt" min="40" max="600" step="0.1"></div>
+        </div>
+      </div>
+
+      <div class="q">
+        <div class="q-label">Weight change since last visit / baseline</div>
+        <div class="opts" data-group="WT" role="radiogroup" aria-label="Weight change">
+          <button class="opt" data-val="stable">Stable or down</button>
+          <button class="opt" data-val="up2">Up &lt;2 lb</button>
+          <button class="opt" data-val="up25">Up 2&ndash;5 lb</button>
+          <button class="opt" data-val="up5">Up &gt;5 lb / week</button>
+        </div>
+      </div>
+
+      <div class="q">
+        <div class="q-label">NYHA class today</div>
+        <div class="opts" data-group="NYHA" role="radiogroup" aria-label="NYHA class">
+          <button class="opt" data-val="I">I &mdash; no limitation</button>
+          <button class="opt" data-val="II">II &mdash; slight limitation</button>
+          <button class="opt" data-val="III">III &mdash; marked limitation</button>
+          <button class="opt" data-val="IV">IV &mdash; symptoms at rest</button>
+        </div>
+      </div>
+
+      <div class="q">
+        <div class="q-label">Volume status (serial assessment &mdash; today vs. last visit)</div>
+        <div class="opts" data-group="VOL" role="radiogroup" aria-label="Volume status">
+          <button class="opt" data-val="euvolemic">Euvolemic</button>
+          <button class="opt" data-val="congested">Congested (warm-wet)</button>
+          <button class="opt" data-val="hypoperfused">Hypoperfused (cold-dry)</button>
+          <button class="opt" data-val="coldwet">Congested + hypoperfused (cold-wet)</button>
+        </div>
+      </div>
+
+      <div class="q">
+        <div class="subhead">Congestion signs present</div>
+        <div class="grid2" id="cong-signs">
+          <button class="chk" data-txt="orthopnea (ask pillows / recliner)">Orthopnea<span></span></button>
+          <button class="chk" data-txt="PND">PND<span></span></button>
+          <button class="chk" data-txt="JVD / hepatojugular reflux">JVD / HJR<span></span></button>
+          <button class="chk" data-txt="LE edema">LE edema<span></span></button>
+          <button class="chk" data-txt="bendopnea">Bendopnea<span></span></button>
+          <button class="chk" data-txt="cough worse with recumbency">Recumbent cough<span></span></button>
+        </div>
+        <div class="subhead">Hypoperfusion signs present</div>
+        <div class="grid2" id="hypo-signs">
+          <button class="chk red" data-txt="cool / mottled extremities">Cool extremities<span></span></button>
+          <button class="chk red" data-txt="narrow pulse pressure (&lt;25% of SBP)">Narrow pulse pressure<span></span></button>
+          <button class="chk red" data-txt="altered mentation">Altered mentation<span></span></button>
+          <button class="chk red" data-txt="oliguria">Oliguria<span></span></button>
+        </div>
+      </div>
+
+      <div class="q">
+        <div class="q-label">Point-of-care / recent labs <span style="font-weight:normal;font-size:.83rem;color:var(--muted)">(if available)</span></div>
+        <div class="subhead" style="margin-top:6px">K+</div>
+        <div class="opts" data-group="K" role="radiogroup" aria-label="Potassium">
+          <button class="opt" data-val="na">Not checked</button>
+          <button class="opt" data-val="low">&lt;3.5</button>
+          <button class="opt" data-val="normal">3.5&ndash;5.0</button>
+          <button class="opt" data-val="mild">5.0&ndash;5.5</button>
+          <button class="opt" data-val="high">&gt;5.5</button>
+        </div>
+        <div class="subhead">Na+</div>
+        <div class="opts" data-group="NA" role="radiogroup" aria-label="Sodium">
+          <button class="opt" data-val="na">Not checked</button>
+          <button class="opt" data-val="normal">&ge;134</button>
+          <button class="opt" data-val="low">&lt;134</button>
+        </div>
+        <div class="subhead">Creatinine trend</div>
+        <div class="opts" data-group="CR" role="radiogroup" aria-label="Creatinine">
+          <button class="opt" data-val="na">Not checked</button>
+          <button class="opt" data-val="stable">Stable</button>
+          <button class="opt" data-val="mild">Up &lt;30% (on GDMT titration)</button>
+          <button class="opt" data-val="severe">Up &gt;50%</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>II. Monitoring <span class="tag" style="background:var(--brown)">Cadence</span></h2>
+      <div class="q">
+        <div class="q-label">Monitoring context</div>
+        <div class="q-help">Drives the lab surveillance cadence: stable q3&ndash;6 months; 7&ndash;14 days after a med change; same visit if symptomatic.</div>
+        <div class="opts" data-group="MON" role="radiogroup" aria-label="Monitoring context">
+          <button class="opt" data-val="stable">Stable</button>
+          <button class="opt" data-val="medchange">Med change in past 2 weeks</button>
+          <button class="opt" data-val="symptomatic">Symptomatic / status change</button>
+        </div>
+      </div>
+      <div class="q">
+        <div class="q-label">Echo indication today</div>
+        <div class="opts" data-group="ECHO" role="radiogroup" aria-label="Echo indication">
+          <button class="opt" data-val="none">None &mdash; no clinical question</button>
+          <button class="opt" data-val="change">Clinical change &mdash; reassess EF/valves</button>
+          <button class="opt" data-val="gdmt">3&ndash;6 mo post-GDMT optimization</button>
+          <button class="opt" data-val="mi">40&ndash;90 days post-MI (ICD candidacy)</button>
+          <button class="opt" data-val="amyloid">Amyloid suspicion &mdash; order PYP</button>
+        </div>
+      </div>
+      <div class="q">
+        <div class="q-label">Home-monitoring education completed today</div>
+        <div class="grid2" id="edu">
+          <button class="chk" data-txt="daily weights (same scale, same time, post-void)">Daily weights<span></span></button>
+          <button class="chk" data-txt="call triggers (weight up 2 lb/24 h or 5 lb/week; new dyspnea; more pillows; new edema)">Call triggers<span></span></button>
+          <button class="chk" data-txt="sodium teaching (canned, processed, restaurant food)">Sodium teaching<span></span></button>
+          <button class="chk" data-txt="fluid restriction log">Fluid restriction log<span></span></button>
+          <button class="chk" data-txt="BP/HR home log">BP/HR log<span></span></button>
+          <button class="chk" data-txt="symptom diary">Symptom diary<span></span></button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>III. Medications <span class="tag">GDMT</span></h2>
+      <div class="q-help" style="margin-bottom:6px">Four pillars, all Class 1. 2024 paradigm: initiate together or in rapid sequence; SGLT2i can be the first pillar started.</div>
+
+      <div class="gdmt-row">
+        <div class="g-name">ARNI<span class="g-sub">sacubitril/valsartan (or ACEi/ARB)</span></div>
+        <div class="opts" data-group="P1" role="radiogroup" aria-label="ARNI status">
+          <button class="opt" data-val="target">On, target dose</button>
+          <button class="opt" data-val="titrating">On, titrating</button>
+          <button class="opt" data-val="notstarted">Not started</button>
+          <button class="opt" data-val="ci">Not tolerated / CI</button>
+        </div>
+      </div>
+      <div class="gdmt-row">
+        <div class="g-name">&beta;-blocker<span class="g-sub">carvedilol, metoprolol succinate, bisoprolol</span></div>
+        <div class="opts" data-group="P2" role="radiogroup" aria-label="Beta blocker status">
+          <button class="opt" data-val="target">On, target dose</button>
+          <button class="opt" data-val="titrating">On, titrating</button>
+          <button class="opt" data-val="notstarted">Not started</button>
+          <button class="opt" data-val="ci">Not tolerated / CI</button>
+        </div>
+      </div>
+      <div class="gdmt-row">
+        <div class="g-name">MRA<span class="g-sub">spironolactone / eplerenone</span></div>
+        <div class="opts" data-group="P3" role="radiogroup" aria-label="MRA status">
+          <button class="opt" data-val="target">On, target dose</button>
+          <button class="opt" data-val="titrating">On, titrating</button>
+          <button class="opt" data-val="notstarted">Not started</button>
+          <button class="opt" data-val="ci">Not tolerated / CI</button>
+        </div>
+      </div>
+      <div class="gdmt-row">
+        <div class="g-name">SGLT2i<span class="g-sub">dapagliflozin / empagliflozin</span></div>
+        <div class="opts" data-group="P4" role="radiogroup" aria-label="SGLT2i status">
+          <button class="opt" data-val="target">On, target dose</button>
+          <button class="opt" data-val="titrating">On, titrating</button>
+          <button class="opt" data-val="notstarted">Not started</button>
+          <button class="opt" data-val="ci">Not tolerated / CI</button>
+        </div>
+      </div>
+
+      <div class="q" style="margin-top:16px">
+        <div class="q-label">Current diuretic regimen</div>
+        <input class="textfield" type="text" id="diuretic" placeholder="e.g., torsemide 20 mg daily; metolazone 2.5 mg PRN">
+      </div>
+      <div class="q">
+        <div class="grid2">
+          <button class="chk" id="selftitrate" data-txt="">Self-titration plan in place ("weight up 2 lb &rarr; extra dose; 5 lb &rarr; call")<span></span></button>
+          <button class="chk" id="adherence" data-txt="">Adherence concern (missed doses, cost, side effects)<span></span></button>
+        </div>
+      </div>
+
+      <div class="q">
+        <div class="q-label">Watch-out medications currently in use</div>
+        <div class="q-help">Screen at every visit &mdash; including OTC and meds started by other providers.</div>
+        <div class="grid2" id="watchout">
+          <button class="chk red" data-key="nsaid">NSAIDs (incl. topical, OTC)<span></span></button>
+          <button class="chk red" data-key="ccb">Non-DHP CCB (verapamil, diltiazem)<span></span></button>
+          <button class="chk red" data-key="aa">Class I/III antiarrhythmic (flecainide, sotalol)<span></span></button>
+          <button class="chk red" data-key="tzd">Thiazolidinedione (pioglitazone)<span></span></button>
+          <button class="chk red" data-key="tca">TCA (amitriptyline)<span></span></button>
+          <button class="chk red" data-key="decon">Decongestant / effervescent high-Na med<span></span></button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>IV. Escalation &amp; Disposition <span class="tag" style="background:var(--magenta)">Decision</span></h2>
+      <div class="q">
+        <div class="q-label">Disposition</div>
+        <div class="opts" data-group="DISPO" role="radiogroup" aria-label="Disposition">
+          <button class="opt" data-val="routine">Routine &mdash; continue pathway</button>
+          <button class="opt" data-val="home">Early decompensation &mdash; manage at home</button>
+          <button class="opt" data-val="ed">Escalate to ED</button>
+          <button class="opt" data-val="hospice">Stage D, goals favor comfort &mdash; hospice, not ED</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>V. HF Emergency Kit <span class="tag" style="background:var(--gold);color:#4a3a05">E-Kit</span></h2>
+      <div class="q">
+        <div class="q-label">E-kit status</div>
+        <div class="q-help">Order at admission; refresh quarterly. Check contents below.</div>
+        <div class="opts" data-group="EKIT" role="radiogroup" aria-label="E-kit status">
+          <button class="opt" data-val="current">In home &mdash; current</button>
+          <button class="opt" data-val="refresh">In home &mdash; needs quarterly refresh</button>
+          <button class="opt" data-val="ordered">Ordered today</button>
+          <button class="opt" data-val="none">Not in home &mdash; order</button>
+        </div>
+      </div>
+      <div class="q">
+        <div class="q-label">E-kit contents</div>
+        <div class="grid2" id="ekit-contents">
+          <button class="chk" data-txt="extra loop diuretic (same agent, 2x home dose)">Extra loop diuretic (2&times; home dose)<span></span></button>
+          <button class="chk" data-txt="metolazone 2.5-5 mg (PRN before loop; never daily)">Metolazone 2.5&ndash;5 mg<span></span></button>
+          <button class="chk" data-txt="KCl 10-20 mEq tabs (PRN with diuretic escalation)">KCl 10&ndash;20 mEq<span></span></button>
+          <button class="chk" data-txt="morphine 2.5-5 mg SL/PO (refractory dyspnea; liquid formulation)">Morphine 2.5&ndash;5 mg SL/PO<span></span></button>
+          <button class="chk" data-txt="lorazepam 0.5-1 mg (anxiety + air hunger)">Lorazepam 0.5&ndash;1 mg<span></span></button>
+          <button class="chk" data-txt="glycopyrrolate / atropine (terminal secretions)">Glycopyrrolate / atropine<span></span></button>
+        </div>
+        <input class="textfield" type="text" id="ekit-other" placeholder="Other E-kit contents (free text)" style="margin-top:10px">
+      </div>
+      <div class="q">
+        <div class="grid2">
+          <button class="chk" id="ekit-teach" data-txt="">Family teaching completed (contents + when to use)<span></span></button>
+          <button class="chk" id="ekit-algo" data-txt="">Symptom algorithm reviewed (use, then notify team)<span></span></button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Goals &amp; ACP <span class="tag" style="background:var(--teal)">Every visit</span></h2>
+      <div class="q">
+        <div class="q-label">Code status</div>
+        <div class="opts" data-group="CODE" role="radiogroup" aria-label="Code status">
+          <button class="opt" data-val="Full code">Full code</button>
+          <button class="opt" data-val="DNR">DNR</button>
+          <button class="opt" data-val="DNR/DNI">DNR / DNI</button>
+          <button class="opt" data-val="notdoc">Not documented</button>
+        </div>
+      </div>
+      <div class="q">
+        <div class="grid2">
+          <button class="chk" id="acp-surr" data-txt="">Surrogate identified<span></span></button>
+          <button class="chk" id="acp-ad" data-txt="">Advance directive in chart<span></span></button>
+          <button class="chk" id="acp-goc" data-txt="">Goals-of-care conversation today<span></span></button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Plan Additions <span class="tag" style="background:var(--blue)">Provider-selected</span></h2>
+      <div class="pills" id="interventions">
+        <button class="pill" data-int="Dietitian (RD) consult for sodium/fluid teaching">RD consult</button>
+        <button class="pill" data-int="Convert furosemide to torsemide for reliable absorption">Convert to torsemide</button>
+        <button class="pill" data-int="Bubble pack medications / pill box">Bubble pack / pill box</button>
+        <button class="pill" data-int="Financial assistance referral for medication cost">Financial assistance</button>
+        <button class="pill" data-int="Event monitor for palpitations / new fatigue">Event monitor</button>
+        <button class="pill" data-int="Update vaccinations (influenza, pneumococcal, COVID, RSV)">Vaccinations</button>
+        <button class="pill" data-int="Iron studies">Iron studies</button>
+        <button class="pill" data-int="BNP / NT-proBNP">BNP</button>
+        <button class="pill" data-int="Initiate bowel regimen (senna + PEG) with opioids">Bowel regimen</button>
+        <button class="pill" data-int="Palliative care / hospice discussion">Palliative / hospice discussion</button>
+        <button class="pill" data-int="Social work referral">Social work referral</button>
+        <button class="pill" data-int="Pharmacist medication review">Pharmacist review</button>
+      </div>
+    </div>
+
+    <div class="btnrow">
+      <button class="btn primary" id="copy-btn" onclick="copySummary()">Copy care plan</button>
+      <button class="btn ghost" onclick="resetAll()">Clear form</button>
+    </div>
+  </div>
+
+  <!-- ============ RIGHT: RESULTS ============ -->
+  <div class="results">
+    <div class="card">
+      <h2>Visit Summary &amp; Plan</h2>
+
+      <div class="dispo-banner" id="dispo-banner">
+        <div class="big" id="dispo-big"></div>
+        <div class="sub" id="dispo-sub"></div>
+      </div>
+
+      <div class="alert home" id="alert-home"></div>
+      <div id="alerts-note"></div>
+
+      <div class="plan">
+        <p class="empty-note" id="plan-empty">Select a disposition to generate the care plan. Alerts appear as assessment data is entered.</p>
+        <div id="plan-content"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  For clinical decision support only; does not replace provider judgment. Based on the Alive Clinical Guideline Series: Heart Failure Care Pathway (2022 AHA/ACC/HFSA + 2024 ACC Expert Consensus updates). This tool stores no patient data.
+</footer>
+
+<script>
+const state = {
+  WT:null, NYHA:null, VOL:null, K:null, NA:null, CR:null,
+  MON:null, ECHO:null, P1:null, P2:null, P3:null, P4:null,
+  DISPO:null, EKIT:null, CODE:null,
+  ints:{}
+};
+
+// radio-style option groups (string values)
+document.querySelectorAll('.opts').forEach(group=>{
+  const key = group.dataset.group;
+  group.querySelectorAll('.opt').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      group.querySelectorAll('.opt').forEach(b=>b.classList.remove('sel'));
+      btn.classList.add('sel');
+      state[key] = btn.dataset.val;
+      render();
+    });
+  });
+});
+
+// toggle checkboxes (chk)
+document.querySelectorAll('.chk').forEach(btn=>{
+  btn.addEventListener('click', ()=>{ btn.classList.toggle('sel'); render(); });
+});
+
+// pills
+document.querySelectorAll('#interventions .pill').forEach(p=>{
+  p.addEventListener('click', ()=>{
+    p.classList.toggle('sel');
+    state.ints[p.dataset.int] = p.classList.contains('sel');
+    render();
+  });
+});
+
+// numeric + text inputs
+['v-sbp','v-dbp','v-hr','v-spo2','v-wt','diuretic','ekit-other'].forEach(id=>{
+  document.getElementById(id).addEventListener('input', render);
+});
+
+function num(id){ const v = document.getElementById(id).value; return v==='' ? null : parseFloat(v); }
+function checked(sel){ return Array.from(document.querySelectorAll(sel)).filter(b=>b.classList.contains('sel')); }
+
+function resetAll(){
+  Object.keys(state).forEach(k=>{ if(k!=='ints') state[k]=null; });
+  state.ints = {};
+  document.querySelectorAll('.opt,.chk,.pill').forEach(b=>b.classList.remove('sel'));
+  ['v-sbp','v-dbp','v-hr','v-spo2','v-wt','diuretic','ekit-other'].forEach(id=>document.getElementById(id).value='');
+  render();
+}
+
+const GDMT_NAMES = {P1:'ARNI (sacubitril/valsartan)', P2:'\u03B2-blocker', P3:'MRA', P4:'SGLT2 inhibitor'};
+const GDMT_INIT = {
+  P1:'Initiate ARNI (sacubitril/valsartan); if switching from ACEi, observe 36-h washout to avoid angioedema',
+  P2:'Initiate evidence-based \u03B2-blocker (carvedilol, metoprolol succinate, or bisoprolol); start low, titrate to target HR / max tolerated',
+  P3:'Initiate MRA (spironolactone 12.5\u201325 mg or eplerenone); recheck K+ and Cr in 7\u201314 days',
+  P4:'Initiate SGLT2 inhibitor (dapagliflozin or empagliflozin) \u2014 benefit regardless of diabetes status; can be first pillar started'
+};
+const WATCHOUT_PLANS = {
+  nsaid:'Discontinue NSAIDs (incl. topical for chronic use) \u2014 most common precipitant of HF admission; substitute acetaminophen',
+  ccb:'Discontinue non-DHP CCB (verapamil/diltiazem) \u2014 negative inotropy in HFrEF; amlodipine or felodipine if BP support needed',
+  aa:'Review class I/III antiarrhythmic with cardiology \u2014 proarrhythmic in LV dysfunction; amiodarone or dofetilide are the safer options',
+  tzd:'Discontinue thiazolidinedione \u2014 fluid retention; avoid in NYHA III\u2013IV',
+  tca:'Reassess TCA \u2014 anticholinergic burden, orthostasis, QTc; nortriptyline preferred if a TCA is needed',
+  decon:'Stop decongestant / effervescent high-Na medication; recommend saline rinse or intranasal steroid instead'
+};
+
+function buildAlerts(){
+  const notes = [];
+  const sbp = num('v-sbp'), hr = num('v-hr'), spo2 = num('v-spo2');
+  if(sbp!==null && sbp<90) notes.push({cls:'ed', html:'<b>SBP &lt;90</b> \u2014 if symptomatic, concerning for cardiogenic shock. Escalation criteria met.'});
+  if(spo2!==null && spo2<90) notes.push({cls:'ed', html:'<b>SpO&#8322; &lt;90%</b> on usual O&#8322; \u2014 need for higher-level support. Escalation criteria met.'});
+  if(hr!==null && hr>=50 && hr<60 && (state.P2==='target'||state.P2==='titrating'))
+    notes.push({cls:'note', html:'<b>HR 50s on \u03B2-blocker:</b> asymptomatic bradycardia is fine \u2014 hold only for symptomatic bradycardia, AV block, or symptomatic hypotension. Don\u2019t reflexively down-titrate.'});
+  if(state.K==='mild')
+    notes.push({cls:'note', html:'<b>K+ 5.0\u20135.5 on RAASi/MRA is acceptable in HF</b> \u2014 add a binder (patiromer or SZC) or switch to finerenone before stopping the disease-modifying drug.'});
+  if(state.K==='high')
+    notes.push({cls:'ed', html:'<b>K+ &gt;5.5</b> \u2014 address hyperkalemia today: binder, repeat BMP, review RAASi/MRA dosing.'});
+  if(state.K==='low')
+    notes.push({cls:'note', html:'<b>K+ &lt;3.5</b> \u2014 replete (KCl from E-kit if diuretic surge); check Mg+ if K+ doesn\u2019t respond.'});
+  if(state.NA==='low')
+    notes.push({cls:'note', html:'<b>Na+ &lt;134</b> \u2014 neurohormonal activation; predicts mortality. Assess volume status and fluid restriction; watch mentation.'});
+  if(state.CR==='mild')
+    notes.push({cls:'note', html:'<b>Cr up &lt;30% during GDMT optimization:</b> permissive hypercreatinemia \u2014 expected, not predictive of long-term renal outcomes. Continue GDMT.'});
+  if(state.CR==='severe')
+    notes.push({cls:'ed', html:'<b>Cr up &gt;50% \u2014 severe AKI.</b> Volume/perfusion mismatch may need inpatient management. Escalation criteria met.'});
+  if(state.VOL==='hypoperfused' || state.VOL==='coldwet')
+    notes.push({cls:'ed', html:'<b>Hypoperfusion pattern</b> \u2014 cold profile is an escalation-level finding; assess perfusion urgently.'});
+  if(state.NYHA==='III' || state.NYHA==='IV')
+    notes.push({cls:'note', html:'<b>NYHA '+state.NYHA+':</b> symptom burden rivals advanced cancer \u2014 palliative referral threshold. Ensure GOC current.'});
+  if(state.WT==='up25' || state.WT==='up5')
+    notes.push({cls:'note', html:'<b>Weight up '+(state.WT==='up25'?'2\u20135 lb':'&gt;5 lb/week')+'</b> \u2014 early decompensation window. Weight gain precedes symptoms by 5\u20137 days; home diuretic escalation is indicated.'});
+  return notes;
+}
+
+function render(){
+  // alerts
+  const notes = buildAlerts();
+  const cont = document.getElementById('alerts-note');
+  cont.innerHTML = notes.map(n=>'<div class="alert '+n.cls+' show">'+n.html+'</div>').join('');
+  document.getElementById('alert-home').classList.remove('show');
+
+  // home management suggestion
+  const homeAlert = document.getElementById('alert-home');
+  if((state.WT==='up25') && state.DISPO===null){
+    homeAlert.innerHTML = '<b>Weight gain 2\u20135 lb without red flags</b> \u2014 candidate for home management: double home loop \u00D7 2\u20133 days \u00B1 metolazone.';
+    homeAlert.classList.add('show');
+  }
+
+  // disposition banner
+  const banner = document.getElementById('dispo-banner');
+  banner.className = 'dispo-banner';
+  const planEmpty = document.getElementById('plan-empty');
+  const planContent = document.getElementById('plan-content');
+  if(!state.DISPO){
+    planEmpty.style.display='block';
+    planContent.innerHTML='';
+    return;
+  }
+  const D = {
+    routine:{cls:'routine', big:'Routine \u2014 continue pathway', sub:'Assessment, monitoring, meds, E-kit \u2014 every visit, same order.'},
+    home:{cls:'home', big:'Manage at home', sub:'Diuretic escalation protocol + 24-hour recheck.'},
+    ed:{cls:'ed', big:'Escalate to ED', sub:'Hemodynamic or oxygenation problem not fixable at home.'},
+    hospice:{cls:'hospice', big:'Comfort-focused \u2014 hospice, not ED', sub:'Stage D with goals favoring comfort.'}
+  }[state.DISPO];
+  banner.classList.add('show', D.cls);
+  document.getElementById('dispo-big').textContent = D.big;
+  document.getElementById('dispo-sub').textContent = D.sub;
+
+  planEmpty.style.display='none';
+  planContent.innerHTML = buildPlanHtml();
+}
+
+function buildPlanLines(){
+  const core=[], meds=[], mon=[], ekit=[], acp=[], chosen=[];
+
+  // disposition core
+  if(state.DISPO==='home'){
+    core.push({t:'Double home loop diuretic \u00D7 2\u20133 days, then return to baseline', c:'flagged'});
+    core.push({t:'Add metolazone 2.5\u20135 mg, 30 min before loop, if inadequate response \u2014 never daily', c:'flagged'});
+    core.push({t:'Daily weights; patient to call for weight up 2 lb/24 h or any new dyspnea', c:''});
+    core.push({t:'Recheck in 24 hours (call or visit); reassess volume status', c:'flagged'});
+    core.push({t:'BMP this visit; repeat K+/Mg+ with diuretic escalation (KCl from E-kit PRN)', c:''});
+    core.push({t:'Notify team after any E-kit use; most decompensations stabilize in 24\u201348 h', c:''});
+  } else if(state.DISPO==='ed'){
+    core.push({t:'Escalate to ED \u2014 arrange transport and notify receiving team', c:'urgent'});
+    core.push({t:'Send current med list and most recent labs with patient', c:''});
+    core.push({t:'Post-discharge: same-week ACC visit; restart pathway at assessment', c:''});
+  } else if(state.DISPO==='hospice'){
+    core.push({t:'Goals-of-care conversation \u2014 confirm comfort-focused goals with patient/surrogate', c:'urgent'});
+    core.push({t:'Hospice eligibility evaluation and referral', c:'urgent'});
+    core.push({t:'Align E-kit comfort medications (morphine SL for dyspnea, lorazepam, glycopyrrolate) with symptom algorithm', c:'flagged'});
+    core.push({t:'Family teaching: symptom algorithm, when to call \u2014 the goal is staying home', c:''});
+  } else {
+    core.push({t:'Continue HF pathway: six-domain assessment in same order every visit', c:''});
+  }
+
+  // monitoring cadence
+  if(state.MON==='stable'){ mon.push({t:'Labs: BMP q3\u20136 months (+ Mg/phos if on diuretic); BNP annually or with status change; iron studies q6 months', c:''}); }
+  else if(state.MON==='medchange'){ mon.push({t:'Labs: BMP (+K/Mg) in 7\u201314 days after medication change', c:'flagged'}); }
+  else if(state.MON==='symptomatic'){ mon.push({t:'Labs: BMP (+K/Mg) this visit \u2014 symptomatic/status change', c:'flagged'}); }
+  if(state.ECHO && state.ECHO!=='none'){
+    const em = {change:'Order echo \u2014 clinical change; reassess EF, RV function, valves, effusion',
+                gdmt:'Order echo \u2014 3\u20136 months on full GDMT; assess for EF recovery (HFimpEF)',
+                mi:'Order echo at 40\u201390 days post-MI/revascularization \u2014 ICD candidacy',
+                amyloid:'Order PYP scan \u2014 amyloid suspicion (HFpEF + thick septum, low voltage, carpal tunnel, neuropathy)'}[state.ECHO];
+    mon.push({t:em, c:'flagged'});
+  }
+  const edu = checked('#edu .chk').map(b=>b.dataset.txt);
+  if(edu.length) mon.push({t:'Education completed: '+edu.join('; '), c:''});
+
+  // GDMT
+  ['P1','P2','P3','P4'].forEach(p=>{
+    const v = state[p];
+    if(v==='notstarted'){ meds.push({t:GDMT_INIT[p], c:'flagged'}); }
+    else if(v==='titrating'){ meds.push({t:'Continue up-titration of '+GDMT_NAMES[p]+' to target / max tolerated dose', c:''}); }
+    else if(v==='target'){ meds.push({t:'Continue '+GDMT_NAMES[p]+' at target dose', c:''}); }
+    else if(v==='ci'){ meds.push({t:GDMT_NAMES[p]+': not tolerated / contraindicated \u2014 rationale documented; reassess candidacy at future visits', c:''}); }
+  });
+  const diur = document.getElementById('diuretic').value.trim();
+  if(diur) meds.push({t:'Diuretic regimen: '+diur, c:''});
+  if(!document.getElementById('selftitrate').classList.contains('sel')){
+    meds.push({t:'Establish diuretic self-titration plan: "weight up 2 lb \u2192 extra dose; up 5 lb \u2192 call us"', c:'flagged'});
+  } else {
+    meds.push({t:'Diuretic self-titration plan confirmed in place', c:''});
+  }
+  if(document.getElementById('adherence').classList.contains('sel')){
+    meds.push({t:'Address adherence: pill box / bubble pack; assess cost barriers; consider torsemide conversion for reliable absorption', c:'flagged'});
+  }
+  checked('#watchout .chk').forEach(b=>{ meds.push({t:WATCHOUT_PLANS[b.dataset.key], c:'urgent'}); });
+
+  // E-kit
+  const ekitContents = checked('#ekit-contents .chk').map(b=>b.dataset.txt);
+  const ekitOther = document.getElementById('ekit-other').value.trim();
+  if(ekitOther) ekitContents.push(ekitOther);
+  if(state.EKIT==='none'){ ekit.push({t:'Order HF E-kit; family teaching at delivery; label container with triggers', c:'flagged'}); }
+  else if(state.EKIT==='ordered'){ ekit.push({t:'E-kit ordered today \u2014 family teaching at delivery; label container with triggers', c:''}); }
+  else if(state.EKIT==='refresh'){ ekit.push({t:'Refresh E-kit contents (quarterly refresh due)', c:'flagged'}); }
+  else if(state.EKIT==='current'){ ekit.push({t:'E-kit in home and current', c:''}); }
+  if(ekitContents.length){ ekit.push({t:'E-kit contents: '+ekitContents.join('; '), c:''}); }
+  if(state.EKIT && state.EKIT!=='none'){
+    if(!document.getElementById('ekit-teach').classList.contains('sel')) ekit.push({t:'Complete family teaching on E-kit contents and triggers', c:'flagged'});
+    if(!document.getElementById('ekit-algo').classList.contains('sel')) ekit.push({t:'Review symptom algorithm with patient/family (use, then notify team)', c:'flagged'});
+  }
+
+  // ACP
+  if(state.CODE==='notdoc'){ acp.push({t:'Document code status', c:'flagged'}); }
+  else if(state.CODE){ acp.push({t:'Code status: '+state.CODE, c:''}); }
+  if(!document.getElementById('acp-surr').classList.contains('sel')) acp.push({t:'Identify and document healthcare surrogate', c:'flagged'});
+  if(!document.getElementById('acp-ad').classList.contains('sel')) acp.push({t:'Complete advance directive and file in chart', c:'flagged'});
+  if(document.getElementById('acp-goc').classList.contains('sel')) acp.push({t:'Goals-of-care conversation held today; documented', c:''});
+
+  Object.keys(state.ints).filter(k=>state.ints[k]).forEach(i=>chosen.push({t:i, c:'chosen'}));
+
+  return {core, mon, meds, ekit, acp, chosen};
+}
+
+function buildPlanHtml(){
+  const P = buildPlanLines();
+  const sec = (title, arr)=> arr.length ? '<h3>'+title+'</h3><ul>'+arr.map(l=>'<li class="'+l.c+'">'+l.t+'</li>').join('')+'</ul>' : '';
+  return sec('Disposition plan', P.core)
+       + sec('Monitoring', P.mon)
+       + sec('Medications', P.meds)
+       + sec('E-kit', P.ekit)
+       + sec('Goals &amp; ACP', P.acp)
+       + sec('Provider-selected additions', P.chosen);
+}
+
+function stripTags(s){ const d=document.createElement('div'); d.innerHTML=s; return d.textContent; }
+
+function buildSummaryText(){
+  const L=[];
+  L.push('HF CARE PATHWAY VISIT SUMMARY');
+  L.push('Date: ' + new Date().toLocaleDateString());
+  L.push('');
+  // assessment
+  const vit=[];
+  const sbp=num('v-sbp'), dbp=num('v-dbp'), hr=num('v-hr'), spo2=num('v-spo2'), wt=num('v-wt');
+  if(sbp!==null||dbp!==null) vit.push('BP '+(sbp!==null?sbp:'?')+'/'+(dbp!==null?dbp:'?'));
+  if(hr!==null) vit.push('HR '+hr);
+  if(spo2!==null) vit.push('SpO2 '+spo2+'%');
+  if(wt!==null) vit.push('Weight '+wt+' lb');
+  const wtTxt={stable:'stable/down', up2:'up <2 lb', up25:'up 2-5 lb', up5:'up >5 lb/week'}[state.WT];
+  if(wtTxt) vit.push('weight '+wtTxt+' since last visit');
+  if(vit.length) L.push('Vitals: '+vit.join(', '));
+  if(state.NYHA) L.push('NYHA class: '+state.NYHA);
+  const volTxt={euvolemic:'Euvolemic', congested:'Congested (warm-wet)', hypoperfused:'Hypoperfused (cold-dry)', coldwet:'Congested + hypoperfused (cold-wet)'}[state.VOL];
+  if(volTxt) L.push('Volume status: '+volTxt);
+  const cong = checked('#cong-signs .chk').map(b=>stripTags(b.dataset.txt));
+  const hypo = checked('#hypo-signs .chk').map(b=>stripTags(b.dataset.txt));
+  if(cong.length) L.push('Congestion signs: '+cong.join(', '));
+  if(hypo.length) L.push('Hypoperfusion signs: '+hypo.join(', '));
+  const labs=[];
+  if(state.K && state.K!=='na') labs.push('K+ '+({low:'<3.5', normal:'3.5-5.0', mild:'5.0-5.5', high:'>5.5'})[state.K]);
+  if(state.NA && state.NA!=='na') labs.push('Na+ '+({normal:'>=134', low:'<134'})[state.NA]);
+  if(state.CR && state.CR!=='na') labs.push('Cr '+({stable:'stable', mild:'up <30% (GDMT titration)', severe:'up >50%'})[state.CR]);
+  if(labs.length) L.push('Labs: '+labs.join('; '));
+  // GDMT status
+  const gd=[];
+  const gTxt={target:'on, target dose', titrating:'on, titrating', notstarted:'not started', ci:'not tolerated/CI'};
+  [['P1','ARNI'],['P2','Beta-blocker'],['P3','MRA'],['P4','SGLT2i']].forEach(([k,n])=>{ if(state[k]) gd.push(n+': '+gTxt[state[k]]); });
+  if(gd.length){ L.push(''); L.push('GDMT: '+gd.join(' | ')); }
+  const diur = document.getElementById('diuretic').value.trim();
+  if(diur) L.push('Diuretic: '+diur);
+  L.push('');
+  const dTxt={routine:'ROUTINE - CONTINUE PATHWAY', home:'EARLY DECOMPENSATION - MANAGE AT HOME', ed:'ESCALATE TO ED', hospice:'COMFORT-FOCUSED - HOSPICE, NOT ED'}[state.DISPO];
+  if(dTxt){ L.push('DISPOSITION: '+dTxt); L.push(''); }
+  if(state.DISPO){
+    const P = buildPlanLines();
+    const dump=(title,arr)=>{ if(arr.length){ L.push(title.toUpperCase()+':'); arr.forEach(l=>L.push('- '+stripTags(l.t))); L.push(''); } };
+    dump('Disposition plan', P.core);
+    dump('Monitoring', P.mon);
+    dump('Medications', P.meds);
+    dump('E-kit', P.ekit);
+    dump('Goals & ACP', P.acp);
+    dump('Provider-selected additions', P.chosen);
+  } else {
+    L.push('(Select a disposition to generate the plan)');
+  }
+  while(L.length && L[L.length-1]==='') L.pop();
+  return L.join('\n');
+}
+
+function copySummary(){
+  const text = buildSummaryText();
+  const btn = document.getElementById('copy-btn');
+  function done(){
+    btn.textContent='Copied \u2713'; btn.classList.add('copied');
+    setTimeout(()=>{ btn.textContent='Copy care plan'; btn.classList.remove('copied'); },2000);
+  }
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(done).catch(()=>fallbackCopy(text,done));
+  } else { fallbackCopy(text,done); }
+}
+function fallbackCopy(text,done){
+  const ta=document.createElement('textarea');
+  ta.value=text; ta.style.position='fixed'; ta.style.opacity='0';
+  document.body.appendChild(ta); ta.select();
+  try{ document.execCommand('copy'); done(); }catch(e){ alert('Copy failed \u2014 please select and copy manually.'); }
+  document.body.removeChild(ta);
+}
+
+render();
+</script>
+</body>
+</html>

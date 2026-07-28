@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fall Risk Care Pathway &mdash; Visit Module</title>
+<style>
+  :root{
+    --blue:#326195; --green:#638C3D; --magenta:#9D296D; --brown:#91634C;
+    --teal:#245664; --gold:#F4B21B; --ink:#2b2f33; --muted:#6b7075;
+    --line:#dde3e8; --bg:#f5f7f9; --card:#ffffff;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:Calibri,'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--ink);font-size:16px;line-height:1.45}
+  h1,h2,h3{font-family:Georgia,'Times New Roman',serif;font-weight:normal}
+  header{background:var(--blue);color:#fff;padding:22px 28px}
+  header h1{font-size:1.5rem;letter-spacing:.2px}
+  header p{opacity:.85;font-size:.95rem;margin-top:4px}
+  .wrap{max-width:1180px;margin:0 auto;padding:24px 20px 60px;display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:24px;align-items:start}
+  @media(max-width:900px){.wrap{grid-template-columns:1fr}.results{position:static !important}}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:22px 24px;margin-bottom:20px}
+  .card h2{color:var(--teal);font-size:1.15rem;padding-bottom:10px;margin-bottom:16px;border-bottom:2px solid var(--line);display:flex;align-items:baseline;gap:10px}
+  .card h2 .tag{font-family:Calibri,sans-serif;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:#fff;background:var(--teal);border-radius:4px;padding:2px 8px;position:relative;top:-2px}
+  .q{margin-bottom:18px}
+  .q:last-child{margin-bottom:0}
+  .q-label{font-weight:bold;margin-bottom:2px}
+  .q-help{font-size:.85rem;color:var(--muted);margin-bottom:8px}
+  .opts{display:flex;flex-wrap:wrap;gap:8px}
+  .opt{border:1.5px solid var(--line);border-radius:8px;padding:8px 14px;background:#fff;cursor:pointer;font-size:.92rem;font-family:inherit;color:var(--ink);transition:border-color .12s,background .12s}
+  .opt:hover{border-color:var(--blue)}
+  .opt.sel{border-color:var(--blue);background:var(--blue);color:#fff;font-weight:bold}
+  .opt:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+  .numrow{display:flex;flex-wrap:wrap;gap:12px}
+  .numfield{display:flex;flex-direction:column;gap:3px}
+  .numfield label{font-size:.8rem;color:var(--muted);letter-spacing:.03em}
+  .numfield input{border:1.5px solid var(--line);border-radius:8px;padding:8px 10px;width:110px;font-family:inherit;font-size:.95rem;color:var(--ink)}
+  .numfield input:focus{outline:none;border-color:var(--blue)}
+  .textfield{width:100%;border:1.5px solid var(--line);border-radius:8px;padding:9px 12px;font-family:inherit;font-size:.95rem;color:var(--ink)}
+  .textfield:focus{outline:none;border-color:var(--blue)}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  @media(max-width:620px){.grid2{grid-template-columns:1fr}}
+  .chk{border:1.5px solid var(--line);border-radius:8px;padding:7px 11px;background:#fff;cursor:pointer;font-size:.88rem;font-family:inherit;color:var(--ink);text-align:left;display:flex;justify-content:space-between;align-items:center;gap:8px;transition:border-color .12s,background .12s}
+  .chk:hover{border-color:var(--blue)}
+  .chk.sel{border-color:var(--blue);background:var(--blue);color:#fff;font-weight:bold}
+  .chk:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+  .chk.red.sel{border-color:var(--magenta);background:var(--magenta)}
+  .subhead{font-size:.85rem;font-weight:bold;color:var(--teal);letter-spacing:.05em;text-transform:uppercase;margin:14px 0 7px}
+  .pills{display:flex;flex-wrap:wrap;gap:8px}
+  .pill{border:1.5px solid var(--line);border-radius:999px;padding:7px 15px;background:#fff;cursor:pointer;font-size:.9rem;font-family:inherit;color:var(--ink);transition:border-color .12s,background .12s}
+  .pill:hover{border-color:var(--teal)}
+  .pill.sel{background:var(--teal);border-color:var(--teal);color:#fff;font-weight:bold}
+  .pill:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+  .results{position:sticky;top:16px}
+  .alert{display:none;font-size:.88rem;border-radius:8px;padding:10px 13px;margin-bottom:10px}
+  .alert.show{display:block}
+  .alert.ed{background:#faeef5;border:1.5px solid var(--magenta);color:#5a1240}
+  .alert.ed b{color:var(--magenta)}
+  .alert.home{background:#f2f6ec;border:1.5px solid var(--green);color:#33491d}
+  .alert.home b{color:var(--green)}
+  .alert.note{background:#fdf6e3;border:1px solid var(--gold);color:#4a3a05}
+  .alert.note b{color:var(--brown)}
+  .dispo-banner{margin-bottom:14px;border-radius:10px;padding:14px 17px;color:#fff;display:none}
+  .dispo-banner.show{display:block}
+  .dispo-banner.routine{background:var(--green)}
+  .dispo-banner.home{background:var(--gold);color:#4a3a05}
+  .dispo-banner.ed{background:var(--magenta)}
+  .dispo-banner.facility{background:var(--teal)}
+  .dispo-banner .big{font-family:Georgia,serif;font-size:1.25rem}
+  .dispo-banner .sub{font-size:.88rem;opacity:.92;margin-top:2px}
+  .risk-badge{display:none;border-radius:8px;padding:10px 13px;margin-bottom:10px;font-size:.9rem;border:1.5px solid}
+  .risk-badge.show{display:block}
+  .risk-badge b{font-family:Georgia,serif;font-size:1rem}
+  .risk-low{background:#f2f6ec;border-color:var(--green);color:#33491d}
+  .risk-mod{background:#fdf6e3;border-color:var(--gold);color:#4a3a05}
+  .risk-high{background:#faeef5;border-color:var(--magenta);color:#5a1240}
+  .plan h3{color:var(--teal);font-size:1.02rem;margin:18px 0 8px;border-bottom:1px solid var(--line);padding-bottom:5px}
+  .plan ul{list-style:none}
+  .plan li{padding:7px 0 7px 24px;position:relative;font-size:.93rem;border-bottom:1px dotted #edf0f2}
+  .plan li:last-child{border-bottom:none}
+  .plan li::before{content:"";position:absolute;left:2px;top:13px;width:9px;height:9px;border-radius:50%;background:var(--green)}
+  .plan li.flagged::before{background:var(--gold)}
+  .plan li.urgent::before{background:var(--magenta)}
+  .plan li.chosen::before{background:var(--blue)}
+  .empty-note{color:var(--muted);font-size:.92rem;font-style:italic}
+  .btnrow{display:flex;gap:10px;margin-top:6px}
+  .btn{font-family:inherit;font-size:.92rem;border-radius:8px;padding:9px 18px;cursor:pointer;border:1.5px solid var(--blue)}
+  .btn.primary{background:var(--blue);color:#fff}
+  .btn.primary.copied{background:var(--green);border-color:var(--green)}
+  .btn:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+  .hint{font-size:.8rem;color:var(--muted);margin-top:6px;font-style:italic}
+  footer{max-width:1180px;margin:0 auto;padding:0 20px 40px;font-size:.8rem;color:var(--muted)}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Fall Risk Care Pathway &mdash; Visit Module</h1>
+  <p>Assessment &middot; Monitoring &middot; Medications &middot; Escalation &middot; Home Kit &middot; Alive Complex Care</p>
+</header>
+
+<div class="wrap">
+
+  <!-- ============ LEFT: DATA ENTRY ============ -->
+  <div>
+
+    <div class="card">
+      <h2>I. Screening &amp; Fall History <span class="tag">Every visit &ge; 65</span></h2>
+
+      <div class="q">
+        <div class="q-label">STEADI 3-question screen</div>
+        <div class="q-help">Ask directly and normalize &mdash; only about half of older fallers report to a clinician. Any YES triggers a multifactorial workup.</div>
+        <div class="grid2" id="steadi">
+          <button class="chk red" data-txt="fall in the past year WITH injury">Fell in the past year <em>with injury</em><span></span></button>
+          <button class="chk red" data-txt="2 or more falls in the past year">&ge; 2 falls in the past year<span></span></button>
+          <button class="chk red" data-txt="afraid of falling">Afraid of falling<span></span></button>
+        </div>
+      </div>
+
+      <div class="q">
+        <div class="q-label">Falls since last visit</div>
+        <div class="numrow">
+          <div class="numfield"><label>Number of falls</label><input type="number" id="nfalls" min="0" max="50"></div>
+          <div class="numfield"><label>Near-falls</label><input type="number" id="nnear" min="0" max="50"></div>
+        </div>
+        <div class="hint">"Have you fallen or nearly fallen since I last saw you?" &mdash; record date, location, mechanism.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>II. Orthostatics &amp; Function <span class="tag">High yield</span></h2>
+
+      <div class="q">
+        <div class="q-label">Orthostatic vitals</div>
+        <div class="q-help">Supine &ge; 5 min &rarr; sitting at 1 min &rarr; standing at 1 and 3 min. Positive: &darr; &ge; 20 SBP or &ge; 10 DBP, or HR &uarr; &gt; 30.</div>
+        <div class="numrow">
+          <div class="numfield"><label>Supine SBP</label><input type="number" id="supSBP" min="50" max="260"></div>
+          <div class="numfield"><label>Supine DBP</label><input type="number" id="supDBP" min="20" max="160"></div>
+          <div class="numfield"><label>Supine HR</label><input type="number" id="supHR" min="20" max="200"></div>
+        </div>
+        <div class="numrow" style="margin-top:8px">
+          <div class="numfield"><label>Standing SBP</label><input type="number" id="stdSBP" min="50" max="260"></div>
+          <div class="numfield"><label>Standing DBP</label><input type="number" id="stdDBP" min="20" max="160"></div>
+          <div class="numfield"><label>Standing HR</label><input type="number" id="stdHR" min="20" max="200"></div>
+        </div>
+        <div class="grid2" style="margin-top:8px">
+          <button class="chk red" id="ortho-sx" data-txt="symptomatic on standing (dizziness, vision change)">Symptomatic on standing<span></span></button>
+        </div>
+      </div>
+
+      <div class="q">
+        <div class="q-label">Functional tests</div>
+        <div class="q-help">Trend the same measure over time. Enter only what you performed.</div>
+        <div class="numrow">
+          <div class="numfield"><label>TUG (sec)</label><input type="number" id="tug" step="0.1" min="0" max="120"></div>
+          <div class="numfield"><label>TUG prior (sec)</label><input type="number" id="tugPrior" step="0.1" min="0" max="120"></div>
+          <div class="numfield"><label>30-sec STS (reps)</label><input type="number" id="sts30" min="0" max="40"></div>
+          <div class="numfield"><label>30-sec STS prior</label><input type="number" id="sts30Prior" min="0" max="40"></div>
+        </div>
+        <div class="numrow" style="margin-top:8px">
+          <div class="numfield"><label>5&times; STS (sec)</label><input type="number" id="sts5" step="0.1" min="0" max="120"></div>
+          <div class="numfield"><label>Berg (/56)</label><input type="number" id="berg" min="0" max="56"></div>
+          <div class="numfield"><label>Tinetti/POMA (/28)</label><input type="number" id="tinetti" min="0" max="28"></div>
+        </div>
+        <div class="subhead">Inpatient screens (if applicable)</div>
+        <div class="numrow">
+          <div class="numfield"><label>Morse Falls Scale</label><input type="number" id="morse" min="0" max="125"></div>
+          <div class="numfield"><label>Hendrich II</label><input type="number" id="hendrich" min="0" max="20"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>III. The 5Ms <span class="tag">Tinetti 2017</span></h2>
+      <div class="q">
+        <div class="q-help">Fall risk lives in every M. Check what is contributing for this patient.</div>
+        <div class="subhead">Mobility</div>
+        <div class="grid2" id="m-mobility">
+          <button class="chk" data-txt="gait or balance impairment">Gait / balance impairment<span></span></button>
+          <button class="chk" data-txt="assistive device not fitted or not used">Device not fitted / not used<span></span></button>
+          <button class="chk" data-txt="declining endurance or transfers">Declining endurance / transfers<span></span></button>
+        </div>
+        <div class="subhead">Mind</div>
+        <div class="grid2" id="m-mind">
+          <button class="chk" data-txt="dementia / impaired safety awareness">Dementia / impaired safety awareness<span></span></button>
+          <button class="chk red" data-txt="delirium">Delirium<span></span></button>
+          <button class="chk" data-txt="depression">Depression<span></span></button>
+        </div>
+        <div class="subhead">Multimorbidity</div>
+        <div class="grid2" id="m-multi">
+          <button class="chk red" data-txt="prior falls (strongest predictor)">Prior falls (strongest predictor)<span></span></button>
+          <button class="chk" data-txt="neuropathy">Neuropathy<span></span></button>
+          <button class="chk" data-txt="Parkinson's disease">Parkinson's<span></span></button>
+          <button class="chk" data-txt="CHF or COPD">CHF / COPD<span></span></button>
+          <button class="chk" data-txt="vision impairment">Vision impairment<span></span></button>
+          <button class="chk" data-txt="hearing impairment">Hearing impairment<span></span></button>
+        </div>
+        <div class="subhead">Matters Most</div>
+        <div class="grid2" id="m-matters">
+          <button class="chk" data-txt="home hazards present (rugs, lighting, stairs, bathroom)">Home hazards present<span></span></button>
+          <button class="chk red" data-txt="no caregiver available">No caregiver available<span></span></button>
+          <button class="chk" data-txt="fear of falling limiting activity">Fear limiting activity<span></span></button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>IV. Medications <span class="tag">Highest-yield</span></h2>
+      <div class="q">
+        <div class="q-help">Medication review is the single highest-yield modifiable intervention. Polypharmacy itself is a risk factor &mdash; "any medication in excess."</div>
+        <div class="grid2" id="meds">
+          <button class="chk red" data-txt="benzodiazepine or Z-drug (zolpidem)">Benzodiazepine / Z-drug<span></span></button>
+          <button class="chk red" data-txt="other psychoactive (antidepressant, antipsychotic, anxiolytic)">Other psychoactive<span></span></button>
+          <button class="chk red" data-txt="anticholinergic (diphenhydramine, TCA, oxybutynin, scopolamine, hyoscyamine)">Anticholinergic<span></span></button>
+          <button class="chk" data-txt="antihypertensive (ACEi/ARB, beta-blocker, alpha-blocker, diuretic)">Antihypertensive<span></span></button>
+          <button class="chk" data-txt="opioid or gabapentinoid">Opioid / gabapentinoid<span></span></button>
+          <button class="chk" data-txt="antiepileptic (phenytoin, carbamazepine, high-dose gabapentin, pregabalin)">Antiepileptic<span></span></button>
+          <button class="chk red" data-txt="sulfonylurea or insulin (esp. NPH / sliding scale)">Sulfonylurea / insulin<span></span></button>
+          <button class="chk" data-txt="recent medication change">Recent medication change<span></span></button>
+        </div>
+        <div class="subhead">Deprescribing steps completed</div>
+        <div class="grid2" id="depre">
+          <button class="chk" data-txt="full reconciliation (all bottles, OTCs, supplements)">Full reconciliation done<span></span></button>
+          <button class="chk" data-txt="screened against Beers 2023">Screened against Beers 2023<span></span></button>
+          <button class="chk" data-txt="stop/switch/reduce plan made">Stop / switch / reduce plan<span></span></button>
+          <button class="chk" data-txt="deprescribing conversation held">Conversation held with patient<span></span></button>
+        </div>
+        <div class="subhead">Anticoagulation</div>
+        <div class="opts" data-group="AC" role="radiogroup" aria-label="Anticoagulation">
+          <button class="opt" data-val="none">Not on AC</button>
+          <button class="opt" data-val="doac">On DOAC</button>
+          <button class="opt" data-val="warfarin">On warfarin</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>V. This Fall &mdash; Red Flags <span class="tag">Home vs. ED</span></h2>
+      <div class="q">
+        <div class="q-help">Complete if the patient fell. Most uninjured falls can be managed at home; these findings send them in.</div>
+        <div class="grid2" id="redflags">
+          <button class="chk red" data-txt="suspected fracture / unable to bear weight">Suspected fracture / can't bear weight<span></span></button>
+          <button class="chk red" data-txt="head strike while on anticoagulation">Head strike on anticoagulation<span></span></button>
+          <button class="chk red" data-txt="loss of consciousness">Loss of consciousness<span></span></button>
+          <button class="chk red" data-txt="new focal neurologic change">New focal neuro change<span></span></button>
+          <button class="chk red" data-txt="syncope suspected (witnessed LOC, palpitations, no clear trigger)">Syncope suspected<span></span></button>
+          <button class="chk red" data-txt="long lie (down >= 1 hr) / rhabdomyolysis concern">Long lie &ge; 1 hr / rhabdo concern<span></span></button>
+          <button class="chk red" data-txt="unsafe to be home alone (no caregiver + recurrent falls)">Unsafe home alone<span></span></button>
+          <button class="chk red" data-txt="new confusion (possible occult infection)">New confusion<span></span></button>
+        </div>
+        <div class="subhead">Reassuring features</div>
+        <div class="grid2" id="greenflags">
+          <button class="chk" data-txt="uninjured with cleared neuro/skin/ortho exam">Uninjured, exam cleared<span></span></button>
+          <button class="chk" data-txt="clear mechanism (trip); ambulates safely after">Clear trip mechanism; walks safely<span></span></button>
+          <button class="chk" data-txt="caregiver can supervise next 24-48 h">Caregiver can supervise 24&ndash;48 h<span></span></button>
+          <button class="chk" data-txt="home PT/OT arranged within 7 days">Home PT/OT within 7 days<span></span></button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>VI. Home Fall Prevention Kit</h2>
+      <div class="q">
+        <div class="q-label">Kit status</div>
+        <div class="opts" data-group="KIT" role="radiogroup" aria-label="Kit status">
+          <button class="opt" data-val="none">Not in place</button>
+          <button class="opt" data-val="partial">Partially in place</button>
+          <button class="opt" data-val="current">In place &amp; current</button>
+        </div>
+      </div>
+      <div class="q">
+        <div class="subhead">Components in place</div>
+        <div class="grid2" id="kit">
+          <button class="chk" data-txt="bathroom: grab bars (toilet AND shower), shower chair, raised seat, non-slip mats">Bathroom (grab bars, chair)<span></span></button>
+          <button class="chk" data-txt="stairs & floors: railings BOTH sides, rugs removed/secured">Stairs &amp; floors (railings)<span></span></button>
+          <button class="chk" data-txt="lighting: night lights, lit path to bathroom, contrast tape on steps">Lighting (path to bathroom)<span></span></button>
+          <button class="chk" data-txt="assistive device PT-fitted; closed-back non-skid shoes">Device fitted; proper shoes<span></span></button>
+          <button class="chk" data-txt="medical alert / PERS wearable">Medical alert (PERS)<span></span></button>
+          <button class="chk" data-txt="get-up plan posted (family-readable algorithm)">Get-up plan posted<span></span></button>
+        </div>
+        <div class="subhead">Teaching</div>
+        <div class="grid2">
+          <button class="chk" id="kit-ot" data-txt="">OT home evaluation done / ordered<span></span></button>
+          <button class="chk" id="kit-algo" data-txt="">Family fall-response algorithm reviewed<span></span></button>
+          <button class="chk" id="kit-diary" data-txt="">Fall diary in place<span></span></button>
+          <button class="chk" id="kit-chair" data-txt="">Chair method practiced<span></span></button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>VII. Disposition &amp; Interventions</h2>
+      <div class="q">
+        <div class="q-label">Disposition</div>
+        <div class="opts" data-group="DISPO" role="radiogroup" aria-label="Disposition">
+          <button class="opt" data-val="routine">Routine &mdash; screen negative</button>
+          <button class="opt" data-val="workup">Multifactorial workup at home</button>
+          <button class="opt" data-val="ed">Send to ED / escalate</button>
+          <button class="opt" data-val="facility">Facility-level care needed</button>
+        </div>
+      </div>
+      <div class="subhead">Provider-selected additions</div>
+      <div class="pills" id="interventions">
+        <button class="pill" data-int="PT referral (strength + balance exercise program)">PT referral</button>
+        <button class="pill" data-int="OT home safety evaluation">OT home eval</button>
+        <button class="pill" data-int="Vision evaluation">Vision eval</button>
+        <button class="pill" data-int="Audiology evaluation">Audiology</button>
+        <button class="pill" data-int="Podiatry / footwear">Podiatry / footwear</button>
+        <button class="pill" data-int="Vitamin D level checked (replete only true deficiency)">Check vitamin D level</button>
+        <button class="pill" data-int="Bone health / osteoporosis workup">Bone health workup</button>
+        <button class="pill" data-int="Social work referral">Social work</button>
+      </div>
+      <div class="btnrow">
+        <button class="btn primary" id="copy-btn" onclick="copySummary()">Copy care plan</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ RIGHT: RESULTS ============ -->
+  <div class="results">
+    <div class="card">
+      <h2>Visit Summary &amp; Plan</h2>
+      <div class="dispo-banner" id="dispo-banner">
+        <div class="big" id="dispo-big"></div>
+        <div class="sub" id="dispo-sub"></div>
+      </div>
+      <div class="risk-badge" id="risk-badge"></div>
+      <div id="alerts-note"></div>
+      <div class="plan">
+        <p class="empty-note" id="plan-empty">Complete the STEADI screen and functional tests for risk stratification. Select a disposition to generate the care plan.</p>
+        <div id="plan-content"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  For clinical decision support only; does not replace provider judgment. Based on the Alive Clinical Guideline Series: Fall Risk Care Pathway (CDC STEADI; USPSTF 2018; Ganz &amp; Latham NEJM 2020; Tinetti 2017; Col&oacute;n-Emeric 2024; AGS Beers 2023). This tool stores no patient data.
+</footer>
+
+<script>
+const state = { AC:null, KIT:null, DISPO:null, ints:{} };
+
+document.querySelectorAll('.opts').forEach(group=>{
+  const key = group.dataset.group;
+  group.querySelectorAll('.opt').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      group.querySelectorAll('.opt').forEach(b=>b.classList.remove('sel'));
+      btn.classList.add('sel');
+      state[key] = btn.dataset.val;
+      render();
+    });
+  });
+});
+document.querySelectorAll('.chk').forEach(btn=>{
+  btn.addEventListener('click', ()=>{ btn.classList.toggle('sel'); render(); });
+});
+document.querySelectorAll('#interventions .pill').forEach(p=>{
+  p.addEventListener('click', ()=>{
+    p.classList.toggle('sel');
+    state.ints[p.dataset.int] = p.classList.contains('sel');
+    render();
+  });
+});
+['nfalls','nnear','supSBP','supDBP','supHR','stdSBP','stdDBP','stdHR','tug','tugPrior',
+ 'sts30','sts30Prior','sts5','berg','tinetti','morse','hendrich']
+  .forEach(id=>document.getElementById(id).addEventListener('input', render));
+
+const num = id => { const v=document.getElementById(id).value; return v===''?null:parseFloat(v); };
+const isSel = id => document.getElementById(id).classList.contains('sel');
+const checked = sel => Array.from(document.querySelectorAll(sel)).filter(b=>b.classList.contains('sel'));
+const txts = sel => checked(sel).map(b=>b.dataset.txt);
+function isSel2(scope, txt){
+  return Array.from(document.querySelectorAll(scope+' .chk'))
+    .some(b=>b.dataset.txt===txt && b.classList.contains('sel'));
+}
+
+// ---- Orthostatics: positive if drop >=20 SBP or >=10 DBP, or HR rise >30 ----
+function orthostatic(){
+  const sS=num('supSBP'), sD=num('supDBP'), sH=num('supHR'),
+        tS=num('stdSBP'), tD=num('stdDBP'), tH=num('stdHR');
+  if(sS===null||tS===null) return null;
+  const dSBP = sS - tS;
+  const dDBP = (sD!==null&&tD!==null) ? (sD - tD) : null;
+  const dHR  = (sH!==null&&tH!==null) ? (tH - sH) : null;
+  const pos = (dSBP>=20) || (dDBP!==null && dDBP>=10) || (dHR!==null && dHR>30);
+  return {dSBP, dDBP, dHR, pos};
+}
+
+// ---- Fall risk stratification ----
+function fallRisk(){
+  const steadiYes = checked('#steadi .chk').length;
+  const tug=num('tug'), berg=num('berg'), tin=num('tinetti'), s5=num('sts5'),
+        morse=num('morse'), hen=num('hendrich'), nf=num('nfalls');
+  const o=orthostatic();
+  const hits=[];
+  if(steadiYes>0) hits.push('STEADI positive ('+steadiYes+'/3)');
+  if(tug!==null && tug>=12) hits.push('TUG '+tug+' s (≥ 12)');
+  if(s5!==null && s5>=15) hits.push('5× STS '+s5+' s (≥ 15)');
+  if(berg!==null && berg<45) hits.push('Berg '+berg+'/56 (< 45)');
+  if(tin!==null && tin<19) hits.push('Tinetti '+tin+' (< 19)');
+  if(morse!==null && morse>=51) hits.push('Morse '+morse+' (≥ 51)');
+  if(hen!==null && hen>=5) hits.push('Hendrich II '+hen+' (≥ 5)');
+  if(o && o.pos) hits.push('orthostatic hypotension');
+  if(nf!==null && nf>0) hits.push(nf+' fall(s) since last visit');
+  if(isSel2('#m-multi','prior falls (strongest predictor)')) hits.push('prior falls');
+  let level=null;
+  if(hits.length===0){
+    const anyEntered = steadiYes>0 || tug!==null || berg!==null || tin!==null || s5!==null || morse!==null || hen!==null || nf!==null || (o!==null);
+    level = anyEntered ? 'Low' : null;
+  } else if(hits.length<=2) level='Moderate';
+  else level='High';
+  return {level, hits};
+}
+
+function renderRisk(){
+  const el=document.getElementById('risk-badge');
+  const r=fallRisk();
+  if(!r.level){ el.className='risk-badge'; el.innerHTML=''; return; }
+  const cls={'Low':'risk-low','Moderate':'risk-mod','High':'risk-high'}[r.level];
+  el.className='risk-badge show '+cls;
+  const act = r.level==='Low' ? 'Continue annual screening; reinforce exercise and home safety.'
+            : r.level==='Moderate' ? 'Multifactorial workup indicated — meds, orthostatics, gait, home.'
+            : 'High risk — full multifactorial intervention: meds, PT, home modification.';
+  el.innerHTML='<b>Fall risk: '+r.level+'</b><br>'+(r.hits.length?r.hits.join(' · ')+'<br>':'')+act;
+}
+
+function buildAlerts(){
+  const A=[];
+  const rf = txts('#redflags .chk');
+  const o = orthostatic();
+  const steadiYes = checked('#steadi .chk').length;
+
+  if(rf.length)
+    A.push(['ed','<b>Red flag'+(rf.length>1?'s':'')+' present:</b> '+rf.join('; ')+'. Send to ED / escalate.']);
+  if(isSel2('#redflags','head strike while on anticoagulation') || (state.AC && state.AC!=='none' && isSel2('#redflags','loss of consciousness')))
+    A.push(['ed','<b>Head strike on anticoagulation</b> &mdash; CT head. Consider repeat CT at 24 h. Subdural may present days later.']);
+  if(isSel2('#redflags','long lie (down >= 1 hr) / rhabdomyolysis concern'))
+    A.push(['ed','<b>Long lie</b> &mdash; check BMP + CK; aggressive fluids; pressure-injury survey. A long lie is a marker for facility-level care.']);
+  if(isSel2('#redflags','new confusion (possible occult infection)'))
+    A.push(['note','<b>New confusion after a fall</b> &mdash; UTI and pneumonia commonly present as falls in older adults. Check UA, CXR, labs.']);
+  if(isSel2('#redflags','syncope suspected (witnessed LOC, palpitations, no clear trigger)'))
+    A.push(['ed','<b>Syncope suspected</b> &mdash; this is not a "mechanical fall." Telemetry, ECG, echo, orthostatics, glucose.']);
+
+  if(o && o.pos)
+    A.push(['note','<b>Orthostatic hypotension</b> &mdash; SBP drop '+o.dSBP+(o.dDBP!==null?', DBP drop '+o.dDBP:'')+(o.dHR!==null?', HR rise '+o.dHR:'')+'. Treatable and common: fluids, support stockings, reduce/stop hypotensives; midodrine if persistent.']);
+
+  if(steadiYes>0)
+    A.push(['note','<b>STEADI positive ('+steadiYes+'/3)</b> &mdash; a positive screen triggers a multifactorial workup, not just a checkbox. Document the action.']);
+
+  const tug=num('tug'), tugP=num('tugPrior');
+  if(tug!==null && tugP!==null && (tug-tugP)>=2)
+    A.push(['note','<b>TUG worsened '+(tug-tugP).toFixed(1)+' s</b> &mdash; a ≥ 2-second increase is clinically meaningful.']);
+  const s30=num('sts30'), s30P=num('sts30Prior');
+  if(s30!==null && s30P!==null && (s30P-s30)>=2)
+    A.push(['note','<b>30-sec sit-to-stand dropped '+(s30P-s30)+' reps</b> &mdash; a ≥ 2-rep decline is clinically meaningful.']);
+
+  if(isSel2('#meds','benzodiazepine or Z-drug (zolpidem)'))
+    A.push(['ed','<b>Benzodiazepine / Z-drug</b> &mdash; among the highest-yield deprescribing targets. Replace with non-pharm sleep strategies; trazodone &lt; zolpidem; mirtazapine helps sleep + appetite.']);
+  if(isSel2('#meds','anticholinergic (diphenhydramine, TCA, oxybutynin, scopolamine, hyoscyamine)'))
+    A.push(['note','<b>Anticholinergic burden</b> &mdash; cognitive impairment + orthostasis. Swap diphenhydramine &rarr; second-gen antihistamine; oxybutynin &rarr; mirabegron.']);
+  if(isSel2('#meds','sulfonylurea or insulin (esp. NPH / sliding scale)'))
+    A.push(['note','<b>Hypoglycemia risk</b> &mdash; looser A1c targets in older adults (&lt; 8.0); de-intensify sulfonylureas; sliding-scale insulin is rarely indicated.']);
+  if(isSel2('#meds','antihypertensive (ACEi/ARB, beta-blocker, alpha-blocker, diuretic)') && isSel2('#meds','recent medication change'))
+    A.push(['note','<b>Recent BP med change</b> &mdash; recheck orthostatics 1&ndash;2 weeks after any change. Most adults &gt; 75 tolerate looser targets (SBP &lt; 140).']);
+
+  if(state.AC && state.AC!=='none' && (num('nfalls')||0)>0)
+    A.push(['note','<b>Falls on anticoagulation</b> &mdash; falls alone rarely justify stopping. A patient must fall ~295&times;/year for warfarin’s bleed risk to outweigh stroke prevention. Use CHA&#8322;DS&#8322;-VASc + HAS-BLED + goals.']);
+  if(state.AC==='warfarin')
+    A.push(['note','<b>On warfarin</b> &mdash; prefer a DOAC where appropriate (less intracranial hemorrhage risk).']);
+
+  return A;
+}
+
+function buildPlanLines(){
+  const core=[], workup=[], meds=[], kit=[], fu=[], chosen=[];
+  const r=fallRisk();
+  const o=orthostatic();
+  const steadiYes = checked('#steadi .chk').length;
+
+  // Disposition
+  if(state.DISPO==='routine'){
+    core.push({t:'Screen negative — continue annual STEADI screening at every visit ≥ 65', c:''});
+    core.push({t:'Reinforce exercise and home safety; each prevention arm (multifactorial, exercise, home modification) reduces falls by ~23%', c:''});
+  } else if(state.DISPO==='workup'){
+    core.push({t:'Multifactorial workup at home — meds, orthostatics, gait/balance, vision/hearing, home hazards', c:'flagged'});
+    core.push({t:'Do NOT label this a "mechanical fall" — that invites premature closure on syncope, orthostasis, polypharmacy, and neuropathy', c:'flagged'});
+  } else if(state.DISPO==='ed'){
+    core.push({t:'Send to ED / escalate', c:'urgent'});
+    if(isSel2('#redflags','head strike while on anticoagulation')) core.push({t:'CT head; consider repeat CT at 24 h given anticoagulation', c:'urgent'});
+    if(isSel2('#redflags','long lie (down >= 1 hr) / rhabdomyolysis concern')) core.push({t:'BMP + CK; aggressive fluids; pressure-injury workup', c:'urgent'});
+    if(isSel2('#redflags','syncope suspected (witnessed LOC, palpitations, no clear trigger)')) core.push({t:'Syncope workup: telemetry, ECG, echo, orthostatics, glucose', c:'urgent'});
+    if(isSel2('#redflags','suspected fracture / unable to bear weight')) core.push({t:'Imaging for suspected fracture; hip fracture carries 20–30% 1-year mortality — surgical fixation when feasible, then early mobilization', c:'urgent'});
+    core.push({t:'Anticoagulation: continue unless active bleeding. Reverse only for life-threatening bleed (idarucizumab for dabigatran; andexanet for apixaban/rivaroxaban)', c:''});
+  } else if(state.DISPO==='facility'){
+    core.push({t:'Functional decline below the safe-at-home threshold — PT/OT; consider SAR/SNF vs. ramping home health and family supports', c:'urgent'});
+  }
+  if(r.level) core.push({t:'Fall risk: '+r.level+(r.hits.length?' — '+r.hits.join('; '):''), c:r.level==='High'?'flagged':''});
+
+  // Workup
+  if(steadiYes>0) workup.push({t:'STEADI positive ('+steadiYes+'/3) → multifactorial workup required; document the action, not just the screen', c:'flagged'});
+  if(o){
+    if(o.pos) workup.push({t:'Orthostatic hypotension (SBP drop '+o.dSBP+(o.dDBP!==null?', DBP drop '+o.dDBP:'')+(o.dHR!==null?', HR rise '+o.dHR:'')+') → fluids, support stockings, reduce/stop hypotensive meds; midodrine if persistent', c:'urgent'});
+    else workup.push({t:'Orthostatics negative (SBP drop '+o.dSBP+')', c:''});
+  } else {
+    workup.push({t:'Orthostatics not done — supine ≥ 5 min → sitting at 1 min → standing at 1 and 3 min. Takes 4 minutes and often finds the cause', c:'flagged'});
+  }
+  const tug=num('tug');
+  if(tug!==null && tug>=12) workup.push({t:'TUG '+tug+' s (≥ 12 = increased risk) → PT referral for strength and balance', c:'flagged'});
+  const berg=num('berg'); if(berg!==null && berg<45) workup.push({t:'Berg '+berg+'/56 (< 45) → higher risk; PT', c:'flagged'});
+  const tin=num('tinetti'); if(tin!==null && tin<19) workup.push({t:'Tinetti '+tin+' (< 19) → high fall risk', c:'flagged'});
+  const s5=num('sts5'); if(s5!==null && s5>=15) workup.push({t:'5× sit-to-stand '+s5+' s (≥ 15) → lower-body weakness; PT', c:'flagged'});
+  if(isSel2('#m-mind','dementia / impaired safety awareness') || isSel2('#m-mind','delirium'))
+    workup.push({t:'Cognitive impairment is upstream of every other risk factor — it multiplies the impact of meds, hazards, and weakness. Family report is the best data', c:'flagged'});
+  if(isSel2('#m-multi','vision impairment')) workup.push({t:'Vision evaluation — new visual loss is a common cause of new falls', c:'flagged'});
+  if(isSel2('#m-matters','fear of falling limiting activity'))
+    workup.push({t:'Fear of falling is limiting activity → avoidance worsens deconditioning. Refer PT; reassurance that risk can be mitigated is itself part of the intervention', c:'flagged'});
+  const fiveM = [...txts('#m-mobility .chk'), ...txts('#m-mind .chk'), ...txts('#m-multi .chk'), ...txts('#m-matters .chk')];
+  if(fiveM.length) workup.push({t:'5Ms contributors: '+fiveM.join('; '), c:''});
+
+  // Meds
+  const mlist = txts('#meds .chk');
+  const FIX = {
+    'benzodiazepine or Z-drug (zolpidem)':'highest-yield stop. Non-pharm sleep strategies; trazodone < zolpidem; mirtazapine for sleep + appetite',
+    'other psychoactive (antidepressant, antipsychotic, anxiolytic)':'review indication; lowest effective dose',
+    'anticholinergic (diphenhydramine, TCA, oxybutynin, scopolamine, hyoscyamine)':'use the anticholinergic burden scale. Diphenhydramine → second-gen antihistamine; oxybutynin → mirabegron',
+    'antihypertensive (ACEi/ARB, beta-blocker, alpha-blocker, diuretic)':'check orthostatics 1–2 weeks after any change. Most adults > 75 tolerate SBP < 140 without CV harm',
+    'opioid or gabapentinoid':'cognitive + sedative effect. Acetaminophen first-line; topical NSAID safer than oral where appropriate; always pair opioids with a bowel regimen',
+    'antiepileptic (phenytoin, carbamazepine, high-dose gabapentin, pregabalin)':'sedation, ataxia. Lowest effective dose; consider non-pharmacologic options for chronic neuropathic pain',
+    'sulfonylurea or insulin (esp. NPH / sliding scale)':'hypoglycemia → falls. Looser A1c (< 8.0); de-intensify sulfonylureas; sliding-scale insulin rarely indicated',
+    'recent medication change':'recheck orthostatics and function 1–2 weeks after the change'
+  };
+  mlist.forEach(m=>meds.push({t:m+' — '+FIX[m], c:'urgent'}));
+  const dep = txts('#depre .chk');
+  ['full reconciliation (all bottles, OTCs, supplements)','screened against Beers 2023','stop/switch/reduce plan made','deprescribing conversation held']
+    .filter(x=>!dep.includes(x)).forEach(x=>meds.push({t:'Deprescribing step outstanding: '+x, c:'flagged'}));
+  if(mlist.length) meds.push({t:'Frame it as protecting independence: "This medication may be raising your risk of falling. Let’s try without it for 4 weeks and see how you feel." Reassess in 2 weeks (orthostatics, symptoms, function)', c:''});
+  if(state.AC && state.AC!=='none'){
+    meds.push({t:'Anticoagulation ('+(state.AC==='doac'?'DOAC':'warfarin')+'): a fall history is rarely sufficient reason to stop. Shared decision with patient + PCP/cardiology using CHA₂DS₂-VASc, HAS-BLED, and goals', c:''});
+    if(state.AC==='warfarin') meds.push({t:'Prefer a DOAC over warfarin where appropriate — less intracranial hemorrhage risk', c:'flagged'});
+    meds.push({t:'Reassess the AC decision after fall-prevention interventions have reduced risk; if stopping for comfort, document the conversation', c:''});
+  }
+
+  // Home kit
+  if(state.KIT==='none') kit.push({t:'Order the home fall prevention kit; OT home evaluation drives the specific list', c:'flagged'});
+  else if(state.KIT==='partial') kit.push({t:'Kit partially in place — complete the missing components', c:'flagged'});
+  else if(state.KIT==='current') kit.push({t:'Home kit in place and current; refresh annually', c:''});
+  const have = txts('#kit .chk');
+  const ALL = {
+    'bathroom: grab bars (toilet AND shower), shower chair, raised seat, non-slip mats':'Bathroom: grab bars beside toilet AND in shower/tub; shower chair; raised toilet seat; hand-held showerhead; non-slip mats',
+    'stairs & floors: railings BOTH sides, rugs removed/secured':'Stairs & floors: sturdy railings on BOTH sides; remove or secure throw rugs; stair glide if recurrent falls',
+    'lighting: night lights, lit path to bathroom, contrast tape on steps':'Lighting: the path to the bathroom must be lit; night lights; high-contrast tape on step edges',
+    'assistive device PT-fitted; closed-back non-skid shoes':'Assistive device PT-fitted (cane top at wrist crease; rubber tips intact); closed-back non-skid shoes — no slippers or flip-flops',
+    'medical alert / PERS wearable':'Medical alert (PERS) wearable — reduces "long lie" time',
+    'get-up plan posted (family-readable algorithm)':'Get-up plan posted at the fridge — when to call 911, when to call the team, how to help up safely'
+  };
+  Object.keys(ALL).filter(x=>!have.includes(x)).forEach(x=>kit.push({t:'Add: '+ALL[x], c:'flagged'}));
+  if(have.length) kit.push({t:'In place: '+have.map(h=>h.split(':')[0]).join(', '), c:''});
+  if(!isSel('kit-ot')) kit.push({t:'Order OT home evaluation (at admission and after any fall; refresh annually)', c:'flagged'});
+  if(!isSel('kit-algo')) kit.push({t:'Review the family fall-response algorithm: stay with them → check injury → check responsiveness/speech → decide on getting up → chair method → recheck after → call the team', c:'flagged'});
+  if(!isSel('kit-diary')) kit.push({t:'Start a fall diary — every fall and near-fall: date, place, time, what happened, injury', c:'flagged'});
+  if(!isSel('kit-chair')) kit.push({t:'Practice the chair method at a clinic visit: roll to side → hands and knees → crawl to chair → push up', c:'flagged'});
+
+  // Follow-up / surveillance
+  fu.push({t:'Re-screen STEADI after any fall or near-fall; TUG after fall, hospitalization, or new medication', c:''});
+  fu.push({t:'Recheck orthostatics after any new BP-lowering medication', c:''});
+  fu.push({t:'Meaningful change: TUG ↑ ≥ 2 s (or now ≥ 12 s) · 30-sec STS ↓ ≥ 2 reps · Berg ↓ ≥ 4 points · MoCA ↓ ≥ 2 points', c:''});
+  fu.push({t:'Do NOT recommend bed rest after a fall — deconditioning accelerates the next one. PT/OT and graded re-mobilization', c:'flagged'});
+  fu.push({t:'Do NOT give routine vitamin D for fall prevention in community-dwelling adults (USPSTF 2018) — replete only true deficiency', c:'flagged'});
+  fu.push({t:'Document the annual fall-risk screen via the Quality Tab or an attached note (CDC STEADI satisfies the measure)', c:''});
+
+  Object.keys(state.ints).filter(k=>state.ints[k]).forEach(i=>chosen.push({t:i, c:'chosen'}));
+  return {core, workup, meds, kit, fu, chosen};
+}
+
+function buildPlanHtml(){
+  const P=buildPlanLines();
+  const sec=(t,arr)=> arr.length ? '<h3>'+t+'</h3><ul>'+arr.map(l=>'<li class="'+l.c+'">'+l.t+'</li>').join('')+'</ul>' : '';
+  return sec('Disposition plan', P.core)
+       + sec('Multifactorial workup', P.workup)
+       + sec('Medications &amp; deprescribing', P.meds)
+       + sec('Home fall prevention kit', P.kit)
+       + sec('Surveillance &amp; pitfalls', P.fu)
+       + sec('Provider-selected additions', P.chosen);
+}
+
+function render(){
+  renderRisk();
+  const A=buildAlerts();
+  document.getElementById('alerts-note').innerHTML =
+    A.map(a=>'<div class="alert '+a[0]+' show">'+a[1]+'</div>').join('');
+  const b=document.getElementById('dispo-banner');
+  const map={
+    routine:['routine','Routine — screen negative','Continue annual screening; reinforce exercise and home safety.'],
+    workup:['home','Multifactorial workup at home','Meds, orthostatics, gait, home hazards.'],
+    ed:['ed','Send to ED / escalate','Red-flag injury, neuro change, or syncope.'],
+    facility:['facility','Facility-level care needed','Below the safe-at-home threshold.']
+  };
+  if(state.DISPO){
+    const m=map[state.DISPO];
+    b.className='dispo-banner show '+m[0];
+    document.getElementById('dispo-big').textContent=m[1];
+    document.getElementById('dispo-sub').textContent=m[2];
+  } else { b.className='dispo-banner'; }
+  const empty=document.getElementById('plan-empty');
+  const content=document.getElementById('plan-content');
+  if(state.DISPO){ empty.style.display='none'; content.innerHTML=buildPlanHtml(); }
+  else { empty.style.display=''; content.innerHTML=''; }
+}
+
+function stripTags(s){ const d=document.createElement('div'); d.innerHTML=s; return d.textContent; }
+
+function buildSummaryText(){
+  const L=[];
+  L.push('FALL RISK CARE PATHWAY VISIT SUMMARY');
+  L.push('Date: ' + new Date().toLocaleDateString());
+  L.push('');
+  const st = txts('#steadi .chk');
+  L.push('STEADI: '+(st.length? st.length+'/3 POSITIVE - '+st.join('; ') : 'negative (0/3)'));
+  const nf=num('nfalls'), nn=num('nnear');
+  if(nf!==null||nn!==null) L.push('Since last visit: '+(nf||0)+' fall(s), '+(nn||0)+' near-fall(s)');
+  const o=orthostatic();
+  if(o) L.push('Orthostatics: SBP drop '+o.dSBP+(o.dDBP!==null?', DBP drop '+o.dDBP:'')+(o.dHR!==null?', HR rise '+o.dHR:'')+' - '+(o.pos?'POSITIVE':'negative')+(isSel('ortho-sx')?' (symptomatic)':''));
+  const fn=[];
+  [['tug','TUG',' s'],['sts30','30-sec STS',' reps'],['sts5','5x STS',' s'],['berg','Berg','/56'],['tinetti','Tinetti','/28'],['morse','Morse',''],['hendrich','Hendrich II','']]
+    .forEach(([id,lab,u])=>{ const v=num(id); if(v!==null) fn.push(lab+' '+v+u); });
+  if(fn.length) L.push('Function: '+fn.join('; '));
+  const r=fallRisk();
+  if(r.level) L.push('FALL RISK: '+r.level+(r.hits.length?' ('+r.hits.join('; ')+')':''));
+  const fiveM=[...txts('#m-mobility .chk'),...txts('#m-mind .chk'),...txts('#m-multi .chk'),...txts('#m-matters .chk')];
+  if(fiveM.length) L.push('5Ms contributors: '+fiveM.join(', '));
+  const ml=txts('#meds .chk'); if(ml.length) L.push('HIGH-RISK MEDS: '+ml.join(', '));
+  if(state.AC) L.push('Anticoagulation: '+{none:'not on AC',doac:'DOAC',warfarin:'warfarin'}[state.AC]);
+  const rf=txts('#redflags .chk'); if(rf.length) L.push('RED FLAGS: '+rf.join('; '));
+  const gf=txts('#greenflags .chk'); if(gf.length) L.push('Reassuring: '+gf.join('; '));
+  L.push('');
+  const dTxt={routine:'ROUTINE - SCREEN NEGATIVE',workup:'MULTIFACTORIAL WORKUP AT HOME',ed:'SEND TO ED / ESCALATE',facility:'FACILITY-LEVEL CARE NEEDED'}[state.DISPO];
+  if(dTxt){ L.push('DISPOSITION: '+dTxt); L.push(''); }
+  if(state.DISPO){
+    const P=buildPlanLines();
+    const dump=(t,arr)=>{ if(arr.length){ L.push(t.toUpperCase()+':'); arr.forEach(l=>L.push('- '+stripTags(l.t))); L.push(''); } };
+    dump('Disposition plan',P.core); dump('Multifactorial workup',P.workup);
+    dump('Medications & deprescribing',P.meds); dump('Home fall prevention kit',P.kit);
+    dump('Surveillance & pitfalls',P.fu); dump('Provider-selected additions',P.chosen);
+  } else { L.push('(Select a disposition to generate the plan)'); }
+  while(L.length && L[L.length-1]==='') L.pop();
+  return L.join('\n');
+}
+
+function copySummary(){
+  const text=buildSummaryText(); const btn=document.getElementById('copy-btn');
+  function done(){ btn.textContent='Copied ✓'; btn.classList.add('copied');
+    setTimeout(()=>{ btn.textContent='Copy care plan'; btn.classList.remove('copied'); },2000); }
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(done).catch(()=>fallbackCopy(text,done));
+  } else { fallbackCopy(text,done); }
+}
+function fallbackCopy(text,done){
+  const ta=document.createElement('textarea');
+  ta.value=text; ta.style.position='fixed'; ta.style.opacity='0';
+  document.body.appendChild(ta); ta.select();
+  try{ document.execCommand('copy'); done(); }catch(e){ alert('Copy failed — please select and copy manually.'); }
+  document.body.removeChild(ta);
+}
+
+render();
+</script>
+</body>
+</html>

@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dementia Care Pathway &mdash; Visit Module</title>
+<style>
+  :root{
+    --blue:#326195; --green:#638C3D; --magenta:#9D296D; --brown:#91634C;
+    --teal:#245664; --gold:#F4B21B; --ink:#2b2f33; --muted:#6b7075;
+    --line:#dde3e8; --bg:#f5f7f9; --card:#ffffff;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:Calibri,'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--ink);font-size:16px;line-height:1.45}
+  h1,h2,h3{font-family:Georgia,'Times New Roman',serif;font-weight:normal}
+  header{background:var(--blue);color:#fff;padding:22px 28px}
+  header h1{font-size:1.5rem;letter-spacing:.2px}
+  header p{opacity:.85;font-size:.95rem;margin-top:4px}
+  .wrap{max-width:1180px;margin:0 auto;padding:24px 20px 60px;display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:24px;align-items:start}
+  @media(max-width:900px){.wrap{grid-template-columns:1fr}.results{position:static !important}}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:22px 24px;margin-bottom:20px}
+  .card h2{color:var(--teal);font-size:1.15rem;padding-bottom:10px;margin-bottom:16px;border-bottom:2px solid var(--line);display:flex;align-items:baseline;gap:10px}
+  .card h2 .tag{font-family:Calibri,sans-serif;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:#fff;background:var(--teal);border-radius:4px;padding:2px 8px;position:relative;top:-2px}
+  .q{margin-bottom:18px}
+  .q:last-child{margin-bottom:0}
+  .q-label{font-weight:bold;margin-bottom:2px}
+  .q-help{font-size:.85rem;color:var(--muted);margin-bottom:8px}
+  .opts{display:flex;flex-wrap:wrap;gap:8px}
+  .opt{border:1.5px solid var(--line);border-radius:8px;padding:8px 14px;background:#fff;cursor:pointer;font-size:.92rem;font-family:inherit;color:var(--ink);transition:border-color .12s,background .12s}
+  .opt:hover{border-color:var(--blue)}
+  .opt.sel{border-color:var(--blue);background:var(--blue);color:#fff;font-weight:bold}
+  .opt:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+  .numrow{display:flex;flex-wrap:wrap;gap:12px}
+  .numfield{display:flex;flex-direction:column;gap:3px}
+  .numfield label{font-size:.8rem;color:var(--muted);letter-spacing:.03em}
+  .numfield input{border:1.5px solid var(--line);border-radius:8px;padding:8px 10px;width:110px;font-family:inherit;font-size:.95rem;color:var(--ink)}
+  .numfield input.textfield{width:100%}
+  .numfield input:focus{outline:none;border-color:var(--blue)}
+  .textfield{width:100%;border:1.5px solid var(--line);border-radius:8px;padding:9px 12px;font-family:inherit;font-size:.95rem;color:var(--ink)}
+  .textfield:focus{outline:none;border-color:var(--blue)}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  @media(max-width:620px){.grid2{grid-template-columns:1fr}}
+  .chk{border:1.5px solid var(--line);border-radius:8px;padding:7px 11px;background:#fff;cursor:pointer;font-size:.88rem;font-family:inherit;color:var(--ink);text-align:left;display:flex;justify-content:space-between;align-items:center;gap:8px;transition:border-color .12s,background .12s}
+  .chk:hover{border-color:var(--blue)}
+  .chk.sel{border-color:var(--blue);background:var(--blue);color:#fff;font-weight:bold}
+  .chk:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+  .chk.red.sel{border-color:var(--magenta);background:var(--magenta)}
+  .subhead{font-size:.85rem;font-weight:bold;color:var(--teal);letter-spacing:.05em;text-transform:uppercase;margin:14px 0 7px}
+  .pills{display:flex;flex-wrap:wrap;gap:8px}
+  .pill{border:1.5px solid var(--line);border-radius:999px;padding:7px 15px;background:#fff;cursor:pointer;font-size:.9rem;font-family:inherit;color:var(--ink);transition:border-color .12s,background .12s}
+  .pill:hover{border-color:var(--teal)}
+  .pill.sel{background:var(--teal);border-color:var(--teal);color:#fff;font-weight:bold}
+  .pill:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+  .results{position:sticky;top:16px}
+  .alert{display:none;font-size:.88rem;border-radius:8px;padding:10px 13px;margin-bottom:10px}
+  .alert.show{display:block}
+  .alert.ed{background:#faeef5;border:1.5px solid var(--magenta);color:#5a1240}
+  .alert.ed b{color:var(--magenta)}
+  .alert.home{background:#f2f6ec;border:1.5px solid var(--green);color:#33491d}
+  .alert.home b{color:var(--green)}
+  .alert.note{background:#fdf6e3;border:1px solid var(--gold);color:#4a3a05}
+  .alert.note b{color:var(--brown)}
+  .dispo-banner{margin-bottom:14px;border-radius:10px;padding:14px 17px;color:#fff;display:none}
+  .dispo-banner.show{display:block}
+  .dispo-banner.routine{background:var(--green)}
+  .dispo-banner.home{background:var(--gold);color:#4a3a05}
+  .dispo-banner.ed{background:var(--magenta)}
+  .dispo-banner.hospice{background:var(--teal)}
+  .dispo-banner .big{font-family:Georgia,serif;font-size:1.25rem}
+  .dispo-banner .sub{font-size:.88rem;opacity:.92;margin-top:2px}
+  .plan h3{color:var(--teal);font-size:1.02rem;margin:18px 0 8px;border-bottom:1px solid var(--line);padding-bottom:5px}
+  .plan ul{list-style:none}
+  .plan li{padding:7px 0 7px 24px;position:relative;font-size:.93rem;border-bottom:1px dotted #edf0f2}
+  .plan li:last-child{border-bottom:none}
+  .plan li::before{content:"";position:absolute;left:2px;top:13px;width:9px;height:9px;border-radius:50%;background:var(--green)}
+  .plan li.flagged::before{background:var(--gold)}
+  .plan li.urgent::before{background:var(--magenta)}
+  .plan li.chosen::before{background:var(--blue)}
+  .empty-note{color:var(--muted);font-size:.92rem;font-style:italic}
+  .btnrow{display:flex;gap:10px;margin-top:6px}
+  .btn{font-family:inherit;font-size:.92rem;border-radius:8px;padding:9px 18px;cursor:pointer;border:1.5px solid var(--blue)}
+  .btn.primary{background:var(--blue);color:#fff}
+  .btn.primary.copied{background:var(--green);border-color:var(--green)}
+  .btn.ghost{background:#fff;color:var(--blue)}
+  .btn:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+  footer{max-width:1180px;margin:0 auto;padding:0 20px 40px;font-size:.8rem;color:var(--muted)}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Dementia Care Pathway &mdash; Visit Module</h1>
+  <p>Assessment &middot; Infections &middot; BPSD &middot; Anticipatory Guidance &middot; E-Kits &middot; Alive Complex Care</p>
+</header>
+
+<div class="wrap">
+
+  <!-- ============ LEFT: DATA ENTRY ============ -->
+  <div>
+
+    <div class="card">
+      <h2>I. Assessment at This Visit <span class="tag">Every visit</span></h2>
+
+      <div class="q">
+        <div class="q-label">FAST stage</div>
+        <div class="q-help">Functional staging documents the trajectory. Note stage vs. prior visits.</div>
+        <div class="opts" data-group="FAST" role="radiogroup" aria-label="FAST stage">
+          <button class="opt" data-val="1-3">1&ndash;3 &mdash; independent</button>
+          <button class="opt" data-val="4">4 &mdash; complex tasks</button>
+          <button class="opt" data-val="5">5 &mdash; selecting clothing</button>
+          <button class="opt" data-val="6">6a&ndash;e &mdash; dressing, bathing, toileting</button>
+          <button class="opt" data-val="7a">7a &mdash; &lt;6 words/day</button>
+          <button class="opt" data-val="7b-c">7b&ndash;c &mdash; single word &rarr; no speech</button>
+          <button class="opt" data-val="7d-f">7d&ndash;f &mdash; loss of ambulation &rarr; no head control</button>
+        </div>
+      </div>
+
+      <div class="q">
+        <div class="numrow">
+          <div class="numfield"><label>PAINAD (0&ndash;10)</label><input type="number" id="painad" min="0" max="10"></div>
+          <div class="numfield" style="flex:1;min-width:220px"><label>Cognitive score (MoCA / Mini-Cog, if early stage)</label><input type="text" id="cogscore" class="textfield" style="width:100%" placeholder="e.g., MoCA 14/30"></div>
+        </div>
+        <div class="q-help" style="margin-top:6px">PAINAD &ge;2 &rarr; trial empiric analgesia &middot; &ge;5 &rarr; optimize standing analgesia. Re-PAINAD after each intervention.</div>
+      </div>
+
+      <div class="q">
+        <div class="q-label">Dementia subtype</div>
+        <div class="opts" data-group="SUBTYPE" role="radiogroup" aria-label="Subtype">
+          <button class="opt" data-val="AD">Alzheimer's / mixed</button>
+          <button class="opt" data-val="vascular">Vascular</button>
+          <button class="opt" data-val="LBD">Lewy body / Parkinson's dementia</button>
+          <button class="opt" data-val="FTD">Frontotemporal</button>
+          <button class="opt" data-val="other">Other / unspecified</button>
+        </div>
+      </div>
+
+      <div class="q">
+        <div class="subhead">ADL dependence (needs help with)</div>
+        <div class="grid2" id="adls">
+          <button class="chk" data-txt="bathing">Bathing<span></span></button>
+          <button class="chk" data-txt="dressing">Dressing<span></span></button>
+          <button class="chk" data-txt="toileting">Toileting<span></span></button>
+          <button class="chk" data-txt="feeding">Feeding<span></span></button>
+          <button class="chk" data-txt="ambulation">Ambulation<span></span></button>
+        </div>
+        <div class="subhead">BPSD present</div>
+        <div class="grid2" id="bpsd-sx">
+          <button class="chk" data-txt="agitation">Agitation<span></span></button>
+          <button class="chk" data-txt="sleep disturbance">Sleep disturbance<span></span></button>
+          <button class="chk" data-txt="hallucinations">Hallucinations<span></span></button>
+          <button class="chk" data-txt="wandering">Wandering<span></span></button>
+        </div>
+      </div>
+
+      <div class="q">
+        <div class="q-label">Hospice triggers present <span style="font-weight:normal;font-size:.83rem;color:var(--muted)">(each marks ~50% 6-month mortality)</span></div>
+        <div class="grid2" id="triggers">
+          <button class="chk red" data-txt="pneumonia (esp. aspiration)">Pneumonia<span></span></button>
+          <button class="chk red" data-txt="febrile episode (any source)">Febrile episode<span></span></button>
+          <button class="chk red" data-txt="hip fracture">Hip fracture<span></span></button>
+          <button class="chk red" data-txt="eating difficulty / stopped eating">Eating difficulty<span></span></button>
+          <button class="chk red" data-txt="feeding-tube decision on the table">Feeding-tube decision<span></span></button>
+          <button class="chk red" data-txt="recurrent infections">Recurrent infections<span></span></button>
+        </div>
+      </div>
+
+      <div class="q">
+        <div class="q-label">Beers screen &mdash; deliriogenic medications in use</div>
+        <div class="grid2" id="beers">
+          <button class="chk red" data-key="antichol">Anticholinergic (diphenhydramine, hydroxyzine, oxybutynin)<span></span></button>
+          <button class="chk red" data-key="benzo">Benzodiazepine<span></span></button>
+          <button class="chk red" data-key="zdrug">Z-drug (zolpidem)<span></span></button>
+          <button class="chk red" data-key="tca">TCA (amitriptyline)<span></span></button>
+          <button class="chk red" data-key="fluox">Fluoxetine<span></span></button>
+          <button class="chk red" data-key="inefbpsd">Ineffective BPSD agent (no benefit at reassessment)<span></span></button>
+        </div>
+      </div>
+
+      <div class="q">
+        <div class="q-label">Caregiver burden ("How are YOU doing?" / Zarit short form)</div>
+        <div class="opts" data-group="CAREG" role="radiogroup" aria-label="Caregiver burden">
+          <button class="opt" data-val="low">Low</button>
+          <button class="opt" data-val="mod">Moderate</button>
+          <button class="opt" data-val="high">High / strained</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>II. Infections <span class="tag" style="background:var(--brown)">Treat by goals</span></h2>
+
+      <div class="q">
+        <div class="q-label">Pneumonia</div>
+        <div class="q-help">Often atypical: confusion, anorexia, falls, lethargy. RR &gt;24 + SpO&#8322; &lt;92% off baseline are the most reliable signs. Treatment is a goals conversation, not a microbiology problem.</div>
+        <div class="opts" data-group="PNEU" role="radiogroup" aria-label="Pneumonia">
+          <button class="opt" data-val="none">Not suspected</button>
+          <button class="opt" data-val="comfort">Suspected &mdash; comfort only</button>
+          <button class="opt" data-val="po">Suspected &mdash; PO antibiotics</button>
+          <button class="opt" data-val="asp">Suspected &mdash; aspiration coverage</button>
+        </div>
+      </div>
+
+      <div class="q">
+        <div class="q-label">Cellulitis</div>
+        <div class="q-help">Empiric outpatient PO works in ~90%. Mark the border; reassess 24 + 48 h. Don't culture skin.</div>
+        <div class="opts" data-group="CELL" role="radiogroup" aria-label="Cellulitis">
+          <button class="opt" data-val="none">Not suspected</button>
+          <button class="opt" data-val="nonpur">Non-purulent</button>
+          <button class="opt" data-val="pur">Purulent (MRSA coverage)</button>
+        </div>
+      </div>
+
+      <div class="q">
+        <div class="q-label">Cystitis / UTI</div>
+        <div class="q-help">Most positive cultures are asymptomatic bacteriuria &mdash; do NOT treat. Confusion in dementia rarely means UTI. Falls alone: look for orthostasis, deconditioning, polypharmacy first.</div>
+        <div class="opts" data-group="UTI" role="radiogroup" aria-label="UTI">
+          <button class="opt" data-val="none">Not suspected</button>
+          <button class="opt" data-val="treat">Symptomatic &mdash; treat</button>
+          <button class="opt" data-val="asb">Asymptomatic bacteriuria &mdash; do not treat</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>III. BPSD Management <span class="tag">Non-pharm first</span></h2>
+
+      <div class="q">
+        <div class="q-label">DICE framework documented</div>
+        <div class="grid2" id="dice">
+          <button class="chk" data-txt="Described behavior (what, when, where, who, modifiers)">D &mdash; Describe<span></span></button>
+          <button class="chk" data-txt="Investigated causes (pain/PAINAD, infection, constipation, retention, hunger, dehydration, meds, sensory deficits)">I &mdash; Investigate<span></span></button>
+          <button class="chk" data-txt="Created person-centered plan (environment, routine, caregiver behavior)">C &mdash; Create<span></span></button>
+          <button class="chk" data-txt="Evaluation interval scheduled; ineffective measures to be discontinued">E &mdash; Evaluate<span></span></button>
+        </div>
+      </div>
+
+      <div class="q">
+        <div class="q-label">Non-pharmacologic interventions in place</div>
+        <div class="grid2" id="nonpharm">
+          <button class="chk" data-txt="massage / touch">Massage / touch<span></span></button>
+          <button class="chk" data-txt="project work / structured activities (familiar, purposeful tasks)">Project work / activities<span></span></button>
+          <button class="chk" data-txt="environmental modification (quiet, soft lighting, predictable routine)">Environmental<span></span></button>
+          <button class="chk" data-txt="person-centered plan (familiar caregivers, anchoring objects)">Person-centered plan<span></span></button>
+          <button class="chk" data-txt="sleep hygiene (daylight exposure, evening dim, naps <30 min)">Sleep hygiene<span></span></button>
+        </div>
+      </div>
+
+      <div class="q">
+        <div class="q-label">Empiric analgesic trial (hidden pain)</div>
+        <div class="opts" data-group="ANALG" role="radiogroup" aria-label="Analgesic trial">
+          <button class="opt" data-val="none">Not indicated</button>
+          <button class="opt" data-val="s1">Step 1 &mdash; scheduled APAP</button>
+          <button class="opt" data-val="s2">Step 2 &mdash; add low-dose opioid</button>
+          <button class="opt" data-val="s3">Step 3 &mdash; topical / adjuvant</button>
+        </div>
+      </div>
+
+      <div class="q">
+        <div class="q-label">BPSD pharmacotherapy</div>
+        <div class="q-help">Lowest effective dose; document indication; reassess at 4&ndash;6 weeks. Class black-box warning applies to antipsychotics.</div>
+        <div class="opts" data-group="RX" role="radiogroup" aria-label="BPSD pharmacotherapy">
+          <button class="opt" data-val="none">None</button>
+          <button class="opt" data-val="brex">Brexpiprazole</button>
+          <button class="opt" data-val="cital">Citalopram</button>
+          <button class="opt" data-val="traz">Trazodone</button>
+          <button class="opt" data-val="quet">Quetiapine</button>
+          <button class="opt" data-val="risp">Risperidone</button>
+          <button class="opt" data-val="haldol">Haloperidol</button>
+          <button class="opt" data-val="other">Other</button>
+        </div>
+        <input class="textfield" type="text" id="rx-other" placeholder="Other agent / dose (free text)" style="margin-top:10px">
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>IV. Anticipatory Guidance <span class="tag" style="background:var(--magenta)">Inflection points</span></h2>
+
+      <div class="q">
+        <div class="q-label">Eating / intake</div>
+        <div class="opts" data-group="EAT" role="radiogroup" aria-label="Eating">
+          <button class="opt" data-val="well">Eating adequately</button>
+          <button class="opt" data-val="decreased">Decreased intake</button>
+          <button class="opt" data-val="stopped">Stopped eating / minimal intake</button>
+        </div>
+      </div>
+
+      <div class="q">
+        <div class="grid2">
+          <button class="chk" id="ft-conv" data-txt="">Feeding-tube conversation held (complications, reframe, empathy)<span></span></button>
+          <button class="chk" id="falls-assess" data-txt="">Fall-risk assessment done this year (with score)<span></span></button>
+          <button class="chk" id="recent-falls" data-txt="">Falls since last visit<span></span></button>
+          <button class="chk" id="wandering-active" data-txt="">Wandering is an active issue<span></span></button>
+          <button class="chk" id="sleep-active" data-txt="">Sleep disturbance is an active issue<span></span></button>
+        </div>
+      </div>
+
+      <div class="q">
+        <div class="q-label">Family preparation completed today</div>
+        <div class="grid2" id="famprep">
+          <button class="chk" data-txt="trajectory and inflection points reviewed">Trajectory / inflection points<span></span></button>
+          <button class="chk" data-txt='"when the next pneumonia comes" plan discussed'>Next-event plan<span></span></button>
+          <button class="chk" data-txt="end-stage cues explained (bed-bound, mute, swallowing fails, recurrent infections)">End-stage cues<span></span></button>
+          <button class="chk" data-txt='hospitalization framing: "Will this admission change what we do at home?"'>Hospitalization framing<span></span></button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Escalation &amp; Disposition <span class="tag" style="background:var(--magenta)">Decision</span></h2>
+      <div class="q">
+        <div class="q-label">Disposition</div>
+        <div class="opts" data-group="DISPO" role="radiogroup" aria-label="Disposition">
+          <button class="opt" data-val="routine">Routine &mdash; continue pathway</button>
+          <button class="opt" data-val="manage">Active issue &mdash; manage in place with E-kit</button>
+          <button class="opt" data-val="hosp">Escalate to hospital</button>
+          <button class="opt" data-val="hospice">Trigger present / goals favor comfort &mdash; hospice referral</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>V. E-Kit <span class="tag" style="background:var(--gold);color:#4a3a05">Home / Memory unit</span></h2>
+      <div class="q">
+        <div class="q-label">Site</div>
+        <div class="opts" data-group="SITE" role="radiogroup" aria-label="E-kit site">
+          <button class="opt" data-val="home">Home (family-administered; refresh quarterly)</button>
+          <button class="opt" data-val="unit">Memory unit (nursing-administered; MAR; renew monthly)</button>
+        </div>
+      </div>
+      <div class="q">
+        <div class="q-label">E-kit status</div>
+        <div class="opts" data-group="EKIT" role="radiogroup" aria-label="E-kit status">
+          <button class="opt" data-val="current">In place &mdash; current</button>
+          <button class="opt" data-val="refresh">In place &mdash; refresh due</button>
+          <button class="opt" data-val="ordered">Ordered today</button>
+          <button class="opt" data-val="none">Not in place &mdash; order</button>
+        </div>
+      </div>
+      <div class="q">
+        <div class="q-label">E-kit contents</div>
+        <div class="grid2" id="ekit-contents">
+          <button class="chk" data-txt="acetaminophen 650 mg (scheduled q6h for PAINAD >=2; max 3 g/day)">Acetaminophen 650 mg<span></span></button>
+          <button class="chk" data-txt="morphine 2.5-5 mg SL/PO liquid (breakthrough dyspnea, pain, restlessness)">Morphine 2.5&ndash;5 mg SL/PO<span></span></button>
+          <button class="chk" data-txt="morphine SQ (unit; last days when PO fails)">Morphine SQ (unit)<span></span></button>
+          <button class="chk" data-txt="lorazepam 0.5-1 mg SL/PO (adjunct only; watch falls)">Lorazepam 0.5&ndash;1 mg<span></span></button>
+          <button class="chk" data-txt="haloperidol 0.5-1 mg PO/SL/SQ (delirium/refractory agitation; avoid in LBD/PDD)">Haloperidol 0.5&ndash;1 mg<span></span></button>
+          <button class="chk" data-txt="glycopyrrolate 0.2 mg SQ / scopolamine patch (terminal secretions)">Glycopyrrolate / scop patch<span></span></button>
+          <button class="chk" id="ekit-abx-chk" data-txt="PO antibiotic course (per pre-discussed goals)">PO antibiotic course<span></span></button>
+        </div>
+        <input class="textfield" type="text" id="ekit-abx" placeholder="PO antibiotics available (agents/doses, e.g., amoxicillin-clavulanate 875 mg BID; cephalexin 500 mg QID)" style="margin-top:10px">
+        <input class="textfield" type="text" id="ekit-other" placeholder="Other E-kit contents (free text)" style="margin-top:10px">
+      </div>
+      <div class="q">
+        <div class="grid2">
+          <button class="chk" id="ekit-teach" data-txt="">Family / staff teaching completed<span></span></button>
+          <button class="chk" id="ekit-algo" data-txt="">Symptom algorithm reviewed (use, then notify team)<span></span></button>
+          <button class="chk" id="ekit-call" data-txt="">"When to call" list posted / PRN log at bedside<span></span></button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Goals &amp; ACP <span class="tag" style="background:var(--teal)">Every visit</span></h2>
+      <div class="q">
+        <div class="q-label">Code status</div>
+        <div class="opts" data-group="CODE" role="radiogroup" aria-label="Code status">
+          <button class="opt" data-val="Full code">Full code</button>
+          <button class="opt" data-val="DNR">DNR</button>
+          <button class="opt" data-val="DNR/DNI">DNR / DNI</button>
+          <button class="opt" data-val="notdoc">Not documented</button>
+        </div>
+      </div>
+      <div class="q">
+        <div class="q-label">Preferences documented in chart</div>
+        <div class="q-help">Type to document; blank fields become "document" items in the plan.</div>
+        <div class="numfield" style="margin-bottom:10px"><label>Surrogate (name / relationship)</label><input class="textfield" type="text" id="pref-surr" placeholder="e.g., Jane Smith, daughter, POA"></div>
+        <div class="numfield" style="margin-bottom:10px"><label>Hospitalization preference</label><input class="textfield" type="text" id="pref-hosp" placeholder="e.g., avoid hospitalization; treat in place when possible"></div>
+        <div class="numfield" style="margin-bottom:10px"><label>Feeding-tube preference</label><input class="textfield" type="text" id="pref-ft" placeholder="e.g., no feeding tube; comfort feeding only"></div>
+        <div class="numfield" style="margin-bottom:10px"><label>Antibiotic preference</label><input class="textfield" type="text" id="pref-abx" placeholder="e.g., PO antibiotics at home OK; no IV / no hospitalization for infection"></div>
+        <div class="grid2">
+          <button class="chk" id="acp-goc" data-txt="">Goals-of-care conversation today<span></span></button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Plan Additions <span class="tag" style="background:var(--blue)">Provider-selected</span></h2>
+      <div class="pills" id="interventions">
+        <button class="pill" data-int="Respite care referral">Respite care</button>
+        <button class="pill" data-int="Adult day program referral">Adult day program</button>
+        <button class="pill" data-int="Caregiver support group referral">Caregiver support group</button>
+        <button class="pill" data-int="Social work referral">Social work referral</button>
+        <button class="pill" data-int="Chaplain referral">Chaplain referral</button>
+        <button class="pill" data-int="PT referral">PT referral</button>
+        <button class="pill" data-int="Home safety evaluation">Home safety eval</button>
+        <button class="pill" data-int="Structured activities / project work program">Activities program</button>
+        <button class="pill" data-int="Melatonin trial for sleep">Melatonin trial</button>
+        <button class="pill" data-int="Bowel regimen (senna + PEG) with opioids">Bowel regimen</button>
+        <button class="pill" data-int="Pharmacist deprescribing review">Pharmacist review</button>
+        <button class="pill" data-int="Mouth care q4h teaching">Mouth care teaching</button>
+        <button class="pill" data-int="GPS bracelet / door alarms">GPS / door alarms</button>
+        <button class="pill" data-int="Hospice referral">Hospice referral</button>
+      </div>
+    </div>
+
+    <div class="btnrow">
+      <button class="btn primary" id="copy-btn" onclick="copySummary()">Copy care plan</button>
+      <button class="btn ghost" onclick="resetAll()">Clear form</button>
+    </div>
+  </div>
+
+  <!-- ============ RIGHT: RESULTS ============ -->
+  <div class="results">
+    <div class="card">
+      <h2>Visit Summary &amp; Plan</h2>
+
+      <div class="dispo-banner" id="dispo-banner">
+        <div class="big" id="dispo-big"></div>
+        <div class="sub" id="dispo-sub"></div>
+      </div>
+
+      <div id="alerts-note"></div>
+
+      <div class="plan">
+        <p class="empty-note" id="plan-empty">Select a disposition to generate the care plan. Alerts appear as assessment data is entered.</p>
+        <div id="plan-content"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  For clinical decision support only; does not replace provider judgment. Based on the Alive Clinical Guideline Series: Dementia Care Pathway (Mitchell JAMA 2004 / NEJM 2009; AGS Beers 2023; Tampi &amp; Jeste AJP 2022). This tool stores no patient data.
+</footer>
+
+<script>
+const state = {
+  FAST:null, SUBTYPE:null, CAREG:null,
+  PNEU:null, CELL:null, UTI:null,
+  ANALG:null, RX:null, EAT:null,
+  DISPO:null, SITE:null, EKIT:null, CODE:null,
+  ints:{}
+};
+
+document.querySelectorAll('.opts').forEach(group=>{
+  const key = group.dataset.group;
+  group.querySelectorAll('.opt').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      group.querySelectorAll('.opt').forEach(b=>b.classList.remove('sel'));
+      btn.classList.add('sel');
+      state[key] = btn.dataset.val;
+      render();
+    });
+  });
+});
+
+document.querySelectorAll('.chk').forEach(btn=>{
+  btn.addEventListener('click', ()=>{ btn.classList.toggle('sel'); render(); });
+});
+
+document.querySelectorAll('#interventions .pill').forEach(p=>{
+  p.addEventListener('click', ()=>{
+    p.classList.toggle('sel');
+    state.ints[p.dataset.int] = p.classList.contains('sel');
+    render();
+  });
+});
+
+['painad','cogscore','ekit-other','ekit-abx','rx-other','pref-surr','pref-hosp','pref-ft','pref-abx'].forEach(id=>{
+  document.getElementById(id).addEventListener('input', render);
+});
+
+function num(id){ const v=document.getElementById(id).value; return v===''?null:parseFloat(v); }
+function checked(sel){ return Array.from(document.querySelectorAll(sel)).filter(b=>b.classList.contains('sel')); }
+function isSel(id){ return document.getElementById(id).classList.contains('sel'); }
+
+function resetAll(){
+  Object.keys(state).forEach(k=>{ if(k!=='ints') state[k]=null; });
+  state.ints = {};
+  document.querySelectorAll('.opt,.chk,.pill').forEach(b=>b.classList.remove('sel'));
+  ['painad','cogscore','ekit-other','ekit-abx','rx-other','pref-surr','pref-hosp','pref-ft','pref-abx'].forEach(id=>document.getElementById(id).value='');
+  render();
+}
+
+const RX_PLANS = {
+  brex:'Brexpiprazole \u2014 titrate 0.5 \u2192 1 \u2192 2 mg over weeks (max 3 mg/day); 6\u201312 weeks to effect; document indication; class BBW; reassess 4\u20136 weeks',
+  cital:'Citalopram for agitation \u2014 max 20 mg in adults >60 (QTc); best when depression + agitation overlap; reassess 4\u20136 weeks',
+  traz:'Trazodone 25\u201350 mg at bedtime \u2014 sleep-onset insomnia + mild agitation; watch orthostasis and oversedation',
+  quet:'Quetiapine 12.5 \u2192 100 mg \u2014 preferred antipsychotic in LBD/PDD; watch orthostasis and sedation; class BBW documented; reassess 4\u20136 weeks',
+  risp:'Risperidone 0.25\u20131 mg/day \u2014 liquid mixes with food/drink; EPS at higher doses; class BBW documented; reassess 4\u20136 weeks',
+  haldol:'Haloperidol 0.5\u20131 mg \u2014 delirium / refractory agitation; class BBW documented; reassess 4\u20136 weeks'
+};
+const BEERS_PLANS = {
+  antichol:'Deprescribe anticholinergic (diphenhydramine, hydroxyzine, oxybutynin) \u2014 confusion driver',
+  benzo:'Taper / deprescribe benzodiazepine \u2014 falls + delirium',
+  zdrug:'Deprescribe Z-drug (zolpidem) \u2014 falls; substitute sleep hygiene \u00B1 melatonin',
+  tca:'Deprescribe TCA \u2014 anticholinergic burden, orthostasis, QTc',
+  fluox:'Reassess fluoxetine \u2014 paradoxical agitation; consider alternative SSRI',
+  inefbpsd:'Discontinue ineffective BPSD agent \u2014 no benefit at reassessment; document outcome'
+};
+
+function buildAlerts(){
+  const notes=[];
+  const pd = num('painad');
+  if(pd!==null && pd>=5) notes.push({cls:'ed', html:'<b>PAINAD '+pd+' (&ge;5)</b> \u2014 optimize standing analgesia. Pain is the most common driver of "agitation" in advanced dementia.'});
+  else if(pd!==null && pd>=2) notes.push({cls:'note', html:'<b>PAINAD '+pd+' (&ge;2)</b> \u2014 trial empiric analgesia (scheduled APAP 650 mg q6h \u00D7 7 d) before any antipsychotic. Re-PAINAD daily.'});
+  const trig = checked('#triggers .chk');
+  if(trig.length) notes.push({cls:'ed', html:'<b>'+trig.length+' hospice trigger'+(trig.length>1?'s':'')+' present</b> \u2014 each marks ~50% 6-month mortality. Shift the conversation; earlier hospice referral cuts hospitalization 40\u201350%. Build the eligibility narrative: FAST trajectory + infections + weight loss + functional decline.'});
+  if(state.FAST==='7a'||state.FAST==='7b-c'||state.FAST==='7d-f')
+    notes.push({cls:'note', html:'<b>FAST 7:</b> combined with a trigger or comorbidity burden, supports the hospice eligibility narrative when FAST alone falls short.'});
+  if(state.UTI==='asb')
+    notes.push({cls:'note', html:'<b>Asymptomatic bacteriuria \u2014 do not treat.</b> Treating doesn\u2019t help and selects for resistance. Work up confusion separately; foul or cloudy urine alone is not infection.'});
+  if(state.SUBTYPE==='LBD' && state.RX==='haldol')
+    notes.push({cls:'ed', html:'<b>Haloperidol in Lewy body / Parkinson\u2019s dementia \u2014 avoid.</b> Severe antipsychotic sensitivity; use quetiapine instead.'});
+  if(state.RX && state.RX!=='none' && state.ANALG===null && pd!==null && pd>=2)
+    notes.push({cls:'note', html:'<b>Antipsychotic before analgesic trial:</b> PAINAD \u2265 2 \u2014 start the empiric analgesia trial first or alongside; hidden pain is the most common driver.'});
+  if(checked('#beers .chk').length)
+    notes.push({cls:'note', html:'<b>Beers-list medication(s) on board</b> \u2014 deprescribing lines added to the plan.'});
+  if(state.EAT==='stopped')
+    notes.push({cls:'ed', html:'<b>Eating cessation:</b> when the patient stops eating, they are dying \u2014 not malnourished. Comfort feeding, mouth care, and a goals conversation \u2014 not a workup.'});
+  if(state.CAREG==='high')
+    notes.push({cls:'note', html:'<b>High caregiver burden</b> \u2014 respite, day program, support group, and hospice-eligibility discussion added to the plan. The caregiver is a patient too.'});
+  if(isSel('sleep-active'))
+    notes.push({cls:'note', html:'<b>Sleep disturbance:</b> avoid PRN benzos and Z-drugs \u2014 they fix tonight and break tomorrow. Daylight + activity, dim evenings, treat pain first.'});
+  return notes;
+}
+
+function render(){
+  const notes = buildAlerts();
+  document.getElementById('alerts-note').innerHTML = notes.map(n=>'<div class="alert '+n.cls+' show">'+n.html+'</div>').join('');
+
+  const banner = document.getElementById('dispo-banner');
+  banner.className='dispo-banner';
+  const planEmpty=document.getElementById('plan-empty');
+  const planContent=document.getElementById('plan-content');
+  if(!state.DISPO){ planEmpty.style.display='block'; planContent.innerHTML=''; return; }
+  const D={
+    routine:{cls:'routine', big:'Routine \u2014 continue pathway', sub:'Stage, score, and document \u2014 the trajectory is the diagnosis.'},
+    manage:{cls:'home', big:'Manage in place', sub:'E-kit + symptom algorithm; reassess in 24 hours.'},
+    hosp:{cls:'ed', big:'Escalate to hospital', sub:'Confirmed: this admission will change what we do at home.'},
+    hospice:{cls:'hospice', big:'Hospice referral', sub:'Trigger present or goals favor comfort.'}
+  }[state.DISPO];
+  banner.classList.add('show', D.cls);
+  document.getElementById('dispo-big').textContent=D.big;
+  document.getElementById('dispo-sub').textContent=D.sub;
+
+  planEmpty.style.display='none';
+  planContent.innerHTML = buildPlanHtml();
+}
+
+function buildPlanLines(){
+  const core=[], inf=[], bpsd=[], antic=[], ekit=[], acp=[], chosen=[];
+
+  // disposition
+  if(state.DISPO==='manage'){
+    core.push({t:'Manage in place using the E-kit per symptom algorithm; reassess in 24 hours', c:'flagged'});
+    core.push({t:'Notify team after any E-kit use; most symptoms stabilize within 24\u201348 h', c:''});
+  } else if(state.DISPO==='hosp'){
+    core.push({t:'Escalate to hospital \u2014 confirmed the admission will change management at home', c:'urgent'});
+    core.push({t:'Send med list, goals documents, and surrogate contact with patient', c:''});
+    core.push({t:'Post-discharge: same-week ACC visit \u2014 hospitalization itself accelerates decline; restart pathway at assessment', c:'flagged'});
+  } else if(state.DISPO==='hospice'){
+    core.push({t:'Hospice eligibility evaluation and referral', c:'urgent'});
+    core.push({t:'Build the eligibility narrative: FAST progression + comorbidities + infections + weight loss + functional decline', c:'flagged'});
+    core.push({t:'Goals-of-care conversation with surrogate; align E-kit comfort medications with the symptom algorithm', c:'flagged'});
+  } else {
+    core.push({t:'Continue dementia pathway: six-domain assessment in the same order every visit', c:''});
+  }
+  const careg = state.CAREG;
+  if(careg==='high'){
+    core.push({t:'High caregiver burden: respite care, adult day program, caregiver support group; social work referral; discuss hospice eligibility (support benefit)', c:'flagged'});
+  } else if(careg==='mod'){
+    core.push({t:'Moderate caregiver burden: offer respite / day program / support group; reassess at next visit', c:''});
+  }
+
+  // infections
+  if(state.PNEU==='comfort'){
+    inf.push({t:'Pneumonia \u2014 comfort-focused care per goals: opioids for dyspnea, antipyretics, oral hygiene, repositioning, scopolamine for secretions; no antibiotics', c:'flagged'});
+    inf.push({t:'Surrogate discussion documented: antibiotics extend life ~9 days on average in advanced dementia pneumonia, with more discomfort (Mitchell NEJM 2009)', c:''});
+  } else if(state.PNEU==='po'){
+    inf.push({t:'Pneumonia \u2014 PO antibiotics at home/unit: amoxicillin-clavulanate 875 mg BID \u00D7 5\u20137 d OR doxycycline 100 mg BID \u00D7 7 d', c:'flagged'});
+    inf.push({t:'CXR threshold low; UA + BMP to catch concurrent UTI, AKI, electrolyte derangement; PRN opioid for dyspnea, antipyretics, fan to face', c:''});
+  } else if(state.PNEU==='asp'){
+    inf.push({t:'Aspiration pneumonia \u2014 amoxicillin-clavulanate (covers anaerobes; preferred over legacy clinda + cipro)', c:'flagged'});
+    inf.push({t:'Aspiration precautions: sit upright for meals, oral care, modify textures per comfort; PRN opioid for dyspnea', c:''});
+  }
+  if(state.CELL==='nonpur'){
+    inf.push({t:'Non-purulent cellulitis \u2014 cephalexin 500 mg QID \u00D7 5\u20137 d (pen allergy: clindamycin 300\u2013450 mg QID or doxycycline 100 mg BID)', c:'flagged'});
+    inf.push({t:'Mark border with marker; reassess at 24 + 48 h \u2014 expanding border, fever, or systemic features \u2192 escalate. Elevate limb; treat tinea pedis; dress open wounds; do not culture skin', c:''});
+  } else if(state.CELL==='pur'){
+    inf.push({t:'Purulent cellulitis (MRSA coverage) \u2014 TMP-SMX DS BID + cephalexin, OR doxycycline 100 mg BID', c:'flagged'});
+    inf.push({t:'Mark border; reassess at 48 h; escalate for expansion, fever, or systemic features', c:''});
+  }
+  if(state.UTI==='treat'){
+    inf.push({t:'Symptomatic UTI \u2014 nitrofurantoin 100 mg BID \u00D7 5 d (avoid if CrCl <30) OR fosfomycin 3 g \u00D7 1 OR TMP-SMX DS BID \u00D7 3 d; avoid fluoroquinolones (delirium, falls, tendon)', c:'flagged'});
+  } else if(state.UTI==='asb'){
+    inf.push({t:'Asymptomatic bacteriuria \u2014 no antibiotics; hydration; work up mental-status change separately (pain, constipation, retention, meds)', c:'flagged'});
+  }
+
+  // BPSD
+  const dice = checked('#dice .chk').map(b=>b.dataset.txt);
+  if(dice.length) bpsd.push({t:'DICE: '+dice.join('; '), c:''});
+  const np = checked('#nonpharm .chk').map(b=>b.dataset.txt);
+  if(np.length) bpsd.push({t:'Non-pharm interventions: '+np.join('; '), c:''});
+  const bpsdSx = checked('#bpsd-sx .chk');
+  if(bpsdSx.length && !np.length && (!state.RX || state.RX==='none')){
+    bpsd.push({t:'BPSD present without interventions documented \u2014 start with DICE and non-pharm (massage, familiar music, environment); medication only if needed', c:'flagged'});
+  }
+  if(state.ANALG==='s1'){ bpsd.push({t:'Empiric analgesia step 1: scheduled acetaminophen 650 mg q6h \u00D7 7 days (max 3 g/day); re-PAINAD daily', c:'flagged'}); }
+  else if(state.ANALG==='s2'){ bpsd.push({t:'Empiric analgesia step 2: add morphine 2.5 mg q4h PRN or scheduled; bowel regimen (senna + PEG) from day one', c:'flagged'}); }
+  else if(state.ANALG==='s3'){ bpsd.push({t:'Empiric analgesia step 3: lidocaine patch for focal pain; capsaicin; gabapentin if neuropathic', c:'flagged'}); }
+  if(state.RX==='other'){
+    const t = document.getElementById('rx-other').value.trim();
+    bpsd.push({t:(t?('BPSD pharmacotherapy: '+t):'BPSD pharmacotherapy: other agent (specify)')+' \u2014 lowest effective dose; document indication; reassess 4\u20136 weeks', c:'flagged'});
+  } else if(state.RX && state.RX!=='none'){ bpsd.push({t:RX_PLANS[state.RX], c: (state.SUBTYPE==='LBD'&&state.RX==='haldol')?'urgent':'flagged'}); }
+  checked('#beers .chk').forEach(b=>{ bpsd.push({t:BEERS_PLANS[b.dataset.key], c:'urgent'}); });
+
+  // anticipatory
+  if(state.EAT==='decreased'){
+    antic.push({t:'Decreased intake: comfort feeding \u2014 pleasure tastes, favorite flavors, allow refusal; mouth care q4h; trend weights; goals conversation', c:'flagged'});
+  } else if(state.EAT==='stopped'){
+    antic.push({t:'Eating cessation is part of the dying process \u2014 comfort feeding (pleasure tastes, ice chips), mouth care q4h, family at the bedside; goals / hospice conversation', c:'urgent'});
+  }
+  if(isSel('ft-conv')){
+    antic.push({t:'Feeding-tube conversation held: complications reviewed (aspiration 2\u20133\u00D7, no survival or nutrition benefit, restraint risk); goal reframed; emotion addressed', c:''});
+  } else if(state.EAT==='decreased'||state.EAT==='stopped'||checked('#triggers .chk').some(b=>b.dataset.txt.includes('feeding-tube'))){
+    antic.push({t:'Hold the feeding-tube conversation \u2014 having it alone reduces tube placement by ~50%; educate, reframe, address emotion; offer comfort feeding instead', c:'flagged'});
+  }
+  if(!isSel('falls-assess')){ antic.push({t:'Complete annual fall-risk assessment with a score', c:'flagged'}); }
+  if(isSel('recent-falls')){
+    antic.push({t:'Falls since last visit: med review + PT + home safety; lower bed, perimeter mats; anticipate acceleration at FAST 6c\u2013e; soft helmet only if recurrent injurious falls', c:'flagged'});
+  }
+  if(isSel('wandering-active')){
+    antic.push({t:'Wandering: GPS bracelet, door alarms, secured perimeter; engineer the environment \u2014 redirect, don\u2019t argue', c:'flagged'});
+  }
+  if(isSel('sleep-active')){
+    antic.push({t:'Sleep disturbance: daylight + daytime activity, dim evenings, naps <30 min; treat pain first; melatonin if needed; avoid PRN benzos and Z-drugs', c:'flagged'});
+  }
+  const fp = checked('#famprep .chk').map(b=>b.dataset.txt);
+  if(fp.length) antic.push({t:'Family preparation: '+fp.join('; '), c:''});
+
+  // E-kit
+  const siteTxt = state.SITE==='unit' ? 'memory unit (nursing-administered; MAR reconciliation; renew monthly)' : state.SITE==='home' ? 'home (family-administered; written instructions; refresh quarterly)' : null;
+  const contents = checked('#ekit-contents .chk').map(b=>{
+    if(b.id==='ekit-abx-chk'){
+      const t = document.getElementById('ekit-abx').value.trim();
+      return 'PO antibiotic course'+(t?': '+t:' (per pre-discussed goals)');
+    }
+    return b.dataset.txt;
+  });
+  const other = document.getElementById('ekit-other').value.trim();
+  if(other) contents.push(other);
+  if(state.EKIT==='none'){ ekit.push({t:'Order E-kit for '+(siteTxt||'site')+'; teaching at delivery; label with triggers', c:'flagged'}); }
+  else if(state.EKIT==='ordered'){ ekit.push({t:'E-kit ordered today for '+(siteTxt||'site')+'; teaching at delivery', c:''}); }
+  else if(state.EKIT==='refresh'){ ekit.push({t:'Refresh E-kit contents ('+(state.SITE==='unit'?'monthly renewal due':'quarterly refresh due')+')', c:'flagged'}); }
+  else if(state.EKIT==='current'){ ekit.push({t:'E-kit in place and current at '+(siteTxt||'site'), c:''}); }
+  if(contents.length){ ekit.push({t:'E-kit contents: '+contents.join('; '), c:''}); }
+  if(state.EKIT && state.EKIT!=='none'){
+    if(!isSel('ekit-teach')) ekit.push({t:'Complete family / staff teaching on E-kit contents and triggers', c:'flagged'});
+    if(!isSel('ekit-algo')) ekit.push({t:'Review symptom algorithm (use, then notify team)', c:'flagged'});
+    if(!isSel('ekit-call')) ekit.push({t:'Post "when to call" list; place PRN log at bedside', c:'flagged'});
+  }
+
+  // ACP
+  if(state.CODE==='notdoc'){ acp.push({t:'Document code status', c:'flagged'}); }
+  else if(state.CODE){ acp.push({t:'Code status: '+state.CODE, c:''}); }
+  const prefVal = id => document.getElementById(id).value.trim();
+  const surr = prefVal('pref-surr');
+  if(surr) acp.push({t:'Surrogate: '+surr, c:''}); else acp.push({t:'Identify and document healthcare surrogate', c:'flagged'});
+  const ph = prefVal('pref-hosp');
+  if(ph) acp.push({t:'Hospitalization preference: '+ph, c:''}); else acp.push({t:'Document hospitalization preference', c:'flagged'});
+  const pf = prefVal('pref-ft');
+  if(pf) acp.push({t:'Feeding-tube preference: '+pf, c:''}); else acp.push({t:'Document feeding-tube preference', c:'flagged'});
+  const pa = prefVal('pref-abx');
+  if(pa) acp.push({t:'Antibiotic preference: '+pa, c:''}); else acp.push({t:'Document antibiotic preference', c:'flagged'});
+  if(isSel('acp-goc')) acp.push({t:'Goals-of-care conversation held today; documented', c:''});
+
+  Object.keys(state.ints).filter(k=>state.ints[k]).forEach(i=>chosen.push({t:i, c:'chosen'}));
+
+  return {core, inf, bpsd, antic, ekit, acp, chosen};
+}
+
+function buildPlanHtml(){
+  const P = buildPlanLines();
+  const sec=(title,arr)=> arr.length ? '<h3>'+title+'</h3><ul>'+arr.map(l=>'<li class="'+l.c+'">'+l.t+'</li>').join('')+'</ul>' : '';
+  return sec('Disposition plan', P.core)
+       + sec('Infections', P.inf)
+       + sec('BPSD', P.bpsd)
+       + sec('Anticipatory guidance', P.antic)
+       + sec('E-kit', P.ekit)
+       + sec('Goals &amp; ACP', P.acp)
+       + sec('Provider-selected additions', P.chosen);
+}
+
+function stripTags(s){ const d=document.createElement('div'); d.innerHTML=s; return d.textContent; }
+
+function buildSummaryText(){
+  const L=[];
+  L.push('DEMENTIA CARE PATHWAY VISIT SUMMARY');
+  L.push('Date: ' + new Date().toLocaleDateString());
+  L.push('');
+  if(state.FAST) L.push('FAST stage: '+state.FAST);
+  const cs = document.getElementById('cogscore').value.trim();
+  if(cs) L.push('Cognitive score: '+cs);
+  const pd = num('painad');
+  if(pd!==null) L.push('PAINAD: '+pd+'/10'+(pd>=5?' (optimize standing analgesia)':pd>=2?' (empiric analgesia trial indicated)':''));
+  const subTxt={AD:"Alzheimer's/mixed", vascular:'Vascular', LBD:"Lewy body/Parkinson's dementia", FTD:'Frontotemporal', other:'Other/unspecified'}[state.SUBTYPE];
+  if(subTxt) L.push('Subtype: '+subTxt);
+  const adls = checked('#adls .chk').map(b=>b.dataset.txt);
+  if(adls.length) L.push('ADL dependence: '+adls.join(', '));
+  const sx = checked('#bpsd-sx .chk').map(b=>b.dataset.txt);
+  if(sx.length) L.push('BPSD present: '+sx.join(', '));
+  const trig = checked('#triggers .chk').map(b=>stripTags(b.dataset.txt));
+  if(trig.length) L.push('HOSPICE TRIGGERS ('+trig.length+'): '+trig.join('; ')+' - each ~50% 6-month mortality');
+  const beers = checked('#beers .chk').length;
+  if(beers) L.push('Beers screen: '+beers+' deliriogenic medication(s) identified');
+  const cgTxt={low:'low', mod:'moderate', high:'high/strained'}[state.CAREG];
+  if(cgTxt) L.push('Caregiver burden: '+cgTxt);
+  L.push('');
+  const dTxt={routine:'ROUTINE - CONTINUE PATHWAY', manage:'ACTIVE ISSUE - MANAGE IN PLACE WITH E-KIT', hosp:'ESCALATE TO HOSPITAL', hospice:'HOSPICE REFERRAL'}[state.DISPO];
+  if(dTxt){ L.push('DISPOSITION: '+dTxt); L.push(''); }
+  if(state.DISPO){
+    const P = buildPlanLines();
+    const dump=(title,arr)=>{ if(arr.length){ L.push(title.toUpperCase()+':'); arr.forEach(l=>L.push('- '+stripTags(l.t))); L.push(''); } };
+    dump('Disposition plan', P.core);
+    dump('Infections', P.inf);
+    dump('BPSD', P.bpsd);
+    dump('Anticipatory guidance', P.antic);
+    dump('E-kit', P.ekit);
+    dump('Goals & ACP', P.acp);
+    dump('Provider-selected additions', P.chosen);
+  } else {
+    L.push('(Select a disposition to generate the plan)');
+  }
+  while(L.length && L[L.length-1]==='') L.pop();
+  return L.join('\n');
+}
+
+function copySummary(){
+  const text = buildSummaryText();
+  const btn = document.getElementById('copy-btn');
+  function done(){
+    btn.textContent='Copied \u2713'; btn.classList.add('copied');
+    setTimeout(()=>{ btn.textContent='Copy care plan'; btn.classList.remove('copied'); },2000);
+  }
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(done).catch(()=>fallbackCopy(text,done));
+  } else { fallbackCopy(text,done); }
+}
+function fallbackCopy(text,done){
+  const ta=document.createElement('textarea');
+  ta.value=text; ta.style.position='fixed'; ta.style.opacity='0';
+  document.body.appendChild(ta); ta.select();
+  try{ document.execCommand('copy'); done(); }catch(e){ alert('Copy failed \u2014 please select and copy manually.'); }
+  document.body.removeChild(ta);
+}
+
+render();
+</script>
+</body>
+</html>

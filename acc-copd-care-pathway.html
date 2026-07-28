@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>COPD Care Pathway &mdash; Visit Module</title>
+<style>
+  :root{
+    --blue:#326195; --green:#638C3D; --magenta:#9D296D; --brown:#91634C;
+    --teal:#245664; --gold:#F4B21B; --ink:#2b2f33; --muted:#6b7075;
+    --line:#dde3e8; --bg:#f5f7f9; --card:#ffffff;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:Calibri,'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--ink);font-size:16px;line-height:1.45}
+  h1,h2,h3{font-family:Georgia,'Times New Roman',serif;font-weight:normal}
+  header{background:var(--blue);color:#fff;padding:22px 28px}
+  header h1{font-size:1.5rem;letter-spacing:.2px}
+  header p{opacity:.85;font-size:.95rem;margin-top:4px}
+  .wrap{max-width:1180px;margin:0 auto;padding:24px 20px 60px;display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:24px;align-items:start}
+  @media(max-width:900px){.wrap{grid-template-columns:1fr}.results{position:static !important}}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:22px 24px;margin-bottom:20px}
+  .card h2{color:var(--teal);font-size:1.15rem;padding-bottom:10px;margin-bottom:16px;border-bottom:2px solid var(--line);display:flex;align-items:baseline;gap:10px}
+  .card h2 .tag{font-family:Calibri,sans-serif;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:#fff;background:var(--teal);border-radius:4px;padding:2px 8px;position:relative;top:-2px}
+  .q{margin-bottom:18px}
+  .q:last-child{margin-bottom:0}
+  .q-label{font-weight:bold;margin-bottom:2px}
+  .q-help{font-size:.85rem;color:var(--muted);margin-bottom:8px}
+  .opts{display:flex;flex-wrap:wrap;gap:8px}
+  .opt{border:1.5px solid var(--line);border-radius:8px;padding:8px 14px;background:#fff;cursor:pointer;font-size:.92rem;font-family:inherit;color:var(--ink);transition:border-color .12s,background .12s}
+  .opt:hover{border-color:var(--blue)}
+  .opt.sel{border-color:var(--blue);background:var(--blue);color:#fff;font-weight:bold}
+  .opt:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+  .numrow{display:flex;flex-wrap:wrap;gap:12px}
+  .numfield{display:flex;flex-direction:column;gap:3px}
+  .numfield label{font-size:.8rem;color:var(--muted);letter-spacing:.03em}
+  .numfield input{border:1.5px solid var(--line);border-radius:8px;padding:8px 10px;width:110px;font-family:inherit;font-size:.95rem;color:var(--ink)}
+  .numfield input:focus{outline:none;border-color:var(--blue)}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  @media(max-width:620px){.grid2{grid-template-columns:1fr}}
+  .chk{border:1.5px solid var(--line);border-radius:8px;padding:7px 11px;background:#fff;cursor:pointer;font-size:.88rem;font-family:inherit;color:var(--ink);text-align:left;display:flex;justify-content:space-between;align-items:center;gap:8px;transition:border-color .12s,background .12s}
+  .chk:hover{border-color:var(--blue)}
+  .chk.sel{border-color:var(--blue);background:var(--blue);color:#fff;font-weight:bold}
+  .chk:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+  .chk.red.sel{border-color:var(--magenta);background:var(--magenta)}
+  .subhead{font-size:.85rem;font-weight:bold;color:var(--teal);letter-spacing:.05em;text-transform:uppercase;margin:14px 0 7px}
+  .pills{display:flex;flex-wrap:wrap;gap:8px}
+  .pill{border:1.5px solid var(--line);border-radius:999px;padding:7px 15px;background:#fff;cursor:pointer;font-size:.9rem;font-family:inherit;color:var(--ink);transition:border-color .12s,background .12s}
+  .pill:hover{border-color:var(--teal)}
+  .pill.sel{background:var(--teal);border-color:var(--teal);color:#fff;font-weight:bold}
+  .pill:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+  .results{position:sticky;top:16px}
+  .alert{display:none;font-size:.88rem;border-radius:8px;padding:10px 13px;margin-bottom:10px}
+  .alert.show{display:block}
+  .alert.ed{background:#faeef5;border:1.5px solid var(--magenta);color:#5a1240}
+  .alert.ed b{color:var(--magenta)}
+  .alert.home{background:#f2f6ec;border:1.5px solid var(--green);color:#33491d}
+  .alert.home b{color:var(--green)}
+  .alert.note{background:#fdf6e3;border:1px solid var(--gold);color:#4a3a05}
+  .alert.note b{color:var(--brown)}
+  .dispo-banner{margin-bottom:14px;border-radius:10px;padding:14px 17px;color:#fff;display:none}
+  .dispo-banner.show{display:block}
+  .dispo-banner.routine{background:var(--green)}
+  .dispo-banner.home{background:var(--gold);color:#4a3a05}
+  .dispo-banner.ed{background:var(--magenta)}
+  .dispo-banner.hospice{background:var(--teal)}
+  .dispo-banner .big{font-family:Georgia,serif;font-size:1.25rem}
+  .dispo-banner .sub{font-size:.88rem;opacity:.92;margin-top:2px}
+  .risk-badge{display:none;border-radius:8px;padding:10px 13px;margin-bottom:10px;font-size:.9rem;border:1.5px solid}
+  .risk-badge.show{display:block}
+  .risk-badge b{font-family:Georgia,serif;font-size:1rem}
+  .risk-a{background:#f2f6ec;border-color:var(--green);color:#33491d}
+  .risk-b{background:#fdf6e3;border-color:var(--gold);color:#4a3a05}
+  .risk-e{background:#faeef5;border-color:var(--magenta);color:#5a1240}
+  .plan h3{color:var(--teal);font-size:1.02rem;margin:18px 0 8px;border-bottom:1px solid var(--line);padding-bottom:5px}
+  .plan ul{list-style:none}
+  .plan li{padding:7px 0 7px 24px;position:relative;font-size:.93rem;border-bottom:1px dotted #edf0f2}
+  .plan li:last-child{border-bottom:none}
+  .plan li::before{content:"";position:absolute;left:2px;top:13px;width:9px;height:9px;border-radius:50%;background:var(--green)}
+  .plan li.flagged::before{background:var(--gold)}
+  .plan li.urgent::before{background:var(--magenta)}
+  .plan li.chosen::before{background:var(--blue)}
+  .empty-note{color:var(--muted);font-size:.92rem;font-style:italic}
+  .btnrow{display:flex;gap:10px;margin-top:6px}
+  .btn{font-family:inherit;font-size:.92rem;border-radius:8px;padding:9px 18px;cursor:pointer;border:1.5px solid var(--blue)}
+  .btn.primary{background:var(--blue);color:#fff}
+  .btn.primary.copied{background:var(--green);border-color:var(--green)}
+  .btn:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+  .hint{font-size:.8rem;color:var(--muted);margin-top:6px;font-style:italic}
+  footer{max-width:1180px;margin:0 auto;padding:0 20px 40px;font-size:.8rem;color:var(--muted)}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>COPD Care Pathway &mdash; Visit Module</h1>
+  <p>Assessment &middot; Monitoring &middot; Medications &middot; Escalation &middot; E-Kit &middot; Alive Complex Care</p>
+</header>
+
+<div class="wrap">
+
+  <!-- ============ LEFT: DATA ENTRY ============ -->
+  <div>
+
+    <div class="card">
+      <h2>I. Assessment <span class="tag">Every visit</span></h2>
+
+      <div class="q">
+        <div class="q-label">mMRC dyspnea scale</div>
+        <div class="q-help">mMRC &ge; 2 carries the same threshold weight as CAT &ge; 10 for the ABE group.</div>
+        <div class="opts" data-group="MMRC" role="radiogroup" aria-label="mMRC">
+          <button class="opt" data-val="0">0 &mdash; strenuous exercise only</button>
+          <button class="opt" data-val="1">1 &mdash; hurrying / slight hill</button>
+          <button class="opt" data-val="2">2 &mdash; slower than peers</button>
+          <button class="opt" data-val="3">3 &mdash; stops after ~100 m</button>
+          <button class="opt" data-val="4">4 &mdash; breathless dressing</button>
+        </div>
+      </div>
+
+      <div class="q">
+        <div class="q-label">CAT score &amp; spirometry</div>
+        <div class="q-help">CAT: 8 items &times; 0&ndash;5 (cough, phlegm, chest tightness, breathlessness, activities, confidence leaving home, sleep, energy). CAT &ge; 10 = significant burden.</div>
+        <div class="numrow">
+          <div class="numfield"><label>CAT (0&ndash;40)</label><input type="number" id="cat" min="0" max="40"></div>
+          <div class="numfield"><label>FEV&#8321; (% predicted)</label><input type="number" id="fev1" min="5" max="150"></div>
+          <div class="numfield"><label>Blood eos (cells/&micro;L)</label><input type="number" id="eos" min="0" max="5000"></div>
+        </div>
+      </div>
+
+      <div class="q">
+        <div class="q-label">Oxygenation</div>
+        <div class="numrow">
+          <div class="numfield"><label>SpO&#8322; today (%)</label><input type="number" id="spo2" min="50" max="100"></div>
+          <div class="numfield"><label>SpO&#8322; baseline (%)</label><input type="number" id="spo2base" min="50" max="100"></div>
+          <div class="numfield"><label>RR</label><input type="number" id="rr" min="5" max="60"></div>
+        </div>
+        <div class="grid2" style="margin-top:8px">
+          <button class="chk" id="on-o2" data-txt="on home oxygen">On home oxygen<span></span></button>
+        </div>
+      </div>
+
+      <div class="q">
+        <div class="q-label">Exacerbation history &mdash; past 12 months</div>
+        <div class="q-help">GOLD 2026: a single moderate exacerbation qualifies for Group E.</div>
+        <div class="numrow">
+          <div class="numfield"><label>Moderate exac.</label><input type="number" id="exacMod" min="0" max="20"></div>
+          <div class="numfield"><label>Hospitalizations</label><input type="number" id="exacHosp" min="0" max="20"></div>
+          <div class="numfield"><label>Mild exac.</label><input type="number" id="exacMild" min="0" max="20"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>II. Medications <span class="tag">Match step to group</span></h2>
+      <div class="q">
+        <div class="q-label">Current inhaler therapy</div>
+        <div class="opts" data-group="STEP" role="radiogroup" aria-label="Current therapy">
+          <button class="opt" data-val="none">None</button>
+          <button class="opt" data-val="lama">LAMA only</button>
+          <button class="opt" data-val="lamalaba">LAMA/LABA</button>
+          <button class="opt" data-val="triple">Triple (ICS/LAMA/LABA)</button>
+          <button class="opt" data-val="triple-azithro">Triple + azithromycin</button>
+          <button class="opt" data-val="biologic">Triple + biologic</button>
+        </div>
+      </div>
+      <div class="q">
+        <div class="subhead">Inhaler review</div>
+        <div class="grid2" id="inhaler">
+          <button class="chk red" data-txt="inhaler technique incorrect on demonstration">Technique incorrect on demo<span></span></button>
+          <button class="chk red" data-txt="cannot afford / not refilling inhaler">Can't afford / not refilling<span></span></button>
+          <button class="chk" data-txt="technique checked and correct">Technique checked &amp; correct<span></span></button>
+          <button class="chk" data-txt="pharmacy coverage verified">Coverage verified<span></span></button>
+        </div>
+        <div class="subhead">Watch-out medications present</div>
+        <div class="grid2" id="meds">
+          <button class="chk red" data-txt="benzodiazepine prescribed for dyspnea">Benzo for dyspnea<span></span></button>
+          <button class="chk red" data-txt="non-selective beta-blocker (propranolol)">Non-selective &beta;-blocker<span></span></button>
+          <button class="chk" data-txt="cardio-selective beta-blocker">Cardio-selective &beta;-blocker<span></span></button>
+          <button class="chk" data-txt="repeated steroid bursts">Repeated steroid bursts<span></span></button>
+          <button class="chk" data-txt="sedating antihistamine">Sedating antihistamine<span></span></button>
+          <button class="chk" data-txt="roflumilast">Roflumilast<span></span></button>
+        </div>
+        <div class="subhead">Comorbid context</div>
+        <div class="grid2" id="comorbid">
+          <button class="chk" data-txt="asthma overlap">Asthma overlap<span></span></button>
+          <button class="chk" data-txt="former smoker">Former smoker<span></span></button>
+          <button class="chk" data-txt="cachexia / weight loss">Cachexia / weight loss<span></span></button>
+          <button class="chk" data-txt="depression">Depression<span></span></button>
+          <button class="chk" data-txt="heart failure overlap">Heart failure overlap<span></span></button>
+        </div>
+        <div class="subhead">Care gaps</div>
+        <div class="grid2" id="gaps">
+          <button class="chk" id="gap-rehab" data-txt="">Pulmonary rehab referred (after any admission)<span></span></button>
+          <button class="chk" id="gap-vax" data-txt="">Vaccinations up to date<span></span></button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>III. This Exacerbation <span class="tag">Home vs. ED</span></h2>
+      <div class="q">
+        <div class="q-help">Complete if the patient is exacerbating. Cardinal symptoms: increased dyspnea, increased sputum volume, increased sputum purulence.</div>
+        <div class="subhead">Cardinal symptoms</div>
+        <div class="grid2" id="cardinal">
+          <button class="chk" data-txt="increased dyspnea">Increased dyspnea<span></span></button>
+          <button class="chk" data-txt="increased sputum volume">Increased sputum volume<span></span></button>
+          <button class="chk" data-txt="increased sputum purulence (yellow/green)">Sputum purulence (yellow/green)<span></span></button>
+        </div>
+        <div class="subhead">Red flags &mdash; send to ED</div>
+        <div class="grid2" id="redflags">
+          <button class="chk red" data-txt="new confusion / drowsiness (possible hypercapnia)">New confusion / drowsiness<span></span></button>
+          <button class="chk red" data-txt="accessory muscle use">Accessory muscle use<span></span></button>
+          <button class="chk red" data-txt="cyanosis or new peripheral edema">Cyanosis / new edema<span></span></button>
+          <button class="chk red" data-txt="hemoptysis or pleuritic chest pain">Hemoptysis / pleuritic pain<span></span></button>
+          <button class="chk red" data-txt="failed 48 h of outpatient steroids/antibiotics">Failed 48 h outpatient Tx<span></span></button>
+          <button class="chk red" data-txt="new fever with focal exam findings">Fever + focal exam<span></span></button>
+        </div>
+        <div class="subhead">Reassuring features</div>
+        <div class="grid2" id="greenflags">
+          <button class="chk" data-txt="SpO2 at or near baseline on usual O2">SpO&#8322; at/near baseline<span></span></button>
+          <button class="chk" data-txt="responding to rescue inhaler + steroid burst">Responding to rescue + steroid<span></span></button>
+          <button class="chk" data-txt="reliable patient/caregiver able to monitor daily">Reliable daily monitoring<span></span></button>
+          <button class="chk" data-txt="follow-up arranged in 48-72 h">Follow-up in 48&ndash;72 h<span></span></button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>IV. E-Kit <span class="tag">Stay home</span></h2>
+      <div class="q">
+        <div class="q-label">E-kit status</div>
+        <div class="opts" data-group="EKIT" role="radiogroup" aria-label="E-kit status">
+          <button class="opt" data-val="none">Not in place</button>
+          <button class="opt" data-val="ordered">Ordered today</button>
+          <button class="opt" data-val="current">In place &amp; current</button>
+          <button class="opt" data-val="refresh">Needs refresh</button>
+        </div>
+      </div>
+      <div class="q">
+        <div class="subhead">Contents</div>
+        <div class="grid2" id="ekit">
+          <button class="chk" data-txt="steroid burst (prednisone 10 mg tabs or dexamethasone 1-2 mg tabs)">Steroid burst<span></span></button>
+          <button class="chk" data-txt="antibiotic course (azithromycin 500 mg or levofloxacin 750 mg)">Antibiotic course<span></span></button>
+          <button class="chk" data-txt="duo nebs (albuterol/ipratropium)">Duo nebs<span></span></button>
+          <button class="chk" data-txt="morphine 2.5-5 mg SL/PO">Morphine 2.5&ndash;5 mg<span></span></button>
+          <button class="chk" data-txt="lorazepam 0.5-1 mg">Lorazepam 0.5&ndash;1 mg<span></span></button>
+          <button class="chk" data-txt="glycopyrrolate / atropine">Glycopyrrolate / atropine<span></span></button>
+        </div>
+        <div class="subhead">Teaching</div>
+        <div class="grid2">
+          <button class="chk" id="ekit-teach" data-txt="">Family teaching at delivery<span></span></button>
+          <button class="chk" id="ekit-algo" data-txt="">Symptom algorithm reviewed<span></span></button>
+          <button class="chk" id="ekit-call" data-txt="">"When to call" list posted<span></span></button>
+          <button class="chk" id="ekit-diary" data-txt="">Daily tracking diary in place<span></span></button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>V. Goals &amp; ACP <span class="tag">Trigger on symptoms</span></h2>
+      <div class="q">
+        <div class="q-help">Trajectory is unpredictable &mdash; any exacerbation may be fatal. Trigger palliative care by symptoms, not by a 6-month prognosis we cannot reliably estimate.</div>
+        <div class="grid2" id="acp">
+          <button class="chk" id="acp-intub" data-txt="">Intubation preference documented<span></span></button>
+          <button class="chk" id="acp-niv" data-txt="">NIV preference documented<span></span></button>
+          <button class="chk" id="acp-cpr" data-txt="">CPR preference documented<span></span></button>
+          <button class="chk" id="acp-surr" data-txt="">Surrogate identified<span></span></button>
+          <button class="chk" id="acp-ad" data-txt="">Advance directive on file<span></span></button>
+          <button class="chk" id="acp-fear" data-txt="">Fear of suffocation addressed<span></span></button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>VI. Disposition &amp; Interventions</h2>
+      <div class="q">
+        <div class="q-label">Disposition</div>
+        <div class="opts" data-group="DISPO" role="radiogroup" aria-label="Disposition">
+          <button class="opt" data-val="routine">Routine &mdash; stable</button>
+          <button class="opt" data-val="manage">Manage exacerbation at home</button>
+          <button class="opt" data-val="ed">Send to ED / escalate</button>
+          <button class="opt" data-val="hospice">Hospice / comfort-focused</button>
+        </div>
+      </div>
+      <div class="subhead">Provider-selected additions</div>
+      <div class="pills" id="interventions">
+        <button class="pill" data-int="Pulmonary rehabilitation referral">Pulmonary rehab</button>
+        <button class="pill" data-int="Pulmonology referral">Pulmonology</button>
+        <button class="pill" data-int="Smoking cessation support">Smoking cessation</button>
+        <button class="pill" data-int="Home oxygen evaluation (ABG)">Home O&#8322; eval / ABG</button>
+        <button class="pill" data-int="Pharmacy outreach / copay card assistance">Pharmacy / copay help</button>
+        <button class="pill" data-int="Nutrition referral (cachexia)">Nutrition</button>
+        <button class="pill" data-int="Social work referral">Social work</button>
+        <button class="pill" data-int="Anxiety treatment (SSRI/SNRI trial)">Treat anxiety</button>
+      </div>
+      <div class="btnrow">
+        <button class="btn primary" id="copy-btn" onclick="copySummary()">Copy care plan</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ RIGHT: RESULTS ============ -->
+  <div class="results">
+    <div class="card">
+      <h2>Visit Summary &amp; Plan</h2>
+      <div class="dispo-banner" id="dispo-banner">
+        <div class="big" id="dispo-big"></div>
+        <div class="sub" id="dispo-sub"></div>
+      </div>
+      <div class="risk-badge" id="risk-badge"></div>
+      <div id="alerts-note"></div>
+      <div class="plan">
+        <p class="empty-note" id="plan-empty">Enter mMRC/CAT and exacerbation history for GOLD grade and ABE group. Select a disposition to generate the care plan.</p>
+        <div id="plan-content"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  For clinical decision support only; does not replace provider judgment. Based on the Alive Clinical Guideline Series: COPD Care Pathway (GOLD 2026; ATS/AAHPM 2022; Philip et al., Thorax 2024; USPSTF LDCT screening). This tool stores no patient data.
+</footer>
+
+<script>
+const state = { MMRC:null, STEP:null, EKIT:null, DISPO:null, ints:{} };
+
+document.querySelectorAll('.opts').forEach(group=>{
+  const key = group.dataset.group;
+  group.querySelectorAll('.opt').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      group.querySelectorAll('.opt').forEach(b=>b.classList.remove('sel'));
+      btn.classList.add('sel');
+      state[key] = btn.dataset.val;
+      render();
+    });
+  });
+});
+document.querySelectorAll('.chk').forEach(btn=>{
+  btn.addEventListener('click', ()=>{ btn.classList.toggle('sel'); render(); });
+});
+document.querySelectorAll('#interventions .pill').forEach(p=>{
+  p.addEventListener('click', ()=>{
+    p.classList.toggle('sel');
+    state.ints[p.dataset.int] = p.classList.contains('sel');
+    render();
+  });
+});
+['cat','fev1','eos','spo2','spo2base','rr','exacMod','exacHosp','exacMild']
+  .forEach(id=>document.getElementById(id).addEventListener('input', render));
+
+const num = id => { const v=document.getElementById(id).value; return v===''?null:parseFloat(v); };
+const isSel = id => document.getElementById(id).classList.contains('sel');
+const checked = sel => Array.from(document.querySelectorAll(sel)).filter(b=>b.classList.contains('sel'));
+const txts = sel => checked(sel).map(b=>b.dataset.txt);
+function isSel2(scope, txt){
+  return Array.from(document.querySelectorAll(scope+' .chk'))
+    .some(b=>b.dataset.txt===txt && b.classList.contains('sel'));
+}
+
+// ---- GOLD grade from FEV1 % predicted ----
+function goldGrade(){
+  const f=num('fev1');
+  if(f===null) return null;
+  if(f>=80) return {g:1, label:'GOLD 1 — Mild (FEV₁ ≥ 80%)'};
+  if(f>=50) return {g:2, label:'GOLD 2 — Moderate (50–79%)'};
+  if(f>=30) return {g:3, label:'GOLD 3 — Severe (30–49%)'};
+  return {g:4, label:'GOLD 4 — Very severe (< 30%)'};
+}
+
+// ---- ABE group (GOLD 2026: >=1 moderate exac OR >=1 hospitalization => E) ----
+function abeGroup(){
+  const mmrc = state.MMRC===null?null:parseInt(state.MMRC,10);
+  const cat = num('cat');
+  const mod = num('exacMod'), hosp = num('exacHosp');
+  if(mmrc===null && cat===null && mod===null && hosp===null) return null;
+  if((mod!==null && mod>=1) || (hosp!==null && hosp>=1)) return 'E';
+  const highSx = (mmrc!==null && mmrc>=2) || (cat!==null && cat>=10);
+  if(mmrc===null && cat===null) return null;
+  return highSx ? 'B' : 'A';
+}
+
+function renderRisk(){
+  const el=document.getElementById('risk-badge');
+  const g=goldGrade(), ab=abeGroup();
+  if(!g && !ab){ el.className='risk-badge'; el.innerHTML=''; return; }
+  const cls = ab==='E' ? 'risk-e' : ab==='B' ? 'risk-b' : 'risk-a';
+  el.className='risk-badge show '+(ab?cls:'risk-a');
+  const desc = {
+    A:'Group A — few symptoms, 0–1 mild exacerbations. Therapy: LAMA.',
+    B:'Group B — more symptoms (mMRC ≥ 2 or CAT ≥ 10), 0–1 mild exacerbations. Therapy: LAMA/LABA.',
+    E:'Group E — exacerbator (≥ 1 moderate exacerbation OR ≥ 1 hospitalization). Therapy: LAMA/LABA; add ICS if eos ≥ 300.'
+  }[ab];
+  el.innerHTML = '<b>'+(g?g.label:'GOLD grade — enter FEV₁')+(ab?'  ·  Group '+ab:'')+'</b>'+(desc?'<br>'+desc:'');
+}
+
+function buildAlerts(){
+  const A=[];
+  const sp=num('spo2'), spb=num('spo2base'), rr=num('rr'), eosv=num('eos');
+  const rf = txts('#redflags .chk');
+  const card = checked('#cardinal .chk').length;
+
+  if(sp!==null && sp<88)
+    A.push(['ed','<b>SpO&#8322; '+sp+'% &mdash; below 88%'+(isSel('on-o2')?' on usual oxygen':'')+'.</b> '+(isSel('on-o2')?'Send to ED.':'Qualifies for chronic oxygen — order an ABG before assuming the dyspnea is "refractory."')]);
+  if(sp!==null && spb!==null && (spb-sp)>=4)
+    A.push(['note','<b>SpO&#8322; down '+(spb-sp)+' points from baseline</b> &mdash; a drop of &ge; 4 from the patient&rsquo;s own baseline is a call trigger.']);
+  if(rr!==null && rr>30)
+    A.push(['ed','<b>RR '+rr+'</b> &mdash; impending respiratory failure. Send to ED.']);
+  if(isSel2('#redflags','new confusion / drowsiness (possible hypercapnia)'))
+    A.push(['ed','<b>New confusion / drowsiness</b> &mdash; possible acute hypercapnic failure. SpO&#8322; may be near-normal &mdash; get an ABG. NIV is first-line; avoid sedatives.']);
+  if(rf.length)
+    A.push(['ed','<b>Red flag'+(rf.length>1?'s':'')+':</b> '+rf.join('; ')+'.']);
+
+  if(card>=2 || (isSel2('#cardinal','increased sputum purulence (yellow/green)') && isSel2('#cardinal','increased sputum volume')))
+    A.push(['note','<b>'+card+' cardinal symptom'+(card>1?'s':'')+'</b> &mdash; antibiotic indicated (&ge; 2 cardinal symptoms, or purulence + volume). Azithromycin 500 mg &times; 5 days or levofloxacin 750 mg &times; 5 days.']);
+
+  if(isSel2('#meds','benzodiazepine prescribed for dyspnea'))
+    A.push(['ed','<b>Benzodiazepine for dyspnea</b> &mdash; GOLD 2026: no benefit on dyspnea, with real harms (falls, delirium, respiratory depression). Reserve for anxiety adjunct or the actively dying patient.']);
+  if(isSel2('#meds','non-selective beta-blocker (propranolol)'))
+    A.push(['note','<b>Non-selective &beta;-blocker</b> &mdash; switch to a cardio-selective agent (metoprolol, bisoprolol, carvedilol).']);
+  if(isSel2('#comorbid','heart failure overlap') && !isSel2('#meds','cardio-selective beta-blocker'))
+    A.push(['note','<b>HF + COPD overlap without a cardio-selective &beta;-blocker</b> &mdash; they are SAFE in COPD and improve survival. Do not withhold reflexively.']);
+  if(isSel2('#meds','roflumilast') && (isSel2('#comorbid','cachexia / weight loss') || isSel2('#comorbid','depression')))
+    A.push(['ed','<b>Roflumilast with cachexia or depression</b> &mdash; it worsens both. Avoid.']);
+  if(isSel2('#inhaler','inhaler technique incorrect on demonstration'))
+    A.push(['ed','<b>Inhaler technique incorrect</b> &mdash; up to 50% of patients use it wrong. A perfectly prescribed inhaler the patient can&rsquo;t use is the same as no therapy. Correct it on the spot.']);
+  if(isSel2('#inhaler','cannot afford / not refilling inhaler'))
+    A.push(['ed','<b>Affordability barrier</b> &mdash; a LAMA/LABA the patient can&rsquo;t refill is no LAMA/LABA. Verify coverage, copay cards, 340B; consider nebulized backup.']);
+
+  if(eosv!==null && eosv<100 && (state.STEP==='triple'||state.STEP==='triple-azithro'))
+    A.push(['note','<b>Eosinophils '+eosv+' &lt; 100 on ICS</b> &mdash; ICS benefit is unlikely at this eosinophil count. Reassess the indication.']);
+  if(eosv!==null && eosv>=300 && abeGroup()==='E' && (state.STEP==='lama'||state.STEP==='lamalaba'))
+    A.push(['note','<b>Group E with eosinophils '+eosv+' &ge; 300</b> &mdash; add ICS (triple therapy).']);
+
+  if((num('exacHosp')||0)>=1 && !isSel('gap-rehab'))
+    A.push(['note','<b>Hospitalized but no pulmonary rehab referral</b> &mdash; refer EVERY patient after every COPD admission. It reduces hospitalization and improves QoL more than most drugs.']);
+
+  return A;
+}
+
+function buildPlanLines(){
+  const core=[], staging=[], meds=[], ekit=[], acp=[], fu=[], chosen=[];
+  const g=goldGrade(), ab=abeGroup(), eosv=num('eos'), sp=num('spo2');
+  const card = checked('#cardinal .chk').length;
+
+  // Disposition
+  if(state.DISPO==='routine'){
+    core.push({t:'Stable — continue pathway; same checklist next visit', c:''});
+  } else if(state.DISPO==='manage'){
+    core.push({t:'Manage the exacerbation at home — 80% of COPD exacerbations can be managed outpatient with the right plan', c:'flagged'});
+    core.push({t:'Steroid burst: prednisone 40 mg × 5 days (or dexamethasone 6 mg × 5 days). Do not extend beyond 5 days', c:'flagged'});
+    if(card>=2 || (isSel2('#cardinal','increased sputum purulence (yellow/green)') && isSel2('#cardinal','increased sputum volume')))
+      core.push({t:'Antibiotic: azithromycin 500 mg × 5 days or levofloxacin 750 mg × 5 days (≥ 2 cardinal symptoms or purulence + volume)', c:'flagged'});
+    core.push({t:'Duo nebs (albuterol/ipratropium) q4h alongside scheduled inhalers', c:''});
+    core.push({t:'Reassess at 48 hours — failure to improve on steroids/antibiotics is an escalation trigger', c:'flagged'});
+    core.push({t:'Refer to pulmonary rehab after recovery', c:'flagged'});
+  } else if(state.DISPO==='ed'){
+    core.push({t:'Send to ED / escalate', c:'urgent'});
+    if(isSel2('#redflags','new confusion / drowsiness (possible hypercapnia)'))
+      core.push({t:'Acute hypercapnic failure suspected: ABG; NIV is first-line; avoid sedatives; treat the trigger; reassess for chronic NIV at discharge', c:'urgent'});
+    if(isSel2('#redflags','new fever with focal exam findings'))
+      core.push({t:'CXR — treat as CAP; consider admission if hypoxic, frail, or with unstable comorbidities', c:'urgent'});
+    if(isSel2('#redflags','hemoptysis or pleuritic chest pain'))
+      core.push({t:'Rule out PE, pneumonia, pneumothorax — CT-PA if sudden severe dyspnea out of proportion, pleuritic pain, or unilateral edema', c:'urgent'});
+    if(isSel2('#redflags','cyanosis or new peripheral edema'))
+      core.push({t:'Cor pulmonale / RV strain — diuretic; review the O₂ prescription; consider RHF evaluation', c:'urgent'});
+    core.push({t:'Refer to pulmonary rehab after this admission — every patient, every admission', c:'flagged'});
+  } else if(state.DISPO==='hospice'){
+    core.push({t:'Comfort-focused / hospice — Stage IV with comfort goals belongs in hospice, not the ED', c:'urgent'});
+    core.push({t:'Trigger palliative care by symptoms, not by a 6-month prognosis we cannot reliably estimate', c:''});
+    core.push({t:'Refractory dyspnea: low-dose morphine 2.5 mg SL; fan to the face; head of bed up. Add lorazepam only if anxiety is amplifying the dyspnea', c:''});
+  }
+
+  // Staging
+  if(g) staging.push({t:g.label, c:''});
+  if(ab){
+    const t={A:'Group A — few symptoms, 0–1 mild exacerbations',
+             B:'Group B — more symptoms (mMRC ≥ 2 or CAT ≥ 10), 0–1 mild exacerbations',
+             E:'Group E — exacerbator: ≥ 1 moderate exacerbation OR ≥ 1 hospitalization (GOLD 2026 lowered this threshold to a single moderate exacerbation)'}[ab];
+    staging.push({t:t, c:ab==='E'?'flagged':''});
+  }
+  if(!g) staging.push({t:'FEV₁ % predicted not entered — spirometry annually when stable; 3–6 months after a step-up', c:'flagged'});
+  if(sp!==null) staging.push({t:'SpO₂ '+sp+'%'+(isSel('on-o2')?' on home oxygen':' on room air'), c:sp<88?'urgent':''});
+
+  // Meds — stepwise
+  if(ab==='A' && state.STEP!=='lama' && state.STEP!=='lamalaba')
+    meds.push({t:'Group A → LAMA', c:'flagged'});
+  if(ab==='B' && (state.STEP==='none'||state.STEP==='lama'))
+    meds.push({t:'Group B → LAMA/LABA combination — outperforms monotherapy for FEV₁, dyspnea, and exacerbations', c:'flagged'});
+  if(ab==='E'){
+    if(state.STEP==='none'||state.STEP==='lama') meds.push({t:'Group E → start LAMA/LABA', c:'flagged'});
+    const icsIndicated = (eosv!==null && eosv>=300) || (num('exacHosp')||0)>=1 || (num('exacMod')||0)>=2 || isSel2('#comorbid','asthma overlap');
+    if(icsIndicated && (state.STEP==='lama'||state.STEP==='lamalaba'||state.STEP==='none'))
+      meds.push({t:'Add ICS → triple therapy (indicated: '+[eosv!==null&&eosv>=300?'eos ≥ 300':null,(num('exacHosp')||0)>=1?'prior hospitalization':null,(num('exacMod')||0)>=2?'≥ 2 moderate exacerbations':null,isSel2('#comorbid','asthma overlap')?'asthma overlap':null].filter(Boolean).join('; ')+')', c:'flagged'});
+    if(eosv!==null && eosv<100)
+      meds.push({t:'Eosinophils < 100 — avoid ICS; benefit is unlikely at this count', c:'flagged'});
+    if(state.STEP==='triple' && isSel2('#comorbid','former smoker') && ((num('exacMod')||0)>=1 || (num('exacHosp')||0)>=1))
+      meds.push({t:'Consider azithromycin 250 mg M/W/F — former smokers with ≥ 1 exacerbation despite triple therapy; reduces exacerbations ~25%. Pre-screen QTc and hearing; ECG at 1 month', c:'flagged'});
+    if((state.STEP==='triple'||state.STEP==='triple-azithro') && eosv!==null && eosv>=300)
+      meds.push({t:'Consider a biologic — eosinophilic exacerbator on optimized triple: dupilumab (anti-IL-4/13) or mepolizumab (anti-IL-5); FDA-approved 2024–2025', c:'flagged'});
+  }
+  meds.push({t:'Always ask: can the patient afford it? LAMA/LABA combos run $300–500/month uninsured. Match the class to the formulary; verify copay cards and 340B', c:''});
+
+  // Watch-outs
+  const FIX = {
+    'benzodiazepine prescribed for dyspnea':'GOLD 2026 — no benefit on dyspnea; real harms. Reserve for anxiety adjunct or actively dying',
+    'non-selective beta-blocker (propranolol)':'switch to cardio-selective (metoprolol, bisoprolol, carvedilol)',
+    'repeated steroid bursts':'cumulative harm — osteoporosis, glucose, infection, adrenal suppression. Do not extend beyond 5 days; calcium/vitamin D; DXA every 2 years',
+    'sedating antihistamine':'sedation and secretion drying — avoid diphenhydramine/hydroxyzine combinations with opioids',
+    'roflumilast':'worsens weight loss and depression — avoid if either is present'
+  };
+  txts('#meds .chk').filter(m=>FIX[m]).forEach(m=>meds.push({t:m+' — '+FIX[m], c:'urgent'}));
+  if(isSel2('#meds','cardio-selective beta-blocker'))
+    meds.push({t:'Cardio-selective β-blocker — SAFE in COPD and improves survival in HF + COPD overlap. Continue', c:''});
+  if(isSel2('#inhaler','inhaler technique incorrect on demonstration'))
+    meds.push({t:'Inhaler technique incorrect — correct on the spot and re-demo. Up to 50% of patients use their inhaler incorrectly', c:'urgent'});
+  if(isSel2('#inhaler','cannot afford / not refilling inhaler'))
+    meds.push({t:'Affordability barrier — pharmacy outreach, copay cards, nebulized backup, med rec every visit', c:'urgent'});
+
+  // E-kit
+  if(state.EKIT==='none') ekit.push({t:'Order the E-kit; pre-print the order set at hospice/palliative admission; family teaching at delivery with written instructions', c:'flagged'});
+  else if(state.EKIT==='ordered') ekit.push({t:'E-kit ordered today; teaching at delivery', c:''});
+  else if(state.EKIT==='refresh') ekit.push({t:'Refresh E-kit contents (quarterly)', c:'flagged'});
+  else if(state.EKIT==='current') ekit.push({t:'E-kit in place and current', c:''});
+  const have = txts('#ekit .chk');
+  if(have.length) ekit.push({t:'Contents: '+have.join('; '), c:''});
+  if(state.EKIT && state.EKIT!=='none'){
+    if(!isSel('ekit-teach')) ekit.push({t:'Complete family teaching at delivery', c:'flagged'});
+    if(!isSel('ekit-algo')) ekit.push({t:'Review the symptom algorithm: sputum change → antibiotic · dyspnea + wheeze → duo nebs q4h · mild–moderate exacerbation → steroid burst + duo nebs · refractory dyspnea → morphine 2.5 mg SL, fan, HOB up · terminal secretions → reposition first', c:'flagged'});
+    if(!isSel('ekit-call')) ekit.push({t:'Post the "when to call" list: sputum color change · sputum/cough up sharply · rescue inhaler > 4×/day or doubled · SpO₂ ↓ ≥ 4 from baseline · new fever/chills · new confusion/somnolence · panic', c:'flagged'});
+    if(!isSel('ekit-diary')) ekit.push({t:'Start the daily diary: sputum, cough, dyspnea, rescue inhaler puffs, SpO₂, weight', c:'flagged'});
+    ekit.push({t:'Always notify the team after any E-kit use. Most exacerbations stabilize within 48 h on this protocol', c:''});
+  }
+
+  // ACP
+  const acpMap = {'acp-intub':'intubation preference','acp-niv':'NIV preference','acp-cpr':'CPR preference','acp-surr':'surrogate','acp-ad':'advance directive','acp-fear':'fear of suffocation addressed'};
+  Object.keys(acpMap).forEach(id=>{ if(!isSel(id)) acp.push({t:'Document: '+acpMap[id], c:'flagged'}); });
+  if(Object.keys(acpMap).every(id=>isSel(id))) acp.push({t:'ACP complete — intubation, NIV, CPR, surrogate, advance directive, and fear of suffocation all addressed', c:''});
+
+  // Follow-up / surveillance
+  fu.push({t:'Cadence — spirometry annually (3–6 months after step-up) · SpO₂ every visit · mMRC + CAT every visit (2–4 weeks after step-up) · CBC + eos annually and before starting ICS or a biologic · BMP annually · vaccination status annually', c:''});
+  if(!isSel('gap-vax')) fu.push({t:'Vaccines: annual influenza, PCV20 once, RSV ≥ 60, COVID per current guidance, Tdap, Zoster ≥ 50', c:'flagged'});
+  if((num('exacHosp')||0)>=1 && !isSel('gap-rehab')) fu.push({t:'Refer to pulmonary rehabilitation — every patient after every admission', c:'urgent'});
+  fu.push({t:'Imaging is targeted, not surveillance — order with a specific question. LDCT annually if ≥ 50, 20 pack-year, smoking within 15 years (USPSTF)', c:''});
+  fu.push({t:'Do not treat dyspnea without checking SpO₂ — refractory dyspnea + SpO₂ < 88% qualifies for chronic oxygen. Order an ABG before assuming dyspnea is fully "refractory"', c:'flagged'});
+
+  Object.keys(state.ints).filter(k=>state.ints[k]).forEach(i=>chosen.push({t:i, c:'chosen'}));
+  return {core, staging, meds, ekit, acp, fu, chosen};
+}
+
+function buildPlanHtml(){
+  const P=buildPlanLines();
+  const sec=(t,arr)=> arr.length ? '<h3>'+t+'</h3><ul>'+arr.map(l=>'<li class="'+l.c+'">'+l.t+'</li>').join('')+'</ul>' : '';
+  return sec('Disposition plan', P.core)
+       + sec('Staging', P.staging)
+       + sec('Medications', P.meds)
+       + sec('E-kit', P.ekit)
+       + sec('Goals &amp; ACP', P.acp)
+       + sec('Surveillance &amp; pitfalls', P.fu)
+       + sec('Provider-selected additions', P.chosen);
+}
+
+function render(){
+  renderRisk();
+  const A=buildAlerts();
+  document.getElementById('alerts-note').innerHTML =
+    A.map(a=>'<div class="alert '+a[0]+' show">'+a[1]+'</div>').join('');
+  const b=document.getElementById('dispo-banner');
+  const map={
+    routine:['routine','Routine — stable','Continue the pathway; same checklist next visit.'],
+    manage:['home','Manage exacerbation at home','80% are managed outpatient. Reassess at 48 h.'],
+    ed:['ed','Send to ED / escalate','Hypoxemia, hypercapnia, or failure of outpatient therapy.'],
+    hospice:['hospice','Hospice / comfort-focused','Trigger on symptoms, not on a 6-month prognosis.']
+  };
+  if(state.DISPO){
+    const m=map[state.DISPO];
+    b.className='dispo-banner show '+m[0];
+    document.getElementById('dispo-big').textContent=m[1];
+    document.getElementById('dispo-sub').textContent=m[2];
+  } else { b.className='dispo-banner'; }
+  const empty=document.getElementById('plan-empty');
+  const content=document.getElementById('plan-content');
+  if(state.DISPO){ empty.style.display='none'; content.innerHTML=buildPlanHtml(); }
+  else { empty.style.display=''; content.innerHTML=''; }
+}
+
+function stripTags(s){ const d=document.createElement('div'); d.innerHTML=s; return d.textContent; }
+
+function buildSummaryText(){
+  const L=[];
+  L.push('COPD CARE PATHWAY VISIT SUMMARY');
+  L.push('Date: ' + new Date().toLocaleDateString());
+  L.push('');
+  if(state.MMRC!==null) L.push('mMRC: '+state.MMRC);
+  const cat=num('cat'); if(cat!==null) L.push('CAT: '+cat+'/40'+(cat>=10?' (>= 10 significant burden)':''));
+  const g=goldGrade(); if(g) L.push('Spirometry: FEV1 '+num('fev1')+'% predicted - '+g.label);
+  const ab=abeGroup(); if(ab) L.push('ABE GROUP: '+ab);
+  const eosv=num('eos'); if(eosv!==null) L.push('Blood eosinophils: '+eosv+' cells/uL');
+  const sp=num('spo2'), spb=num('spo2base');
+  if(sp!==null) L.push('SpO2: '+sp+'%'+(isSel('on-o2')?' on home O2':' on room air')+(spb!==null?' (baseline '+spb+'%)':''));
+  const rr=num('rr'); if(rr!==null) L.push('RR: '+rr);
+  const ex=[]; if(num('exacMod')!==null) ex.push(num('exacMod')+' moderate');
+  if(num('exacHosp')!==null) ex.push(num('exacHosp')+' hospitalization(s)');
+  if(num('exacMild')!==null) ex.push(num('exacMild')+' mild');
+  if(ex.length) L.push('Exacerbations (12 mo): '+ex.join(', '));
+  if(state.STEP) L.push('Current therapy: '+{none:'none',lama:'LAMA',lamalaba:'LAMA/LABA',triple:'Triple (ICS/LAMA/LABA)','triple-azithro':'Triple + azithromycin',biologic:'Triple + biologic'}[state.STEP]);
+  const cd=txts('#cardinal .chk'); if(cd.length) L.push('Cardinal symptoms ('+cd.length+'): '+cd.join(', '));
+  const rf=txts('#redflags .chk'); if(rf.length) L.push('RED FLAGS: '+rf.join('; '));
+  const wm=txts('#meds .chk'); if(wm.length) L.push('Medication flags: '+wm.join(', '));
+  const inh=txts('#inhaler .chk'); if(inh.length) L.push('Inhaler review: '+inh.join('; '));
+  L.push('');
+  const dTxt={routine:'ROUTINE - STABLE',manage:'MANAGE EXACERBATION AT HOME',ed:'SEND TO ED / ESCALATE',hospice:'HOSPICE / COMFORT-FOCUSED'}[state.DISPO];
+  if(dTxt){ L.push('DISPOSITION: '+dTxt); L.push(''); }
+  if(state.DISPO){
+    const P=buildPlanLines();
+    const dump=(t,arr)=>{ if(arr.length){ L.push(t.toUpperCase()+':'); arr.forEach(l=>L.push('- '+stripTags(l.t))); L.push(''); } };
+    dump('Disposition plan',P.core); dump('Staging',P.staging); dump('Medications',P.meds);
+    dump('E-kit',P.ekit); dump('Goals & ACP',P.acp); dump('Surveillance & pitfalls',P.fu);
+    dump('Provider-selected additions',P.chosen);
+  } else { L.push('(Select a disposition to generate the plan)'); }
+  while(L.length && L[L.length-1]==='') L.pop();
+  return L.join('\n');
+}
+
+function copySummary(){
+  const text=buildSummaryText(); const btn=document.getElementById('copy-btn');
+  function done(){ btn.textContent='Copied ✓'; btn.classList.add('copied');
+    setTimeout(()=>{ btn.textContent='Copy care plan'; btn.classList.remove('copied'); },2000); }
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(done).catch(()=>fallbackCopy(text,done));
+  } else { fallbackCopy(text,done); }
+}
+function fallbackCopy(text,done){
+  const ta=document.createElement('textarea');
+  ta.value=text; ta.style.position='fixed'; ta.style.opacity='0';
+  document.body.appendChild(ta); ta.select();
+  try{ document.execCommand('copy'); done(); }catch(e){ alert('Copy failed — please select and copy manually.'); }
+  document.body.removeChild(ta);
+}
+
+render();
+</script>
+</body>
+</html>

@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CKD / ESRD Care Pathway &mdash; Visit Module</title>
+<style>
+  :root{
+    --blue:#326195; --green:#638C3D; --magenta:#9D296D; --brown:#91634C;
+    --teal:#245664; --gold:#F4B21B; --ink:#2b2f33; --muted:#6b7075;
+    --line:#dde3e8; --bg:#f5f7f9; --card:#ffffff;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:Calibri,'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--ink);font-size:16px;line-height:1.45}
+  h1,h2,h3{font-family:Georgia,'Times New Roman',serif;font-weight:normal}
+  header{background:var(--blue);color:#fff;padding:22px 28px}
+  header h1{font-size:1.5rem;letter-spacing:.2px}
+  header p{opacity:.85;font-size:.95rem;margin-top:4px}
+  .wrap{max-width:1180px;margin:0 auto;padding:24px 20px 60px;display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:24px;align-items:start}
+  @media(max-width:900px){.wrap{grid-template-columns:1fr}.results{position:static !important}}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:22px 24px;margin-bottom:20px}
+  .card h2{color:var(--teal);font-size:1.15rem;padding-bottom:10px;margin-bottom:16px;border-bottom:2px solid var(--line);display:flex;align-items:baseline;gap:10px}
+  .card h2 .tag{font-family:Calibri,sans-serif;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:#fff;background:var(--teal);border-radius:4px;padding:2px 8px;position:relative;top:-2px}
+  .q{margin-bottom:18px}
+  .q:last-child{margin-bottom:0}
+  .q-label{font-weight:bold;margin-bottom:2px}
+  .q-help{font-size:.85rem;color:var(--muted);margin-bottom:8px}
+  .opts{display:flex;flex-wrap:wrap;gap:8px}
+  .opt{border:1.5px solid var(--line);border-radius:8px;padding:8px 14px;background:#fff;cursor:pointer;font-size:.92rem;font-family:inherit;color:var(--ink);transition:border-color .12s,background .12s}
+  .opt:hover{border-color:var(--blue)}
+  .opt.sel{border-color:var(--blue);background:var(--blue);color:#fff;font-weight:bold}
+  .opt:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+  .numrow{display:flex;flex-wrap:wrap;gap:12px}
+  .numfield{display:flex;flex-direction:column;gap:3px}
+  .numfield label{font-size:.8rem;color:var(--muted);letter-spacing:.03em}
+  .numfield input{border:1.5px solid var(--line);border-radius:8px;padding:8px 10px;width:110px;font-family:inherit;font-size:.95rem;color:var(--ink)}
+  .numfield input:focus{outline:none;border-color:var(--blue)}
+  .textfield{width:100%;border:1.5px solid var(--line);border-radius:8px;padding:9px 12px;font-family:inherit;font-size:.95rem;color:var(--ink)}
+  .textfield:focus{outline:none;border-color:var(--blue)}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  @media(max-width:620px){.grid2{grid-template-columns:1fr}}
+  .chk{border:1.5px solid var(--line);border-radius:8px;padding:7px 11px;background:#fff;cursor:pointer;font-size:.88rem;font-family:inherit;color:var(--ink);text-align:left;display:flex;justify-content:space-between;align-items:center;gap:8px;transition:border-color .12s,background .12s}
+  .chk:hover{border-color:var(--blue)}
+  .chk.sel{border-color:var(--blue);background:var(--blue);color:#fff;font-weight:bold}
+  .chk:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+  .chk.red.sel{border-color:var(--magenta);background:var(--magenta)}
+  .subhead{font-size:.85rem;font-weight:bold;color:var(--teal);letter-spacing:.05em;text-transform:uppercase;margin:14px 0 7px}
+  .pills{display:flex;flex-wrap:wrap;gap:8px}
+  .pill{border:1.5px solid var(--line);border-radius:999px;padding:7px 15px;background:#fff;cursor:pointer;font-size:.9rem;font-family:inherit;color:var(--ink);transition:border-color .12s,background .12s}
+  .pill:hover{border-color:var(--teal)}
+  .pill.sel{background:var(--teal);border-color:var(--teal);color:#fff;font-weight:bold}
+  .pill:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+  .results{position:sticky;top:16px}
+  .alert{display:none;font-size:.88rem;border-radius:8px;padding:10px 13px;margin-bottom:10px}
+  .alert.show{display:block}
+  .alert.ed{background:#faeef5;border:1.5px solid var(--magenta);color:#5a1240}
+  .alert.ed b{color:var(--magenta)}
+  .alert.home{background:#f2f6ec;border:1.5px solid var(--green);color:#33491d}
+  .alert.home b{color:var(--green)}
+  .alert.note{background:#fdf6e3;border:1px solid var(--gold);color:#4a3a05}
+  .alert.note b{color:var(--brown)}
+  .dispo-banner{margin-bottom:14px;border-radius:10px;padding:14px 17px;color:#fff;display:none}
+  .dispo-banner.show{display:block}
+  .dispo-banner.routine{background:var(--green)}
+  .dispo-banner.home{background:var(--gold);color:#4a3a05}
+  .dispo-banner.ed{background:var(--magenta)}
+  .dispo-banner.hospice{background:var(--teal)}
+  .dispo-banner .big{font-family:Georgia,serif;font-size:1.25rem}
+  .dispo-banner .sub{font-size:.88rem;opacity:.92;margin-top:2px}
+  .risk-badge{display:none;border-radius:8px;padding:10px 13px;margin-bottom:10px;font-size:.9rem;border:1.5px solid}
+  .risk-badge.show{display:block}
+  .risk-badge b{font-family:Georgia,serif;font-size:1rem}
+  .risk-low{background:#f2f6ec;border-color:var(--green);color:#33491d}
+  .risk-mod{background:#fdf6e3;border-color:var(--gold);color:#4a3a05}
+  .risk-high{background:#f6efe9;border-color:var(--brown);color:#4d3323}
+  .risk-vhigh{background:#faeef5;border-color:var(--magenta);color:#5a1240}
+  .plan h3{color:var(--teal);font-size:1.02rem;margin:18px 0 8px;border-bottom:1px solid var(--line);padding-bottom:5px}
+  .plan ul{list-style:none}
+  .plan li{padding:7px 0 7px 24px;position:relative;font-size:.93rem;border-bottom:1px dotted #edf0f2}
+  .plan li:last-child{border-bottom:none}
+  .plan li::before{content:"";position:absolute;left:2px;top:13px;width:9px;height:9px;border-radius:50%;background:var(--green)}
+  .plan li.flagged::before{background:var(--gold)}
+  .plan li.urgent::before{background:var(--magenta)}
+  .plan li.chosen::before{background:var(--blue)}
+  .empty-note{color:var(--muted);font-size:.92rem;font-style:italic}
+  .btnrow{display:flex;gap:10px;margin-top:6px}
+  .btn{font-family:inherit;font-size:.92rem;border-radius:8px;padding:9px 18px;cursor:pointer;border:1.5px solid var(--blue)}
+  .btn.primary{background:var(--blue);color:#fff}
+  .btn.primary.copied{background:var(--green);border-color:var(--green)}
+  .btn:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+  .hint{font-size:.8rem;color:var(--muted);margin-top:6px;font-style:italic}
+  footer{max-width:1180px;margin:0 auto;padding:0 20px 40px;font-size:.8rem;color:var(--muted)}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>CKD / ESRD Care Pathway &mdash; Visit Module</h1>
+  <p>Assessment &middot; Labs &middot; Medical Management &middot; Watch-Outs &middot; Symptoms &amp; E-Kit &middot; Alive Complex Care</p>
+</header>
+
+<div class="wrap">
+
+  <!-- ============ LEFT: DATA ENTRY ============ -->
+  <div>
+
+    <div class="card">
+      <h2>I. Assessment at This Visit <span class="tag">Every visit</span></h2>
+
+      <div class="q">
+        <div class="q-label">Which path is this patient on?</div>
+        <div class="q-help">Dialysis is a life-sustaining treatment. So is choosing not to. Decide early &mdash; and document it.</div>
+        <div class="opts" data-group="PATH" role="radiogroup" aria-label="Care path">
+          <button class="opt" data-val="conservative">Conservative (CCM)</button>
+          <button class="opt" data-val="dialysis">On dialysis</button>
+          <button class="opt" data-val="undecided">Not yet decided</button>
+        </div>
+      </div>
+
+      <div class="q">
+        <div class="q-label">Staging &mdash; eGFR + UACR</div>
+        <div class="q-help">eGFR describes function; UACR describes damage. Risk lives at the intersection. Every CKD patient gets both numbers.</div>
+        <div class="numrow">
+          <div class="numfield"><label>eGFR (mL/min/1.73m&sup2;)</label><input type="number" id="egfr" min="0" max="150"></div>
+          <div class="numfield"><label>UACR (mg/g)</label><input type="number" id="uacr" min="0"></div>
+          <div class="numfield"><label>KFRE 2-yr risk (%)</label><input type="number" id="kfre2" min="0" max="100"></div>
+          <div class="numfield"><label>KFRE 5-yr risk (%)</label><input type="number" id="kfre5" min="0" max="100"></div>
+        </div>
+        <div class="hint">KFRE is free at kidneyfailurerisk.com (age, sex, eGFR, UACR).</div>
+      </div>
+
+      <div class="q">
+        <div class="q-label">Vitals &amp; volume</div>
+        <div class="numrow">
+          <div class="numfield"><label>SBP (mmHg)</label><input type="number" id="sbp" min="50" max="260"></div>
+          <div class="numfield"><label>Weight change (lb/24h)</label><input type="number" id="wt24" step="0.5"></div>
+          <div class="numfield"><label>Weight change (lb/week)</label><input type="number" id="wtwk" step="0.5"></div>
+        </div>
+        <div class="subhead">Volume findings</div>
+        <div class="grid2" id="volume">
+          <button class="chk" data-txt="JVD">JVD<span></span></button>
+          <button class="chk" data-txt="peripheral edema">Peripheral edema<span></span></button>
+          <button class="chk" data-txt="crackles">Crackles<span></span></button>
+          <button class="chk red" data-txt="new dyspnea / orthopnea">New dyspnea / orthopnea<span></span></button>
+        </div>
+      </div>
+
+      <div class="q">
+        <div class="q-label">Most recent labs <span style="font-weight:normal;color:var(--muted);font-size:.85rem">&mdash; enter only what you have</span></div>
+        <div class="q-help">Labs are drawn on the surveillance cadence, <em>not</em> at every visit. Leave blank if not recently drawn &mdash; the plan will show when the next draw is due. Targets: HCO&#8323; &ge; 22 &middot; Phos &le; 4.5 &middot; Hgb 10&ndash;11 (do not normalize).</div>
+        <div class="numrow">
+          <div class="numfield"><label>K&#8314; (mEq/L)</label><input type="number" id="kplus" step="0.1" min="2" max="9"></div>
+          <div class="numfield"><label>HCO&#8323; / bicarb (mEq/L)</label><input type="number" id="hco3" step="0.1" min="5" max="40"></div>
+          <div class="numfield"><label>Phos (mg/dL)</label><input type="number" id="phos" step="0.1" min="1" max="15"></div>
+          <div class="numfield"><label>Hgb (g/dL)</label><input type="number" id="hgb" step="0.1" min="3" max="20"></div>
+          <div class="numfield"><label>Hct (%)</label><input type="number" id="hct" step="0.1" min="10" max="60"></div>
+        </div>
+        <div class="subhead">Iron studies (screen from CKD stage 3)</div>
+        <div class="numrow">
+          <div class="numfield"><label>TSAT (%)</label><input type="number" id="tsat" step="1" min="0" max="100"></div>
+          <div class="numfield"><label>Ferritin (ng/mL)</label><input type="number" id="ferritin" step="1" min="0" max="5000"></div>
+        </div>
+        <div class="subhead">Trend flags</div>
+        <div class="grid2" id="trendflags">
+          <button class="chk" data-txt="phos elevated on repeat (persistent hyperphosphatemia)">Phos elevated on repeat (persistent)<span></span></button>
+          <button class="chk" data-txt="anemia symptomatic (fatigue, exertional dyspnea, angina)">Anemia symptomatic<span></span></button>
+          <button class="chk" data-txt="failed 3-month PO iron trial or intolerant">Failed/intolerant PO iron trial<span></span></button>
+        </div>
+      </div>
+
+      <div class="q" id="access-q">
+        <div class="q-label">Dialysis access &amp; sessions</div>
+        <div class="q-help">Inspect the fistula or PD catheter at every visit.</div>
+        <div class="grid2" id="access">
+          <button class="chk red" data-txt="fistula thrill/bruit LOST">Fistula thrill / bruit lost<span></span></button>
+          <button class="chk red" data-txt="access site infection or pain">Access site infection or pain<span></span></button>
+          <button class="chk red" data-txt="missed dialysis session">Missed dialysis session<span></span></button>
+          <button class="chk" data-txt="access intact, thrill present">Access intact, thrill present<span></span></button>
+        </div>
+        <div class="numrow" style="margin-top:8px">
+          <div class="numfield"><label>Interdialytic wt gain (kg)</label><input type="number" id="idwg" step="0.1" min="0" max="10"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>II. Symptoms <span class="tag">Burden rivals cancer</span></h2>
+      <div class="q">
+        <div class="q-help">Symptom burden in advanced CKD rivals metastatic cancer. Check what is present today.</div>
+        <div class="grid2" id="symptoms">
+          <button class="chk" data-txt="fatigue">Fatigue (70%)<span></span></button>
+          <button class="chk" data-txt="insomnia">Insomnia (57%)<span></span></button>
+          <button class="chk" data-txt="muscle cramping">Muscle cramping (53%)<span></span></button>
+          <button class="chk" data-txt="pruritus">Pruritus (51%)<span></span></button>
+          <button class="chk" data-txt="cognitive impairment">Cognitive impairment (51%)<span></span></button>
+          <button class="chk" data-txt="depression">Depression (40%)<span></span></button>
+          <button class="chk" data-txt="pain">Pain<span></span></button>
+          <button class="chk red" data-txt="anorexia / weight loss (uremic)">Anorexia / weight loss<span></span></button>
+          <button class="chk red" data-txt="increasing somnolence / cognitive slowing (uremic)">Increasing somnolence<span></span></button>
+          <button class="chk" data-txt="nausea">Nausea<span></span></button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>III. Medical Management <span class="tag">Both arms</span></h2>
+
+      <div id="cons-block">
+        <div class="subhead">Conservative &mdash; the four pillars (KDIGO 2024)</div>
+        <div class="grid2" id="pillars">
+          <button class="chk" data-txt="RAS inhibitor (ACE/ARB)">Pillar 1 &mdash; RAS (ACE/ARB)<span></span></button>
+          <button class="chk" data-txt="SGLT2 inhibitor">Pillar 2 &mdash; SGLT2i<span></span></button>
+          <button class="chk" data-txt="GLP-1 RA">Pillar 3 &mdash; GLP-1 RA<span></span></button>
+          <button class="chk" data-txt="finerenone">Pillar 4 &mdash; finerenone<span></span></button>
+        </div>
+        <div class="hint">Initiate simultaneously rather than sequentially. CONFIDENCE 2025: SGLT2i + finerenone together reduced UACR 52%.</div>
+        <div class="subhead">Eligibility flags</div>
+        <div class="grid2" id="elig">
+          <button class="chk" data-txt="type 2 diabetes">Type 2 diabetes<span></span></button>
+          <button class="chk" data-txt="heart failure">Heart failure<span></span></button>
+        </div>
+      </div>
+
+      <div id="dial-block">
+        <div class="subhead">Dialysis &mdash; complication management</div>
+        <div class="grid2" id="dialmgmt">
+          <button class="chk" data-txt="anemia managed (Hgb goal 10-11)">Anemia addressed (goal 10&ndash;11)<span></span></button>
+          <button class="chk" data-txt="mineral-bone disease addressed">MBD addressed (Phos &le; 4.5)<span></span></button>
+          <button class="chk" data-txt="dry weight / IDWG reviewed">Dry weight / IDWG reviewed<span></span></button>
+          <button class="chk" data-txt="drug dosing around HD reviewed">Dosing around HD reviewed<span></span></button>
+        </div>
+      </div>
+
+      <div class="subhead">Watch-out medications present</div>
+      <div class="grid2" id="watchmeds">
+        <button class="chk red" data-txt="NSAID">NSAID (incl. topical)<span></span></button>
+        <button class="chk red" data-txt="morphine / codeine / meperidine / tramadol">Morphine/codeine/meperidine/tramadol<span></span></button>
+        <button class="chk" data-txt="TMP-SMX">TMP-SMX<span></span></button>
+        <button class="chk" data-txt="gabapentin/pregabalin not renally dosed">Gabapentin not renally dosed<span></span></button>
+        <button class="chk" data-txt="PPI">PPI<span></span></button>
+        <button class="chk" data-txt="salt substitute (KCl)">Salt substitute (KCl)<span></span></button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>IV. Hyperkalemia Workup <span class="tag">Keep the drug</span></h2>
+      <div class="q">
+        <div class="q-help">Persistent K&#8314; &gt; 5.5 is the most common reason to stop RAS/MRA &mdash; and usually the wrong choice. Work up the K&#8314; first.</div>
+        <div class="subhead">Before stopping the drug &mdash; checked</div>
+        <div class="grid2" id="kworkup">
+          <button class="chk" data-txt="hemolyzed sample excluded (repeat)">Hemolyzed sample excluded<span></span></button>
+          <button class="chk" data-txt="dietary K load reviewed">Dietary K load reviewed<span></span></button>
+          <button class="chk" data-txt="other drugs reviewed (TMP-SMX, NSAIDs, beta-blocker, heparin)">Other drugs reviewed<span></span></button>
+          <button class="chk" data-txt="metabolic acidosis addressed">Metabolic acidosis addressed<span></span></button>
+          <button class="chk" data-txt="constipation treated">Constipation treated<span></span></button>
+          <button class="chk" data-txt="volume status restored">Volume status restored<span></span></button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>V. E-Kit <span class="tag">Stock the home</span></h2>
+      <div class="q">
+        <div class="q-label">E-kit status</div>
+        <div class="opts" data-group="EKIT" role="radiogroup" aria-label="E-kit status">
+          <button class="opt" data-val="none">Not in place</button>
+          <button class="opt" data-val="ordered">Ordered today</button>
+          <button class="opt" data-val="current">In place &amp; current</button>
+          <button class="opt" data-val="refresh">Needs refresh</button>
+        </div>
+      </div>
+      <div class="q">
+        <div class="subhead">Contents</div>
+        <div class="grid2" id="ekit-contents">
+          <button class="chk" data-txt="loop diuretic at 2x home dose">Loop diuretic (2&times; home dose)<span></span></button>
+          <button class="chk" data-txt="K+ binder (patiromer 8.4 g or SZC 10 g)">K&#8314; binder (patiromer/SZC)<span></span></button>
+          <button class="chk" data-txt="gabapentin 100 mg">Gabapentin 100 mg<span></span></button>
+          <button class="chk" data-txt="hydromorphone 1-2 mg">Hydromorphone 1&ndash;2 mg<span></span></button>
+          <button class="chk" data-txt="lorazepam 0.5-1 mg SL/PO">Lorazepam 0.5&ndash;1 mg<span></span></button>
+          <button class="chk" data-txt="glycopyrrolate / atropine">Glycopyrrolate / atropine<span></span></button>
+        </div>
+        <div class="subhead">Teaching</div>
+        <div class="grid2">
+          <button class="chk" id="ekit-teach" data-txt="">Family teaching completed<span></span></button>
+          <button class="chk" id="ekit-algo" data-txt="">Symptom algorithm reviewed<span></span></button>
+          <button class="chk" id="ekit-call" data-txt="">"When to call" list posted<span></span></button>
+          <button class="chk" id="ekit-diary" data-txt="">Daily BP/weight diary in place<span></span></button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>VI. Goals &amp; ACP <span class="tag">Talk early</span></h2>
+      <div class="q">
+        <div class="q-label">Code status</div>
+        <div class="opts" data-group="CODE" role="radiogroup" aria-label="Code status">
+          <button class="opt" data-val="Full code">Full code</button>
+          <button class="opt" data-val="DNR/DNI">DNR/DNI</button>
+          <button class="opt" data-val="Comfort-focused">Comfort-focused</button>
+          <button class="opt" data-val="notdoc">Not documented</button>
+        </div>
+      </div>
+      <div class="q">
+        <div class="numrow">
+          <div class="numfield" style="flex:1"><label>Healthcare surrogate</label><input type="text" id="pref-surr" class="textfield" placeholder="Name / relationship"></div>
+        </div>
+      </div>
+      <div class="q">
+        <div class="numrow">
+          <div class="numfield" style="flex:1"><label>Dialysis withdrawal threshold discussed (document)</label><input type="text" id="pref-withdraw" class="textfield" placeholder="e.g., would stop HD if...">
+          </div>
+        </div>
+      </div>
+      <div class="q">
+        <div class="grid2">
+          <button class="chk" id="acp-path" data-txt="">Path decision documented (CCM vs. dialysis)<span></span></button>
+          <button class="chk" id="acp-polst" data-txt="">POLST / advance directive on file<span></span></button>
+          <button class="chk" id="acp-goc" data-txt="">Goals-of-care conversation today<span></span></button>
+          <button class="chk" id="acp-nephro" data-txt="">Nephrology looped in<span></span></button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>VII. Disposition &amp; Interventions</h2>
+      <div class="q">
+        <div class="q-label">Disposition</div>
+        <div class="opts" data-group="DISPO" role="radiogroup" aria-label="Disposition">
+          <button class="opt" data-val="routine">Routine &mdash; continue pathway</button>
+          <button class="opt" data-val="manage">Manage in place (E-kit)</button>
+          <button class="opt" data-val="escalate">Escalate &mdash; nephrology / ED</button>
+          <button class="opt" data-val="hospice">Hospice / dialysis withdrawal</button>
+        </div>
+      </div>
+      <div class="subhead">Provider-selected additions</div>
+      <div class="pills" id="interventions">
+        <button class="pill" data-int="Dietitian referral (low-K diet)">Dietitian referral</button>
+        <button class="pill" data-int="Social work referral">Social work</button>
+        <button class="pill" data-int="Chaplain referral">Chaplain</button>
+        <button class="pill" data-int="Vascular access referral">Vascular access</button>
+        <button class="pill" data-int="Transplant evaluation">Transplant eval</button>
+        <button class="pill" data-int="Home health / PT">Home health / PT</button>
+        <button class="pill" data-int="Depression treatment initiated (sertraline 25-200 mg/day)">Treat depression</button>
+      </div>
+      <div class="hint">All Alive CKD/ESRD patients are co-managed by palliative care &mdash; that is the pathway, not an option.</div>
+      <div class="btnrow">
+        <button class="btn primary" id="copy-btn" onclick="copySummary()">Copy care plan</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ RIGHT: RESULTS ============ -->
+  <div class="results">
+    <div class="card">
+      <h2>Visit Summary &amp; Plan</h2>
+
+      <div class="dispo-banner" id="dispo-banner">
+        <div class="big" id="dispo-big"></div>
+        <div class="sub" id="dispo-sub"></div>
+      </div>
+
+      <div class="risk-badge" id="risk-badge"></div>
+
+      <div id="alerts-note"></div>
+
+      <div class="plan">
+        <p class="empty-note" id="plan-empty">Enter eGFR and UACR for KDIGO risk staging. Select a disposition to generate the care plan.</p>
+        <div id="plan-content"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  For clinical decision support only; does not replace provider judgment. Based on the Alive Clinical Guideline Series: CKD / ESRD Care Pathway (KDIGO 2024; FLOW &mdash; Perkovic NEJM 2024; CONFIDENCE &mdash; Agarwal NEJM 2025; Cochrane CKM 2025; KFRE &mdash; Tangri). This tool stores no patient data.
+</footer>
+
+<script>
+const state = { PATH:null, EKIT:null, CODE:null, DISPO:null, ints:{} };
+
+document.querySelectorAll('.opts').forEach(group=>{
+  const key = group.dataset.group;
+  group.querySelectorAll('.opt').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      group.querySelectorAll('.opt').forEach(b=>b.classList.remove('sel'));
+      btn.classList.add('sel');
+      state[key] = btn.dataset.val;
+      render();
+    });
+  });
+});
+document.querySelectorAll('.chk').forEach(btn=>{
+  btn.addEventListener('click', ()=>{ btn.classList.toggle('sel'); render(); });
+});
+document.querySelectorAll('#interventions .pill').forEach(p=>{
+  p.addEventListener('click', ()=>{
+    p.classList.toggle('sel');
+    state.ints[p.dataset.int] = p.classList.contains('sel');
+    render();
+  });
+});
+['egfr','uacr','kfre2','kfre5','sbp','wt24','wtwk','kplus','hgb','hct','phos','hco3','tsat','ferritin','idwg','pref-surr','pref-withdraw']
+  .forEach(id=>document.getElementById(id).addEventListener('input', render));
+
+const num = id => { const v=document.getElementById(id).value; return v===''?null:parseFloat(v); };
+const isSel = id => document.getElementById(id).classList.contains('sel');
+const checked = sel => Array.from(document.querySelectorAll(sel)).filter(b=>b.classList.contains('sel'));
+const txts = sel => checked(sel).map(b=>b.dataset.txt);
+
+function gStage(e){
+  if(e===null) return null;
+  if(e>=90) return 'G1'; if(e>=60) return 'G2'; if(e>=45) return 'G3a';
+  if(e>=30) return 'G3b'; if(e>=15) return 'G4'; return 'G5';
+}
+function aStage(u){
+  if(u===null) return null;
+  if(u<30) return 'A1'; if(u<=300) return 'A2'; return 'A3';
+}
+const HEAT = {
+  G1:{A1:'Low',A2:'Moderate',A3:'High'},
+  G2:{A1:'Low',A2:'Moderate',A3:'High'},
+  G3a:{A1:'Moderate',A2:'High',A3:'Very high'},
+  G3b:{A1:'High',A2:'Very high',A3:'Very high'},
+  G4:{A1:'Very high',A2:'Very high',A3:'Very high'},
+  G5:{A1:'Very high',A2:'Very high',A3:'Very high'}
+};
+const RISK_ACTION = {
+  'Low':'Annual monitoring; lifestyle.',
+  'Moderate':'Monitor every 6 months; ACE/ARB if proteinuric.',
+  'High':'Monitor every 3–6 months; SGLT2i; nephrology referral.',
+  'Very high':'Nephrology co-management; use KFRE for KRT / CCM planning.'
+};
+
+function kdigoRisk(){
+  const g=gStage(num('egfr')), a=aStage(num('uacr'));
+  if(!g||!a) return null;
+  return {g,a,risk:HEAT[g][a]};
+}
+
+function renderRisk(){
+  const el=document.getElementById('risk-badge');
+  const r=kdigoRisk();
+  if(!r){ el.className='risk-badge'; el.innerHTML=''; return; }
+  const cls={'Low':'risk-low','Moderate':'risk-mod','High':'risk-high','Very high':'risk-vhigh'}[r.risk];
+  el.className='risk-badge show '+cls;
+  el.innerHTML='<b>KDIGO '+r.g+' / '+r.a+' &mdash; '+r.risk+' risk</b><br>'+RISK_ACTION[r.risk];
+}
+
+function buildAlerts(){
+  const A=[];
+  const e=num('egfr'), k=num('kplus'), w24=num('wt24'), wwk=num('wtwk'),
+        k2=num('kfre2'), k5=num('kfre5'), sbp=num('sbp'), hgb=num('hgb'),
+        hct=num('hct'), phos=num('phos'), hco3=num('hco3'), idwg=num('idwg');
+
+  if(isSel2('#access','fistula thrill/bruit LOST'))
+    A.push(['ed','<b>Lost fistula thrill</b> &mdash; possible thrombosis. Same-day vascular access call; a thrombosed fistula loses dialysis quickly. Tunneled catheter is the bridge.']);
+  if(isSel2('#access','missed dialysis session'))
+    A.push(['ed','<b>Missed dialysis session</b> &mdash; call patient/center within 24 hours. The missed session is the warning sign.']);
+  if(isSel2('#access','access site infection or pain'))
+    A.push(['ed','<b>Access site infection or pain</b> &mdash; same-day vascular access evaluation.']);
+
+  if(k!==null && k>=5.5)
+    A.push(['ed','<b>K&#8314; '+k+' &mdash; hyperkalemia.</b> Work up the K&#8314; before stopping RAS/MRA. Most patients benefit from a binder rather than discontinuation. Call nephrology before stopping the drug.']);
+  else if(k!==null && k>5.0)
+    A.push(['note','<b>K&#8314; '+k+'</b> &mdash; borderline. Review dietary load, salt substitutes, and contributing drugs.']);
+
+  if(w24!==null && w24>=3)
+    A.push(['ed','<b>Weight up '+w24+' lb/24h</b> &mdash; volume overload. Tighten fluid + Na restriction; increase loop diuretic (non-dialysis) or call center for ultrafiltration (HD).']);
+  if(wwk!==null && wwk>5)
+    A.push(['note','<b>Weight up '+wwk+' lb this week</b> &mdash; call threshold met even without symptoms.']);
+  if(isSel2('#volume','new dyspnea / orthopnea'))
+    A.push(['ed','<b>New dyspnea / orthopnea</b> &mdash; assess for pulmonary edema. Same-day plan to avoid hospitalization where possible.']);
+
+  if(e!==null && e<15)
+    A.push(['note','<b>eGFR &lt; 15</b> &mdash; trigger the pre-emptive KRT / CCM discussion now.']);
+  if(k2!==null && k2>40)
+    A.push(['note','<b>KFRE 2-yr risk '+k2+'%</b> &mdash; &gt; 40% triggers pre-emptive KRT / CCM discussion.']);
+  if(k5!==null && k5>=10 && !isSel('acp-nephro'))
+    A.push(['note','<b>KFRE 5-yr risk '+k5+'%</b> &mdash; &ge; 10% warrants nephrology referral. Make the introduction early.']);
+
+  if(isSel2('#symptoms','increasing somnolence / cognitive slowing (uremic)') || isSel2('#symptoms','anorexia / weight loss (uremic)'))
+    A.push(['note','<b>Uremic warning signs</b> &mdash; anorexia is often the first; somnolence is late. Reassess goals and hold the family conversation about what comes next.']);
+
+  if(isSel2('#watchmeds','NSAID'))
+    A.push(['ed','<b>NSAID in a CKD patient</b> &mdash; avoid in all CKD, including topical for chronic use. Use acetaminophen first.']);
+  if(isSel2('#watchmeds','morphine / codeine / meperidine / tramadol'))
+    A.push(['ed','<b>Contraindicated opioid</b> &mdash; active metabolites accumulate (sedation, respiratory depression, seizures). Switch to hydromorphone or fentanyl.']);
+  if(isSel2('#watchmeds','salt substitute (KCl)') && k!==null && k>=5.0)
+    A.push(['note','<b>Salt substitute + elevated K&#8314;</b> &mdash; salt substitutes are KCl. Stop and recheck.']);
+
+  if(sbp!==null && sbp>=120 && state.PATH!=='dialysis')
+    A.push(['note','<b>SBP '+sbp+'</b> &mdash; KDIGO 2024 target is SBP &lt; 120 (standardized measurement).']);
+  if(idwg!==null && idwg>=3)
+    A.push(['note','<b>Interdialytic weight gain '+idwg+' kg</b> &mdash; goal &lt; 3 kg. Review fluid restriction (often 1.5 L/day).']);
+  if(hgb!==null && hgb<10)
+    A.push(['note','<b>Hgb '+hgb+' &mdash; anemia of CKD.</b> Goal 10&ndash;11 g/dL &mdash; normalizing harms (TREAT). Check TSAT + ferritin: iron deficiency is the usual driver, not just EPO.']);
+  else if(hct!==null && hct<30)
+    A.push(['note','<b>Hct '+hct+'%</b> &mdash; corresponds to Hgb &lt; ~10. Check TSAT + ferritin; goal Hgb 10&ndash;11.']);
+  if(phos!==null && phos>4.5 && !isSel2('#trendflags','phos elevated on repeat (persistent hyperphosphatemia)'))
+    A.push(['note','<b>Phos '+phos+'</b> &mdash; above goal (&le; 4.5) on this check. Diet first; recheck. A binder is indicated for <b>persistent</b> hyperphosphatemia, not a single value.']);
+  if(isSel2('#trendflags','phos elevated on repeat (persistent hyperphosphatemia)'))
+    A.push(['ed','<b>Persistent hyperphosphatemia</b> &mdash; start a binder: calcium acetate, sevelamer, or ferric citrate. If iron-deficient too, ferric citrate does both.']);
+  if(hco3!==null && hco3<22)
+    A.push(['ed','<b>HCO&#8323; '+hco3+' &lt; 22 &mdash; start sodium bicarbonate.</b> Corrects the acidosis and lowers K&#8314;.']);
+
+  return A;
+}
+function isSel2(scope, txt){
+  return Array.from(document.querySelectorAll(scope+' .chk'))
+    .some(b=>b.dataset.txt===txt && b.classList.contains('sel'));
+}
+
+function buildPlanLines(){
+  const core=[], labs=[], meds=[], watch=[], sx=[], ekit=[], acp=[], chosen=[];
+  const e=num('egfr'), k=num('kplus'), r=kdigoRisk();
+  const path=state.PATH;
+
+  // Disposition core
+  if(state.DISPO==='routine'){
+    core.push({t:'Continue pathway on the '+(path==='dialysis'?'dialysis':path==='conservative'?'conservative (CCM)':'undecided')+' arm; same disciplined visit next time', c:''});
+  } else if(state.DISPO==='manage'){
+    core.push({t:'Manage in place using the E-kit; reassess in 24 hours', c:'flagged'});
+    core.push({t:'If unchanged at 24 h, escalate per symptom algorithm', c:'flagged'});
+  } else if(state.DISPO==='escalate'){
+    core.push({t:'Same-day nephrology call; coordinate plan to avoid hospitalization where possible', c:'urgent'});
+  } else if(state.DISPO==='hospice'){
+    core.push({t:'Hospice referral / dialysis withdrawal pathway initiated', c:'urgent'});
+    core.push({t:'After dialysis withdrawal: expect 4–10 days. Metabolic acidosis induces somnolence before terminal arrhythmia — most die peacefully in sleep', c:''});
+    core.push({t:'Add gabapentin (pruritus), fentanyl patch (pain/dyspnea), and a bowel regimen; family teaching on the timeline', c:'flagged'});
+    core.push({t:'CMMI Kidney Care Choices Model allows concurrent dialysis and hospice — verify eligibility', c:''});
+  }
+  if(r){ core.push({t:'KDIGO '+r.g+'/'+r.a+' — '+r.risk+' risk. '+RISK_ACTION[r.risk], c:r.risk==='Very high'?'flagged':''}); }
+
+  // Labs
+  if(path==='dialysis'){
+    labs.push({t:'BMP weekly at HD (coordinate with center); CBC + iron monthly; Ca/Phos monthly; PTH q3 months; albumin monthly', c:''});
+  } else if(e!==null && e<15){
+    labs.push({t:'Advanced (G5 / CCM): BMP every 4 weeks; CBC + iron q4–8 weeks; Ca/Phos/PTH q1–3 months; albumin q1–3 months', c:''});
+  } else if(e!==null && e<60){
+    labs.push({t:'Stable CKD (G3–G4): BMP q3–6 months; UACR q6–12 months; CBC + iron q6 months; Ca/Phos/PTH q6 months (q3 for G4); albumin q6 months', c:''});
+  }
+  labs.push({t:'Always: BMP before/after any new ACEi/ARB/MRA/SGLT2i; sick-day BMP for D&V or NPO', c:''});
+  if(num('kfre5')===null && num('kfre2')===null && e!==null && e<45)
+    labs.push({t:'Calculate KFRE (kidneyfailurerisk.com) to time the nephrology conversation', c:'flagged'});
+
+  // --- Acidosis: sodium bicarbonate rule (DST CKD) ---
+  const hco3v=num('hco3'), phosv=num('phos'), hgbv=num('hgb'), hctv=num('hct'),
+        tsatv=num('tsat'), ferrv=num('ferritin');
+  if(hco3v!==null){
+    if(hco3v<22) meds.push({t:'Metabolic acidosis (HCO₃ '+hco3v+' < 22) → START sodium bicarbonate. Corrects the acidosis and lowers K⁺', c:'urgent'});
+    else meds.push({t:'HCO₃ '+hco3v+' — at goal (≥ 22); no bicarbonate indicated', c:''});
+  }
+
+  // --- Phos binder rule (DST CKD): start for PERSISTENT hyperphosphatemia ---
+  const phosPersist = isSel2('#trendflags','phos elevated on repeat (persistent hyperphosphatemia)');
+  if(phosv!==null || phosPersist){
+    if(phosv!==null && phosv<=4.5 && !phosPersist){
+      meds.push({t:'Phos '+phosv+' — at goal (≤ 4.5); no binder indicated', c:''});
+    } else if(phosPersist){
+      meds.push({t:'PERSISTENT hyperphosphatemia'+(phosv!==null?' (phos '+phosv+')':'')+' → START a phosphate binder: calcium acetate, sevelamer, or ferric citrate', c:'urgent'});
+      meds.push({t:'If also iron-deficient, ferric citrate does double duty — binder + oral iron', c:''});
+      meds.push({t:'Diet: limit phosphate-additive foods (processed foods, sodas)', c:''});
+    } else {
+      meds.push({t:'Phos '+phosv+' — above goal (≤ 4.5) on a single check. Diet first (limit phosphate additives); recheck. Binders are for PERSISTENT hyperphosphatemia, not one value', c:'flagged'});
+    }
+  }
+
+  // --- Anemia / iron rule (DST CKD) ---
+  const stage3plus = (e!==null && e<60);
+  const shown = [hgbv!==null?('Hgb '+hgbv):null, hctv!==null?('Hct '+hctv+'%'):null].filter(Boolean).join(' / ');
+  const anemic = (hgbv!==null && hgbv<10) || (hgbv===null && hctv!==null && hctv<30);
+  if(hgbv!==null && hgbv>11.5)
+    meds.push({t:shown+' — above the 10–11 goal. Do NOT normalize; normalizing Hgb harms patients (TREAT). Reassess ESA/iron dosing', c:'flagged'});
+  else if(anemic || (stage3plus && (tsatv!==null||ferrv!==null))){
+    if(tsatv===null && ferrv===null){
+      meds.push({t:shown+' — check iron studies (TSAT + ferritin). Iron deficiency is the usual driver in CKD, not just EPO deficiency', c:'flagged'});
+    } else {
+      const absolute = (tsatv!==null && tsatv<20) || (ferrv!==null && ferrv<100);
+      const functional = (tsatv!==null && tsatv<30) && (ferrv!==null && ferrv<500);
+      const sxAnemia = isSel2('#trendflags','anemia symptomatic (fatigue, exertional dyspnea, angina)');
+      const failedPO = isSel2('#trendflags','failed 3-month PO iron trial or intolerant');
+      const idType = absolute ? 'ABSOLUTE iron deficiency (TSAT < 20% or ferritin < 100)'
+                   : functional ? 'FUNCTIONAL iron deficiency (TSAT < 30% and ferritin < 500)' : null;
+      if(idType){
+        meds.push({t:idType+(tsatv!==null?' — TSAT '+tsatv+'%':'')+(ferrv!==null?', ferritin '+ferrv:''), c:'flagged'});
+        if(sxAnemia || anemic){
+          if(failedPO || path==='dialysis'){
+            meds.push({t:'→ IV iron (failed/intolerant PO'+(path==='dialysis'?', or on HD':'')+'): ferric carboxymaltose, ferumoxytol, or iron isomaltoside. Goal 1,000 mg total iron', c:'urgent'});
+          } else {
+            meds.push({t:'→ Trial PO iron first: ferrous sulfate QOD (~$3.50/month, least constipating). Alternatives with better absorption: ferric citrate (also a binder) or ferric maltol', c:'urgent'});
+            meds.push({t:'Counsel on GI effects — number needed to constipate is 10. Switch to IV if 3-month PO trial fails, intolerance, or severe at presentation', c:''});
+          }
+        } else {
+          meds.push({t:'Iron deficiency present but anemia not symptomatic — treat if symptomatic (fatigue, exertional dyspnea, angina). Goal Hgb 10–11', c:''});
+        }
+      } else {
+        meds.push({t:'Iron studies'+(tsatv!==null?' TSAT '+tsatv+'%':'')+(ferrv!==null?', ferritin '+ferrv:'')+' — no absolute or functional iron deficiency by criteria', c:''});
+      }
+    }
+  } else if(shown){
+    meds.push({t:shown+' — at goal (Hgb 10–11)', c:''});
+  }
+  if(stage3plus && tsatv===null && ferrv===null && !anemic)
+    labs.push({t:'Iron-deficiency screening starts at CKD stage 3 — add TSAT + ferritin to the next draw', c:'flagged'});
+
+  // Meds
+  if(path==='conservative' || path==='undecided'){
+    const have = txts('#pillars .chk');
+    const dm = isSel2('#elig','type 2 diabetes'), hf = isSel2('#elig','heart failure');
+    if(!have.includes('RAS inhibitor (ACE/ARB)'))
+      meds.push({t:'Pillar 1 — start/up-titrate RAS inhibitor (all CKD with HTN or UACR ≥ 30). Tolerate a 30% Cr bump', c:'flagged'});
+    else meds.push({t:'Pillar 1 — RAS inhibitor in place; up-titrate as tolerated', c:''});
+    if(!have.includes('SGLT2 inhibitor')){
+      if((e===null||e>=20) && (num('uacr')===null||num('uacr')>=200||hf))
+        meds.push({t:'Pillar 2 — start SGLT2i (dapa/empa 10 mg daily): eGFR ≥ 20 + UACR ≥ 200, or heart failure. Reduces kidney failure by ~⅓', c:'flagged'});
+      else meds.push({t:'Pillar 2 — SGLT2i: confirm eligibility (eGFR ≥ 20 + UACR ≥ 200, or HF)', c:'flagged'});
+    } else {
+      meds.push({t:'Pillar 2 — SGLT2i in place'+(e!==null&&e<20?'; continue below eGFR 20 until KRT':''), c:''});
+    }
+    if(dm && !have.includes('GLP-1 RA'))
+      meds.push({t:'Pillar 3 — consider GLP-1 RA (semaglutide 0.25 → 2.0 mg weekly): T2D + CKD. FLOW: ↓ MAKE 24%, ↓ mortality 20%', c:'flagged'});
+    else if(have.includes('GLP-1 RA')) meds.push({t:'Pillar 3 — GLP-1 RA in place; watch GI effects during titration', c:''});
+    if(dm && !have.includes('finerenone'))
+      meds.push({t:'Pillar 4 — consider finerenone (10 → 20 mg daily): T2D + UACR ≥ 30 + eGFR ≥ 25 + K⁺ ≤ 4.8 on max RAS', c:'flagged'});
+    else if(have.includes('finerenone')) meds.push({t:'Pillar 4 — finerenone in place', c:''});
+    if(have.includes('SGLT2 inhibitor') && have.includes('finerenone'))
+      meds.push({t:'CONFIDENCE 2025: simultaneous SGLT2i + finerenone reduced UACR 52% — ~30% more than either alone (ADA 2026 Grade B)', c:''});
+    if(num('sbp')!==null && num('sbp')>=120)
+      meds.push({t:'BP target SBP < 120 (KDIGO 2024, standardized measurement)', c:'flagged'});
+  }
+  if(path==='dialysis'){
+    const dm2 = txts('#dialmgmt .chk');
+    if(!dm2.includes('anemia managed (Hgb goal 10-11)')) meds.push({t:'Anemia: PO iron first (ferrous sulfate QOD); IV iron at HD if PO fails; ESA if Hgb persistently < 10. Goal 10–11 g/dL', c:'flagged'});
+    if(!dm2.includes('mineral-bone disease addressed')) meds.push({t:'MBD: phos binders (sevelamer, ferric citrate, calcium acetate); active vit D; cinacalcet for refractory ↑ PTH. Phos ≤ 4.5; PTH 2–9× ULN', c:'flagged'});
+    if(!dm2.includes('dry weight / IDWG reviewed')) meds.push({t:'Volume/BP: review dry weight; goal IDWG < 3 kg; SBP < 140 pre-HD; fluid restriction often 1.5 L/day', c:'flagged'});
+    if(!dm2.includes('drug dosing around HD reviewed')) meds.push({t:'Check eGFR + dialyzability of every new prescription; many drugs (gabapentin, some antibiotics) dose post-HD', c:'flagged'});
+    meds.push({t:'Coordinate with HD center: standing orders, monthly labs, access, vaccines, vitamin D', c:''});
+  }
+
+  // Watch-out meds
+  txts('#watchmeds .chk').forEach(m=>{
+    const fix = {
+      'NSAID':'Avoid in all CKD — afferent vasoconstriction → AKI + progression. Use APAP first',
+      'morphine / codeine / meperidine / tramadol':'Stop — active metabolites accumulate. Use hydromorphone or fentanyl',
+      'TMP-SMX':'Use with care — pseudo-AKI + true hyperK with ACE/ARB. Cephalexin or nitrofurantoin if eGFR allows',
+      'gabapentin/pregabalin not renally dosed':'Dose-adjust: 100 mg q HS in advanced CKD; 100 mg post-HD in dialysis. Watch sedation and falls',
+      'PPI':'Reassess — linked to AKI, AIN, hypoMg, B12 deficiency. Step down to H2 blocker if able; check Mg if continued',
+      'salt substitute (KCl)':'Stop — salt substitutes are potassium chloride'
+    }[m];
+    watch.push({t:m+' — '+fix, c:'urgent'});
+  });
+
+  // Hyperkalemia
+  if(k!==null && k>=5.5){
+    const done = txts('#kworkup .chk');
+    const all = ['hemolyzed sample excluded (repeat)','dietary K load reviewed','other drugs reviewed (TMP-SMX, NSAIDs, beta-blocker, heparin)','metabolic acidosis addressed','constipation treated','volume status restored'];
+    all.filter(x=>!done.includes(x)).forEach(x=>watch.push({t:'Hyperkalemia workup outstanding: '+x, c:'flagged'}));
+    watch.push({t:'Keep the drug — treat the K⁺: low-K diet; NaHCO₃ if HCO₃ < 22; loop diuretic if non-anuric; patiromer (watch Mg, 3 h spacing) or SZC (faster onset)', c:'urgent'});
+    watch.push({t:'AVOID SPS / kayexalate — bowel ischemia risk, especially in nursing home patients', c:'urgent'});
+    watch.push({t:'Call nephrology before stopping RAS/MRA', c:'urgent'});
+  }
+
+  // Symptoms
+  const SXRX = {
+    'fatigue':'Stepped: depression screen + treat; telehealth CBT; rule out anemia',
+    'insomnia':'Sleep hygiene; RLS workup; cautious melatonin; AVOID benzodiazepines',
+    'muscle cramping':'Gabapentin (renal-dose); address Ca/Mg; stretching. If mid/post-HD, discuss dry weight with the unit',
+    'pruritus':'Emollients; gabapentin 100–300 mg post-HD; difelikefalin (HD); address phos if elevated',
+    'cognitive impairment':'Address uremia, depression, sleep; review Beers list; remove anticholinergics',
+    'depression':'Sertraline 25–200 mg/day — superior to CBT alone in HD at 12 weeks',
+    'pain':'APAP first → hydromorphone or fentanyl → methadone or buprenorphine. NEVER morphine, codeine, meperidine, tramadol',
+    'anorexia / weight loss (uremic)':'Often the first uremic sign. Reassess goals; small frequent meals',
+    'increasing somnolence / cognitive slowing (uremic)':'Late uremic sign — revisit goals and prepare the family for what comes next',
+    'nausea':'Consider uremia; review meds; treat per GI pathway'
+  };
+  txts('#symptoms .chk').forEach(s2=>{ if(SXRX[s2]) sx.push({t:s2+' — '+SXRX[s2], c:''}); });
+
+  // E-kit
+  if(state.EKIT==='none') ekit.push({t:'Order E-kit; teaching at delivery; label with triggers; refresh quarterly', c:'flagged'});
+  else if(state.EKIT==='ordered') ekit.push({t:'E-kit ordered today; teaching at delivery', c:''});
+  else if(state.EKIT==='refresh') ekit.push({t:'Refresh E-kit contents (quarterly refresh due)', c:'flagged'});
+  else if(state.EKIT==='current') ekit.push({t:'E-kit in place and current', c:''});
+  const cont = txts('#ekit-contents .chk');
+  if(cont.length) ekit.push({t:'E-kit contents: '+cont.join('; '), c:''});
+  if(state.EKIT && state.EKIT!=='none'){
+    if(!isSel('ekit-teach')) ekit.push({t:'Complete family teaching on E-kit contents and triggers', c:'flagged'});
+    if(!isSel('ekit-algo')) ekit.push({t:'Review symptom algorithm (use, then notify team; reassess at 24 h)', c:'flagged'});
+    if(!isSel('ekit-call')) ekit.push({t:'Post "when to call" list: weight ↑ 3+ lb/24h or > 5 lb/week; missed dialysis; new dyspnea; new confusion; severe cramps; lost fistula thrill; new persistent itching', c:'flagged'});
+    if(!isSel('ekit-diary')) ekit.push({t:'Start daily diary: BP (same time), weight (same scale, morning, post-void), urine output, edema, fluid intake, symptoms', c:'flagged'});
+  }
+
+  // ACP
+  if(state.CODE==='notdoc') acp.push({t:'Document code status', c:'flagged'});
+  else if(state.CODE) acp.push({t:'Code status: '+state.CODE, c:''});
+  const surr = document.getElementById('pref-surr').value.trim();
+  if(surr) acp.push({t:'Surrogate: '+surr, c:''}); else acp.push({t:'Identify and document healthcare surrogate', c:'flagged'});
+  const wd = document.getElementById('pref-withdraw').value.trim();
+  if(wd) acp.push({t:'Dialysis withdrawal threshold: '+wd, c:''});
+  else if(path==='dialysis') acp.push({t:'Document the dialysis withdrawal threshold before it is needed', c:'flagged'});
+  if(!isSel('acp-path')) acp.push({t:'Document the path decision explicitly (conservative/CCM vs. dialysis)', c:'flagged'});
+  else acp.push({t:'Path decision documented', c:''});
+  if(!isSel('acp-polst')) acp.push({t:'POLST / advance directive not on file — complete', c:'flagged'});
+  if(isSel('acp-goc')) acp.push({t:'Goals-of-care conversation held today; documented', c:''});
+  if(isSel('acp-nephro')) acp.push({t:'Nephrology looped in', c:''});
+  if(path==='undecided') acp.push({t:'Path not yet decided — reasonable CCM candidates: ≥ 75 with frailty, advanced comorbidity, advanced dementia, or explicit choice for comfort. Dialysis at ≥ 75 buys ~78 days of survival but costs ~15 days at home', c:'flagged'});
+
+  Object.keys(state.ints).filter(k2=>state.ints[k2]).forEach(i=>chosen.push({t:i, c:'chosen'}));
+  return {core, labs, meds, watch, sx, ekit, acp, chosen};
+}
+
+function buildPlanHtml(){
+  const P = buildPlanLines();
+  const sec=(t,arr)=> arr.length ? '<h3>'+t+'</h3><ul>'+arr.map(l=>'<li class="'+l.c+'">'+l.t+'</li>').join('')+'</ul>' : '';
+  return sec('Disposition plan', P.core)
+       + sec('Labs &amp; monitoring', P.labs)
+       + sec('Medical management', P.meds)
+       + sec('Watch-outs &amp; hyperkalemia', P.watch)
+       + sec('Symptoms', P.sx)
+       + sec('E-kit', P.ekit)
+       + sec('Goals &amp; ACP', P.acp)
+       + sec('Provider-selected additions', P.chosen);
+}
+
+function render(){
+  // show/hide path-specific blocks
+  document.getElementById('access-q').style.display = state.PATH==='dialysis' ? '' : 'none';
+  document.getElementById('dial-block').style.display = state.PATH==='dialysis' ? '' : 'none';
+  document.getElementById('cons-block').style.display = (state.PATH==='dialysis') ? 'none' : '';
+
+  renderRisk();
+
+  const A=buildAlerts();
+  document.getElementById('alerts-note').innerHTML =
+    A.map(a=>'<div class="alert '+a[0]+' show">'+a[1]+'</div>').join('');
+
+  const b=document.getElementById('dispo-banner');
+  const map={
+    routine:['routine','Routine — continue pathway','Same disciplined visit next time; trends stay visible.'],
+    manage:['home','Manage in place with E-kit','Use the algorithm; reassess in 24 hours.'],
+    escalate:['ed','Escalate — nephrology / ED','Same-day call; avoid hospitalization where possible.'],
+    hospice:['hospice','Hospice / dialysis withdrawal','4–10 day timeline; comfort-focused plan.']
+  };
+  if(state.DISPO){
+    const m=map[state.DISPO];
+    b.className='dispo-banner show '+m[0];
+    document.getElementById('dispo-big').textContent=m[1];
+    document.getElementById('dispo-sub').textContent=m[2];
+  } else { b.className='dispo-banner'; }
+
+  const empty=document.getElementById('plan-empty');
+  const content=document.getElementById('plan-content');
+  if(state.DISPO){ empty.style.display='none'; content.innerHTML=buildPlanHtml(); }
+  else { empty.style.display=''; content.innerHTML=''; }
+}
+
+function stripTags(s){ const d=document.createElement('div'); d.innerHTML=s; return d.textContent; }
+
+function buildSummaryText(){
+  const L=[];
+  L.push('CKD / ESRD CARE PATHWAY VISIT SUMMARY');
+  L.push('Date: ' + new Date().toLocaleDateString());
+  L.push('');
+  const pTxt={conservative:'Conservative (CCM)',dialysis:'On dialysis',undecided:'Not yet decided'}[state.PATH];
+  if(pTxt) L.push('Path: '+pTxt);
+  const r=kdigoRisk();
+  if(r) L.push('Staging: eGFR '+num('egfr')+' ('+r.g+'), UACR '+num('uacr')+' ('+r.a+') - KDIGO '+r.risk+' risk');
+  const k2=num('kfre2'), k5=num('kfre5');
+  if(k2!==null||k5!==null) L.push('KFRE: '+(k2!==null?k2+'% at 2 yr':'')+(k2!==null&&k5!==null?'; ':'')+(k5!==null?k5+'% at 5 yr':''));
+  const vit=[]; if(num('sbp')!==null) vit.push('SBP '+num('sbp'));
+  if(num('wt24')!==null) vit.push('wt Δ '+num('wt24')+' lb/24h');
+  if(num('wtwk')!==null) vit.push('wt Δ '+num('wtwk')+' lb/wk');
+  if(num('idwg')!==null) vit.push('IDWG '+num('idwg')+' kg');
+  if(vit.length) L.push('Vitals: '+vit.join('; '));
+  const labv=[]; ['kplus','hco3','phos','hgb','hct','tsat','ferritin'].forEach(id=>{ const v=num(id); if(v!==null) labv.push({kplus:'K+',hco3:'HCO3',phos:'Phos',hgb:'Hgb',hct:'Hct',tsat:'TSAT',ferritin:'Ferritin'}[id]+' '+v+((id==='hct'||id==='tsat')?'%':'')); });
+  if(labv.length) L.push('Most recent labs: '+labv.join('; '));
+  const tf=txts('#trendflags .chk'); if(tf.length) L.push('Trend flags: '+tf.join('; '));
+  const vol=txts('#volume .chk'); if(vol.length) L.push('Volume: '+vol.join(', '));
+  const acc=txts('#access .chk'); if(acc.length && state.PATH==='dialysis') L.push('Access: '+acc.join(', '));
+  const sx=txts('#symptoms .chk'); if(sx.length) L.push('Symptoms: '+sx.join(', '));
+  const wm=txts('#watchmeds .chk'); if(wm.length) L.push('WATCH-OUT MEDS: '+wm.join(', '));
+  L.push('');
+  const dTxt={routine:'ROUTINE - CONTINUE PATHWAY',manage:'MANAGE IN PLACE WITH E-KIT',escalate:'ESCALATE - NEPHROLOGY / ED',hospice:'HOSPICE / DIALYSIS WITHDRAWAL'}[state.DISPO];
+  if(dTxt){ L.push('DISPOSITION: '+dTxt); L.push(''); }
+  if(state.DISPO){
+    const P=buildPlanLines();
+    const dump=(t,arr)=>{ if(arr.length){ L.push(t.toUpperCase()+':'); arr.forEach(l=>L.push('- '+stripTags(l.t))); L.push(''); } };
+    dump('Disposition plan',P.core); dump('Labs & monitoring',P.labs); dump('Medical management',P.meds);
+    dump('Watch-outs & hyperkalemia',P.watch); dump('Symptoms',P.sx); dump('E-kit',P.ekit);
+    dump('Goals & ACP',P.acp); dump('Provider-selected additions',P.chosen);
+  } else { L.push('(Select a disposition to generate the plan)'); }
+  while(L.length && L[L.length-1]==='') L.pop();
+  return L.join('\n');
+}
+
+function copySummary(){
+  const text=buildSummaryText(); const btn=document.getElementById('copy-btn');
+  function done(){ btn.textContent='Copied ✓'; btn.classList.add('copied');
+    setTimeout(()=>{ btn.textContent='Copy care plan'; btn.classList.remove('copied'); },2000); }
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(done).catch(()=>fallbackCopy(text,done));
+  } else { fallbackCopy(text,done); }
+}
+function fallbackCopy(text,done){
+  const ta=document.createElement('textarea');
+  ta.value=text; ta.style.position='fixed'; ta.style.opacity='0';
+  document.body.appendChild(ta); ta.select();
+  try{ document.execCommand('copy'); done(); }catch(e){ alert('Copy failed — please select and copy manually.'); }
+  document.body.removeChild(ta);
+}
+
+render();
+</script>
+</body>
+</html>
