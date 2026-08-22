@@ -549,7 +549,7 @@ function render(){
 }
 
 function buildPlanLines(){
-  const core=[], inf=[], bpsd=[], antic=[], ekit=[], acp=[], chosen=[];
+  const core=[], coord=[], inf=[], bpsd=[], antic=[], ekit=[], acp=[], chosen=[];
 
   // disposition
   if(state.DISPO==='manage'){
@@ -571,6 +571,35 @@ function buildPlanLines(){
     core.push({t:'High caregiver burden: respite care, adult day program, caregiver support group; social work referral; discuss hospice eligibility (support benefit)', c:'flagged'});
   } else if(careg==='mod'){
     core.push({t:'Moderate caregiver burden: offer respite / day program / support group; reassess at next visit', c:''});
+  }
+
+  // Anticipated coordination domains — the standing PCM plan the acute work executes within
+  {
+    const infActive = !!(state.PNEU || state.CELL || state.UTI);
+    const lateFast = state.FAST==='6' || state.FAST==='7a' || state.FAST==='7b-c' || state.FAST==='7d-f';
+    // 1. Exacerbation prevention, including intercurrent illness
+    {
+      const flg = infActive || checked('#triggers .chk').length>0;
+      coord.push({t:'<b>Exacerbation prevention (incl. intercurrent illness):</b> in dementia the "exacerbation" is the delirium or BPSD crisis — screen each contact for its precipitants (UTI, pneumonia, cellulitis, dehydration, constipation, urinary retention, untreated pain) and treat per the infection algorithms before attributing change to disease progression'+(infActive?' — active infection being managed this visit within this domain':''), c:flg?'flagged':''});
+    }
+    // 2. Medication interaction surveillance
+    {
+      const beersOn = checked('#beers .chk').map(b=>b.dataset.txt||b.textContent.trim());
+      const rxOn = state.RX && state.RX!=='none';
+      const flg = beersOn.length>0 || rxOn || (state.SUBTYPE==='LBD' && rxOn);
+      coord.push({t:'<b>Medication interaction surveillance:</b> standing review of anticholinergic burden, sedative stacking (benzo/Z-drug/opioid/antihistamine), antipsychotic QTc and class boxed warning, and cholinesterase-inhibitor bradycardia — Beers reconciliation at every med change, and every BPSD agent carries a documented 4–6 week reassessment date'+(beersOn.length?' (active Beers deprescribing in progress)':''), c:flg?'flagged':''});
+    }
+    // 3. Fall and functional risk
+    {
+      const flg = isSel('recent-falls') || !isSel('falls-assess') || lateFast || isSel('wandering-active');
+      coord.push({t:'<b>Fall &amp; functional risk:</b> track FAST trajectory and anticipate fall acceleration at FAST 6c–e; annual scored fall-risk assessment, med review after any fall, home safety and wandering precautions; PT to hold function'+(isSel('recent-falls')?' — falls since last visit make this today’s highest-priority domain':(lateFast?' (late-stage FAST — heightened surveillance)':'')), c:flg?'flagged':''});
+    }
+    // 4. Mood and adherence
+    {
+      const flg = state.CAREG==='high' || state.CAREG==='mod' || isSel('sleep-active') || checked('#bpsd-sx .chk').length>0;
+      coord.push({t:'<b>Mood &amp; adherence:</b> adherence here is caregiver-mediated — monitor caregiver burden, depression, and sleep in both patient and caregiver; distinguish depression/apathy from BPSD; simplify the regimen and route (liquids, food-mixable) so the plan survives at home'+(state.CAREG==='high'?' (high caregiver burden flagged)':''), c:flg?'flagged':''});
+    }
+    coord.push({t:'Standing coordination plan for principal care management — acute events (infection, delirium, medication problem, fall, caregiver crisis) are managed within these named domains, not as reactive tasks bolted on afterward', c:''});
   }
 
   // infections
@@ -677,13 +706,14 @@ function buildPlanLines(){
 
   Object.keys(state.ints).filter(k=>state.ints[k]).forEach(i=>chosen.push({t:i, c:'chosen'}));
 
-  return {core, inf, bpsd, antic, ekit, acp, chosen};
+  return {core, coord, inf, bpsd, antic, ekit, acp, chosen};
 }
 
 function buildPlanHtml(){
   const P = buildPlanLines();
   const sec=(title,arr)=> arr.length ? '<h3>'+title+'</h3><ul>'+arr.map(l=>'<li class="'+l.c+'">'+l.t+'</li>').join('')+'</ul>' : '';
   return sec('Disposition plan', P.core)
+       + sec('Anticipated coordination domains', P.coord)
        + sec('Infections', P.inf)
        + sec('BPSD', P.bpsd)
        + sec('Anticipatory guidance', P.antic)
@@ -723,6 +753,7 @@ function buildSummaryText(){
     const P = buildPlanLines();
     const dump=(title,arr)=>{ if(arr.length){ L.push(title.toUpperCase()+':'); arr.forEach(l=>L.push('- '+stripTags(l.t))); L.push(''); } };
     dump('Disposition plan', P.core);
+    dump('Anticipated coordination domains', P.coord);
     dump('Infections', P.inf);
     dump('BPSD', P.bpsd);
     dump('Anticipatory guidance', P.antic);

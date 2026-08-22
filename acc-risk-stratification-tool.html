@@ -762,6 +762,20 @@ function render(){
 
 function buildSummaryText(){
   const lines = [];
+  // Risk tier first — the very first line, unlabeled
+  if(lastTierLabel){
+    let tierLine = lastTierLabel.toUpperCase();
+    if(lastEsc.length && lastBaseTier && TIERS[lastBaseTier].label!==lastTierLabel){
+      tierLine += ' (base ' + TIERS[lastBaseTier].label + '; escalated by: ' + lastEsc.join(', ') + ')';
+    } else if(lastEsc.length){
+      tierLine += ' (escalating factors: ' + lastEsc.join(', ') + ')';
+    }
+    lines.push(tierLine);
+    lines.push('Visit cadence: ' + lastCadence + ' (provider/APP)');
+    if(lastHospice){ lines.push('** Hospice eligibility review indicated: High risk with PPS ≤40% **'); }
+    if(lastRapid){ lines.push('** Rapid functional decline: document PPS trajectory, weights, intake **'); }
+    lines.push('');
+  }
   lines.push('ACC RISK STRATIFICATION SUMMARY');
   lines.push('Date: ' + new Date().toLocaleDateString());
   lines.push('');
@@ -789,17 +803,6 @@ function buildSummaryText(){
   }
   lines.push('');
   if(lastTierLabel){
-    let tierLine = 'RISK TIER: ' + lastTierLabel.toUpperCase();
-    if(lastEsc.length && lastBaseTier && TIERS[lastBaseTier].label!==lastTierLabel){
-      tierLine += ' (base ' + TIERS[lastBaseTier].label + '; escalated by: ' + lastEsc.join(', ') + ')';
-    } else if(lastEsc.length){
-      tierLine += ' (escalating factors: ' + lastEsc.join(', ') + ')';
-    }
-    lines.push(tierLine);
-    lines.push('Visit cadence: ' + lastCadence + ' (provider/APP)');
-    if(lastHospice){ lines.push('** Hospice eligibility review indicated: High risk with PPS \u226440% **'); }
-    if(lastRapid){ lines.push('** Rapid functional decline: document PPS trajectory, weights, intake **'); }
-    lines.push('');
     lines.push('PLAN:');
     BASE_PLANS[ORDER[['Low','Moderate','High'].indexOf(lastTierLabel)]].forEach(item=>lines.push('- ' + item));
     if(lastRapid){ lines.push('- Rapid PPS decline: document functional trajectory this visit; prioritize prognosis-framed goals-of-care conversation'); }

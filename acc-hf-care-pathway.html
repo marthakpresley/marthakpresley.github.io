@@ -541,7 +541,7 @@ function render(){
 }
 
 function buildPlanLines(){
-  const core=[], meds=[], mon=[], ekit=[], acp=[], chosen=[];
+  const core=[], coord=[], meds=[], mon=[], ekit=[], acp=[], chosen=[];
 
   // disposition core
   if(state.DISPO==='home'){
@@ -562,6 +562,27 @@ function buildPlanLines(){
     core.push({t:'Family teaching: symptom algorithm, when to call \u2014 the goal is staying home', c:''});
   } else {
     core.push({t:'Continue HF pathway: six-domain assessment in same order every visit', c:''});
+  }
+
+  // Anticipated coordination domains — the standing PCM plan the acute work executes within
+  {
+    const sbp = num('v-sbp'), hr = num('v-hr');
+    const wtUp = state.WT==='up25' || state.WT==='up5';
+    const volAbn = state.VOL && state.VOL!=='euvolemic';
+    const onBB = state.P2==='titrating' || state.P2==='target';
+    const watch = checked('#watchout .chk').map(b=>b.dataset.key);
+    const adher = document.getElementById('adherence').classList.contains('sel');
+    const selfTit = document.getElementById('selftitrate').classList.contains('sel');
+    const advNYHA = state.NYHA==='III' || state.NYHA==='IV';
+    // 1. Exacerbation prevention, including intercurrent illness
+    coord.push({t:'<b>Exacerbation prevention (incl. intercurrent illness):</b> daily-weight surveillance with the self-titration plan as the early-warning system (weight gain precedes symptoms by 5–7 days); screen each contact for decompensation precipitants — infection (influenza, RSV, COVID, pneumonia), new AF or ischemia, NSAID exposure, dietary sodium, missed doses'+(wtUp?' — weight trend active this visit makes this today’s highest-priority domain':(volAbn?' — volume status off baseline this visit':'')), c:(wtUp||volAbn||!selfTit)?'flagged':''});
+    // 2. Medication interaction surveillance
+    coord.push({t:'<b>Medication interaction surveillance:</b> standing review paired to GDMT titration — K+ and Cr within 7–14 days of every RAASi/MRA/diuretic change, permissive hypercreatinemia recognized (&lt;30% rise), and a sweep for HF-hostile agents (NSAIDs, non-DHP CCBs, TZDs, class I/III antiarrhythmics, high-Na effervescents) at every med rec'+(watch.length?' (active: '+watch.length+' watch-out medication'+(watch.length>1?'s':'')+' being addressed)':''), c:(watch.length||state.K==='high'||state.K==='mild'||state.K==='low'||state.CR==='mild'||state.CR==='severe'||state.MON==='medchange')?'flagged':''});
+    // 3. Fall and functional risk
+    coord.push({t:'<b>Fall &amp; functional risk:</b> monitor orthostasis from diuretics and vasodilators, β-blocker bradycardia, nocturia-driven nighttime falls, and the functional trajectory by NYHA class; deconditioning is a treatment target — cardiac rehab / activity plan holds function'+(advNYHA?' (NYHA '+state.NYHA+' — limited reserve)':''), c:(advNYHA||(sbp!==null&&sbp<100)||(hr!==null&&hr<60&&onBB))?'flagged':''});
+    // 4. Mood and adherence
+    coord.push({t:'<b>Mood &amp; adherence:</b> depression affects roughly a third of HF patients and independently predicts admission — screen and treat; surveil sodium/fluid/medication adherence and cost barriers (pill box, bubble pack, torsemide conversion for reliable absorption)'+(adher?' (adherence barrier flagged this visit)':''), c:(adher||advNYHA)?'flagged':''});
+    coord.push({t:'Standing coordination plan for principal care management — acute events (decompensation, electrolyte or renal perturbation, drug interaction, fall, adherence lapse) are managed within these named domains, not as reactive tasks bolted on afterward', c:''});
   }
 
   // monitoring cadence
@@ -621,13 +642,14 @@ function buildPlanLines(){
 
   Object.keys(state.ints).filter(k=>state.ints[k]).forEach(i=>chosen.push({t:i, c:'chosen'}));
 
-  return {core, mon, meds, ekit, acp, chosen};
+  return {core, coord, mon, meds, ekit, acp, chosen};
 }
 
 function buildPlanHtml(){
   const P = buildPlanLines();
   const sec = (title, arr)=> arr.length ? '<h3>'+title+'</h3><ul>'+arr.map(l=>'<li class="'+l.c+'">'+l.t+'</li>').join('')+'</ul>' : '';
   return sec('Disposition plan', P.core)
+       + sec('Anticipated coordination domains', P.coord)
        + sec('Monitoring', P.mon)
        + sec('Medications', P.meds)
        + sec('E-kit', P.ekit)
@@ -678,6 +700,7 @@ function buildSummaryText(){
     const P = buildPlanLines();
     const dump=(title,arr)=>{ if(arr.length){ L.push(title.toUpperCase()+':'); arr.forEach(l=>L.push('- '+stripTags(l.t))); L.push(''); } };
     dump('Disposition plan', P.core);
+    dump('Anticipated coordination domains', P.coord);
     dump('Monitoring', P.mon);
     dump('Medications', P.meds);
     dump('E-kit', P.ekit);

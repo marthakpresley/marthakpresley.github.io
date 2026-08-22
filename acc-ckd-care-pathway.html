@@ -511,7 +511,7 @@ function isSel2(scope, txt){
 }
 
 function buildPlanLines(){
-  const core=[], labs=[], meds=[], watch=[], sx=[], ekit=[], acp=[], chosen=[];
+  const core=[], coord=[], labs=[], meds=[], watch=[], sx=[], ekit=[], acp=[], chosen=[];
   const e=num('egfr'), k=num('kplus'), r=kdigoRisk();
   const path=state.PATH;
 
@@ -530,6 +530,28 @@ function buildPlanLines(){
     core.push({t:'CMMI Kidney Care Choices Model allows concurrent dialysis and hospice — verify eligibility', c:''});
   }
   if(r){ core.push({t:'KDIGO '+r.g+'/'+r.a+' — '+r.risk+' risk. '+RISK_ACTION[r.risk], c:r.risk==='Very high'?'flagged':''}); }
+
+  // Anticipated coordination domains — the standing PCM plan the acute work executes within
+  {
+    const w24c=num('wt24'), wwkc=num('wtwk'), idwgc=num('idwg');
+    const accessIssue = isSel2('#access','fistula thrill/bruit LOST') || isSel2('#access','missed dialysis session') || isSel2('#access','access site infection or pain');
+    const volIssue = (w24c!==null&&w24c>=3) || (wwkc!==null&&wwkc>5) || isSel2('#volume','new dyspnea / orthopnea');
+    const kIssue = k!==null && k>5.0;
+    const nsaid = isSel2('#watchmeds','NSAID');
+    const badOpioid = isSel2('#watchmeds','morphine / codeine / meperidine / tramadol');
+    const saltSub = isSel2('#watchmeds','salt substitute (KCl)');
+    const anemicC = (num('hgb')!==null && num('hgb')<10) || (num('hct')!==null && num('hct')<30);
+    const uremicSx = isSel2('#symptoms','increasing somnolence / cognitive slowing (uremic)') || isSel2('#symptoms','anorexia / weight loss (uremic)');
+    // 1. Exacerbation prevention, including intercurrent illness
+    coord.push({t:'<b>Exacerbation prevention (incl. intercurrent illness):</b> the CKD "exacerbation" is the AKI, volume, or potassium crisis — sick-day rules stand (hold RAASi/SGLT2i/diuretics during vomiting, diarrhea, or poor intake, with a sick-day BMP); weight and volume surveillance'+(path==='dialysis'?'; same-day response to missed sessions, access changes, or infection at the access site':'')+(accessIssue?' — access/dialysis issue active this visit makes this today’s highest-priority domain':(volIssue?' — volume issue active this visit':(kIssue?' — K⁺ '+k+' being managed within this domain':''))), c:(accessIssue||volIssue||kIssue)?'flagged':''});
+    // 2. Medication interaction surveillance
+    coord.push({t:'<b>Medication interaction surveillance:</b> standing sweep at every med rec for nephrotoxins (NSAIDs including chronic topical, contrast exposures), renally-cleared drugs needing dose adjustment as eGFR falls, K⁺-raising combinations (RAASi + MRA + salt substitutes + TMP-SMX), and contraindicated opioids (morphine, codeine, meperidine, tramadol → hydromorphone or fentanyl instead)'+((nsaid||badOpioid||saltSub)?' (active watch-out medication being addressed this visit)':''), c:(nsaid||badOpioid||saltSub||kIssue)?'flagged':''});
+    // 3. Fall and functional risk
+    coord.push({t:'<b>Fall &amp; functional risk:</b> monitor post-dialysis hypotension and fatigue as fall windows, anemia-related dizziness (Hgb goal 10–11), uremic sarcopenia and neuropathy; med review after any fall; PT and activity plan to hold function'+(anemicC?' (anemia present — heightened surveillance)':''), c:(anemicC||uremicSx||(idwgc!==null&&idwgc>=3))?'flagged':''});
+    // 4. Mood and adherence
+    coord.push({t:'<b>Mood &amp; adherence:</b> depression affects roughly a quarter of dialysis patients and erodes fluid, diet, binder, and session adherence — screen and treat; monitor interdialytic weight gain as an adherence signal (goal &lt; 3 kg); revisit treatment-burden and modality decisions as the KFRE and symptom picture evolve'+((idwgc!==null&&idwgc>=3)?' (IDWG '+idwgc+' kg — adherence conversation this visit)':''), c:((idwgc!==null&&idwgc>=3)||uremicSx||isSel2('#access','missed dialysis session'))?'flagged':''});
+    coord.push({t:'Standing coordination plan for principal care management — acute events (AKI, hyperkalemia, volume crisis, access problem, drug interaction, fall, adherence lapse) are managed within these named domains, not as reactive tasks bolted on afterward', c:''});
+  }
 
   // Labs
   if(path==='dialysis'){
@@ -705,13 +727,14 @@ function buildPlanLines(){
   if(path==='undecided') acp.push({t:'Path not yet decided — reasonable CCM candidates: ≥ 75 with frailty, advanced comorbidity, advanced dementia, or explicit choice for comfort. Dialysis at ≥ 75 buys ~78 days of survival but costs ~15 days at home', c:'flagged'});
 
   Object.keys(state.ints).filter(k2=>state.ints[k2]).forEach(i=>chosen.push({t:i, c:'chosen'}));
-  return {core, labs, meds, watch, sx, ekit, acp, chosen};
+  return {core, coord, labs, meds, watch, sx, ekit, acp, chosen};
 }
 
 function buildPlanHtml(){
   const P = buildPlanLines();
   const sec=(t,arr)=> arr.length ? '<h3>'+t+'</h3><ul>'+arr.map(l=>'<li class="'+l.c+'">'+l.t+'</li>').join('')+'</ul>' : '';
   return sec('Disposition plan', P.core)
+       + sec('Anticipated coordination domains', P.coord)
        + sec('Labs &amp; monitoring', P.labs)
        + sec('Medical management', P.meds)
        + sec('Watch-outs &amp; hyperkalemia', P.watch)
@@ -784,7 +807,7 @@ function buildSummaryText(){
   if(state.DISPO){
     const P=buildPlanLines();
     const dump=(t,arr)=>{ if(arr.length){ L.push(t.toUpperCase()+':'); arr.forEach(l=>L.push('- '+stripTags(l.t))); L.push(''); } };
-    dump('Disposition plan',P.core); dump('Labs & monitoring',P.labs); dump('Medical management',P.meds);
+    dump('Disposition plan',P.core); dump('Anticipated coordination domains',P.coord); dump('Labs & monitoring',P.labs); dump('Medical management',P.meds);
     dump('Watch-outs & hyperkalemia',P.watch); dump('Symptoms',P.sx); dump('E-kit',P.ekit);
     dump('Goals & ACP',P.acp); dump('Provider-selected additions',P.chosen);
   } else { L.push('(Select a disposition to generate the plan)'); }
