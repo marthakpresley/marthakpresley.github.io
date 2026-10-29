@@ -1,0 +1,822 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>IPU PRN Dosing Tool</title>
+<meta name="description" content="Alive hospice inpatient unit: score the patient, find the band, give the printed dose, and generate the EMR documentation.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f3f5f7; --panel:#ffffff; --ink:#1b2430; --ink-2:#4a5565; --ink-3:#7b8494;
+  --line:#d9dee5; --line-2:#eceff3;
+  --act:#0e6b6b; --act-ink:#ffffff; --act-soft:#e3f1f1;
+  --mild:#2f6b2a; --mild-bg:#e4f0df;
+  --mod:#8a5a00; --mod-bg:#fbeccb;
+  --sev:#9b2c2c; --sev-bg:#f9dcdc;
+  --hold:#3d4552; --hold-bg:#e6e9ee;
+  --warn:#9b2c2c; --warn-bg:#fff3f3; --warn-line:#f0bcbc;
+  --note-bg:#fbfbf7;
+  --r:6px;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:"Source Sans 3",system-ui,-apple-system,"Segoe UI",sans-serif;font-size:16px;line-height:1.45;-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+a{color:var(--act)}
+h1,h2,h3{margin:0;font-weight:600;line-height:1.2}
+p{margin:0}
+.top{background:var(--panel);border-bottom:1px solid var(--line);padding:0 24px;display:flex;align-items:stretch;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.brand{display:flex;flex-direction:column;justify-content:center;padding:14px 0}
+.brand h1{font-size:18px}
+.brand span{color:var(--ink-3);font-size:14px}
+.modes{display:flex;gap:4px;align-items:flex-end}
+.modes button{background:none;border:0;border-bottom:3px solid transparent;padding:18px 12px 14px;font-size:16px;color:var(--ink-2);margin-bottom:-1px}
+.modes button.on{color:var(--ink);border-bottom-color:var(--act);font-weight:600}
+.modes button:focus-visible,.chip:focus-visible,.opt:focus-visible,.btn:focus-visible,.card:focus-visible{outline:3px solid #8fc7c7;outline-offset:2px}
+main{max-width:1180px;margin:0 auto;padding:24px 24px 64px}
+.mode{display:none}.mode.on{display:block}
+.two{display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:24px;align-items:start}
+@media (max-width:900px){.two{grid-template-columns:1fr}.out{position:static!important}}
+.out{position:sticky;top:16px}
+.step{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:18px 20px;margin-bottom:14px}
+.step.dim{opacity:.55}
+.step h2{font-size:17px;margin-bottom:4px}
+.step .hint{color:var(--ink-2);font-size:14.5px;margin-bottom:12px}
+.step .hint b{font-weight:600;color:var(--ink)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:7px 14px;font-size:15px}
+.chip.on{background:var(--act);border-color:var(--act);color:var(--act-ink)}
+.chip:hover:not(.on){border-color:var(--act)}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px;margin-top:4px}
+.card{text-align:left;border:1px solid var(--line);background:var(--panel);border-radius:var(--r);padding:12px 14px;line-height:1.3}
+.card.on{border-color:var(--act);box-shadow:inset 0 0 0 1.5px var(--act);background:var(--act-soft)}
+.card .nm{font-weight:600;font-size:16px}
+.card .rg{font-size:20px;font-weight:700;font-variant-numeric:tabular-nums;margin:2px 0}
+.card .mt{color:var(--ink-2);font-size:13.5px}
+.card .fl{color:var(--sev);font-size:13px;margin-top:4px}
+.bands{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:10px;font-size:13px;color:var(--ink-2)}
+.bands div b{display:block;color:var(--ink);font-size:14px;font-variant-numeric:tabular-nums}
+.bands div small{display:block;font-size:12px;color:var(--ink-3)}
+.opts{display:flex;flex-wrap:wrap;gap:6px}
+.opt{border:1px solid var(--line);background:var(--panel);border-radius:var(--r);padding:8px 12px;text-align:left;min-width:44px}
+.opt.on{background:var(--ink);border-color:var(--ink);color:#fff}
+.nrs .opt{min-width:46px;text-align:center;font-weight:600;font-variant-numeric:tabular-nums}
+.item{border-top:1px solid var(--line-2);padding:10px 0}
+.item:first-child{border-top:0}
+.item .lb{font-weight:600;font-size:15px;margin-bottom:6px}
+.item .opts .opt{flex:1 1 140px;font-size:14px;line-height:1.3}
+.item .opts .opt small{display:block;color:var(--ink-3);font-size:12px;margin-top:2px}
+.opt.on small{color:#cfd6de}
+.rass .opt{width:100%;display:flex;gap:12px;align-items:baseline}
+.rass .opt .sc{font-weight:700;min-width:30px;font-variant-numeric:tabular-nums}
+.rass .opt .tm{font-weight:600;min-width:130px}
+.rass .opt .ds{color:var(--ink-2);font-size:14px}
+.rass .opt.on .ds{color:#cfd6de}
+.rass .sep{border-top:1px dashed var(--line);margin:4px 0}
+.field{margin-top:10px}
+.field>label:not(.check){display:block;font-size:14px;color:var(--ink-2);margin-bottom:4px}
+.field input[type=text],.field input[type=number],.field textarea{width:100%;border:1px solid var(--line);border-radius:var(--r);padding:8px 10px;background:#fff}
+.field input[type=number]{width:120px}
+.field textarea{min-height:56px;resize:vertical}
+.check{display:flex;gap:10px;align-items:flex-start;padding:6px 0;font-size:15px}
+.check input{margin-top:4px;width:16px;height:16px;flex:none}
+.check span small{display:block;color:var(--ink-3);font-size:13px}
+.row{display:flex;gap:16px;flex-wrap:wrap}
+.row .field{flex:1 1 180px;margin-top:6px}
+.req{color:var(--sev);font-weight:600}
+.alert{background:var(--warn-bg);border:1px solid var(--warn-line);color:var(--warn);border-radius:var(--r);padding:10px 12px;margin-top:10px;font-size:15px}
+.alert b{font-weight:700}
+.note-info{background:var(--act-soft);border-radius:var(--r);padding:10px 12px;margin-top:10px;font-size:14.5px;color:#0b4f4f}
+
+/* result */
+.result{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:20px;margin-bottom:14px}
+.result .lead{font-size:14.5px;color:var(--ink-2)}
+.dose{display:flex;align-items:baseline;gap:14px;margin:6px 0 10px}
+.dose .big{font-size:64px;font-weight:700;letter-spacing:-.02em;line-height:1;font-variant-numeric:tabular-nums}
+.dose .ml{font-size:22px;color:var(--ink-2);font-weight:600}
+.band{display:inline-block;border-radius:999px;padding:3px 12px;font-weight:600;font-size:14px}
+.b-mild{background:var(--mild-bg);color:var(--mild)}
+.b-mod{background:var(--mod-bg);color:var(--mod)}
+.b-sev{background:var(--sev-bg);color:var(--sev)}
+.b-hold{background:var(--hold-bg);color:var(--hold)}
+.result.hold .big{color:var(--hold)}
+.result.mild .big{color:var(--mild)}
+.result.mod .big{color:var(--mod)}
+.result.sev .big{color:var(--sev)}
+.result .meta{font-size:15px;color:var(--ink);margin-top:6px}
+.result .meta div{padding:5px 0;border-top:1px solid var(--line-2)}
+.result .meta div span{color:var(--ink-3);display:inline-block;min-width:110px}
+.triggers{margin-top:10px}
+.trig{display:flex;gap:8px;align-items:flex-start;font-size:14.5px;padding:5px 0}
+.trig.hot{color:var(--sev);font-weight:600}
+.trig .dot{width:9px;height:9px;border-radius:50%;background:var(--line);flex:none;margin-top:7px}
+.trig.hot .dot{background:var(--sev)}
+
+/* output text */
+.outbox{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);margin-bottom:14px;overflow:hidden}
+.outbox .hd{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--line-2);gap:10px}
+.outbox .hd h3{font-size:15px}
+.outbox pre{margin:0;padding:14px;white-space:pre-wrap;word-wrap:break-word;font-family:"Source Sans 3",system-ui,sans-serif;font-size:14.5px;line-height:1.45;background:var(--note-bg);min-height:60px;max-height:420px;overflow:auto}
+.outbox pre.emr{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13px}
+.outbox pre.empty{color:var(--ink-3);font-style:italic}
+.btn{border:1px solid var(--act);background:var(--act);color:var(--act-ink);border-radius:var(--r);padding:7px 14px;font-weight:600;font-size:14px}
+.btn.ghost{background:none;color:var(--act)}
+.btn.sm{padding:5px 10px;font-size:13.5px}
+.btn:disabled{opacity:.45;cursor:default}
+.btn.ok{background:#2f6b2a;border-color:#2f6b2a}
+.tools{display:flex;gap:8px;justify-content:space-between;align-items:center;margin-bottom:14px}
+.tools .muted{color:var(--ink-3);font-size:13.5px}
+
+/* reference */
+.ref{display:grid;grid-template-columns:repeat(auto-fit,minmax(360px,1fr));gap:14px}
+.ref .step{overflow-x:auto}
+.ref .step{margin:0}
+table{border-collapse:collapse;width:100%;font-size:14.5px}
+th,td{text-align:left;padding:7px 8px;border-top:1px solid var(--line-2);vertical-align:top}
+th{color:var(--ink-2);font-weight:600;border-top:0}
+td.n{font-variant-numeric:tabular-nums;white-space:nowrap}
+td b{font-weight:700}
+ul.plain{margin:6px 0 0;padding-left:18px}
+ul.plain li{margin:3px 0}
+footer{max-width:1180px;margin:0 auto;padding:0 24px 40px;color:var(--ink-3);font-size:13px;line-height:1.5}
+.sr{position:absolute;left:-9999px}
+@media (prefers-reduced-motion:no-preference){.btn,.chip,.card,.opt{transition:background-color .12s,border-color .12s}}
+@media print{.top,.tools,.btn{display:none}.two{display:block}.out{position:static}body{background:#fff}}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="brand"><h1>IPU PRN dosing</h1><span>Alive hospice inpatient unit · opioid, benzodiazepine and haloperidol range orders</span></div>
+  <nav class="modes" aria-label="Mode">
+    <button data-mode="dose" class="on">Give a dose</button>
+    <button data-mode="ref">Scales and rules</button>
+  </nav>
+</header>
+
+<main>
+  <section id="mode-dose" class="mode on">
+    <div class="two">
+      <div id="doseFlow"></div>
+      <div class="out" id="doseOut"></div>
+    </div>
+  </section>
+
+  <section id="mode-ref" class="mode">
+    <div id="refBody"></div>
+  </section>
+</main>
+
+<footer>
+  Companion to the Alive IPU PRN Range Orders policy (v2.0, draft for P&amp;T review, 17 September 2026) and the Assessment Scales Reference. The printed doses, bands, reassessment intervals and notification triggers reproduce those documents and must not be edited here. Local formulary availability and EMR dose-entry controls take precedence. This tool holds no patient data; the text it produces is pasted into the record by the clinician, who remains responsible for its accuracy.
+</footer>
+
+<script>
+/* ===================== DATA ===================== */
+const IND = {
+  pain:      {label:'Pain',                     instruments:['nrs','painad','flacc'], entries:['1A','1B','1C','1D','1E'], scaleWord:'score'},
+  dyspnea:   {label:'Dyspnea',                  instruments:['dnrs','rdos'],          entries:['2A','2B','2C','2D','2E'], scaleWord:'score'},
+  anxiety:   {label:'Anxiety or restlessness',  instruments:['rass'],                 entries:['3A','3B','3C','3D','3E'], scaleWord:'RASS-PAL'},
+  agitation: {label:'Agitation or delirium',    instruments:['rass'],                 entries:['5A','5B'],                scaleWord:'RASS-PAL'},
+  nausea:    {label:'Nausea or vomiting',       instruments:['nnrs'],                 entries:['4A','4B'],                scaleWord:'nausea NRS'}
+};
+const IND_ORDER = ['pain','dyspnea','anxiety','agitation','nausea'];
+
+// bands: array of {mg, ml?} in order mild/moderate/severe (nausea: lower/upper — two elements)
+const E = {};
+function entry(id, o){ E[id] = Object.assign({id}, o); }
+
+// Opioids — pain
+entry('1A',{cls:'opioid',ind:'pain',agent:'Hydromorphone',product:'2 mg/mL injection',range:'0.5–2 mg',routes:['IV','SubQ'],interval:'q1h',max24:'48 mg',
+  bands:[{mg:'0.5'},{mg:'1'},{mg:'2'}],
+  line:'HYDROMORPHONE 2 MG/ML INJECTION SOLUTION - ADMINISTER 0.5MG - 2MG INTRAVENOUSLY OR SUBCUTANEOUSLY EVERY HOUR AS NEEDED FOR PAIN -- HOSPICE EXEMPT R52 R06'});
+entry('1B',{cls:'opioid',ind:'pain',agent:'Hydromorphone',product:'2 mg/mL injection',range:'2–4 mg',routes:['IV','SubQ'],interval:'q1h',max24:'96 mg',
+  bands:[{mg:'2'},{mg:'3'},{mg:'4'}],
+  line:'HYDROMORPHONE 2 MG/ML INJECTION SOLUTION - ADMINISTER 2MG - 4MG INTRAVENOUSLY OR SUBCUTANEOUSLY EVERY HOUR AS NEEDED FOR PAIN -- HOSPICE EXEMPT R52 R06'});
+entry('1C',{cls:'opioid',ind:'pain',agent:'Morphine',product:'10 mg/mL injection',range:'4–10 mg',routes:['IV','SubQ'],interval:'q1h',max24:'240 mg',
+  bands:[{mg:'4'},{mg:'7'},{mg:'10'}],
+  line:'MORPHINE 10 MG/ML INJECTION SOLUTION - ADMINISTER 4MG - 10MG INTRAVENOUSLY OR SUBCUTANEOUSLY EVERY 1 HOUR AS NEEDED FOR PAIN -- HOSPICE EXEMPT R52 R06'});
+entry('1D',{cls:'opioid',ind:'pain',agent:'Morphine',product:'10 mg/mL injection',range:'10–20 mg',routes:['IV','SubQ'],interval:'q1h',max24:'480 mg',flag:'Highest opioid ceiling on the sheet',
+  bands:[{mg:'10'},{mg:'15'},{mg:'20'}],
+  line:'MORPHINE 10 MG/ML INJECTION SOLUTION - ADMINISTER 10MG - 20MG INTRAVENOUSLY OR SUBCUTANEOUSLY EVERY 1 HOUR AS NEEDED FOR PAIN -- HOSPICE EXEMPT R52 R06'});
+entry('1E',{cls:'opioid',ind:'pain',agent:'Morphine oral concentrate',product:'20 mg/mL oral solution',range:'5–20 mg',routes:['PO/SL'],interval:'q2h',max24:'240 mg',
+  bands:[{mg:'5',ml:'0.25'},{mg:'10',ml:'0.5'},{mg:'20',ml:'1'}],
+  line:'MORPHINE CONCENTRATE 100 MG/5 ML (20 MG/ML) ORAL SOLUTION - ADMINISTER 5MG (0.25ML) - 20MG (1ML) BY MOUTH OR UNDER TONGUE EVERY 2 HOURS AS NEEDED FOR PAIN -- HOSPICE EXEMPT R52 R06'});
+// Opioids — dyspnea
+entry('2A',{cls:'opioid',ind:'dyspnea',agent:'Hydromorphone',product:'2 mg/mL injection',range:'0.5–2 mg',routes:['IV','SubQ'],interval:'q1h',max24:'48 mg',
+  bands:[{mg:'0.5'},{mg:'1'},{mg:'2'}],
+  line:'HYDROMORPHONE 2 MG/ML INJECTION SOLUTION - ADMINISTER 0.5MG - 2MG INTRAVENOUSLY OR SUBCUTANEOUSLY EVERY HOUR AS NEEDED FOR DYSPNEA -- HOSPICE EXEMPT R52 R06'});
+entry('2B',{cls:'opioid',ind:'dyspnea',agent:'Hydromorphone',product:'2 mg/mL injection',range:'2–4 mg',routes:['IV','SubQ'],interval:'q1h',max24:'96 mg',
+  bands:[{mg:'2'},{mg:'3'},{mg:'4'}],
+  line:'HYDROMORPHONE 2 MG/ML INJECTION SOLUTION - ADMINISTER 2MG - 4MG INTRAVENOUSLY OR SUBCUTANEOUSLY EVERY HOUR AS NEEDED FOR DYSPNEA -- HOSPICE EXEMPT R52 R06'});
+entry('2C',{cls:'opioid',ind:'dyspnea',agent:'Morphine',product:'10 mg/mL injection',range:'4–10 mg',routes:['IV','SubQ'],interval:'q1h',max24:'240 mg',
+  bands:[{mg:'4'},{mg:'7'},{mg:'10'}],
+  line:'MORPHINE 10 MG/ML INJECTION SOLUTION - ADMINISTER 4MG - 10MG INTRAVENOUSLY OR SUBCUTANEOUSLY EVERY 1 HOUR AS NEEDED FOR DYSPNEA -- HOSPICE EXEMPT R52 R06'});
+entry('2D',{cls:'opioid',ind:'dyspnea',agent:'Morphine',product:'10 mg/mL injection',range:'10–20 mg',routes:['IV','SubQ'],interval:'q1h',max24:'480 mg',flag:'Highest opioid ceiling on the sheet',
+  bands:[{mg:'10'},{mg:'15'},{mg:'20'}],
+  line:'MORPHINE 10 MG/ML INJECTION SOLUTION - ADMINISTER 10MG - 20MG INTRAVENOUSLY OR SUBCUTANEOUSLY EVERY 1 HOUR AS NEEDED FOR DYSPNEA -- HOSPICE EXEMPT R52 R06'});
+entry('2E',{cls:'opioid',ind:'dyspnea',agent:'Morphine oral concentrate',product:'20 mg/mL oral solution',range:'5–20 mg',routes:['PO/SL'],interval:'q2h',max24:'240 mg',
+  bands:[{mg:'5',ml:'0.25'},{mg:'10',ml:'0.5'},{mg:'20',ml:'1'}],
+  line:'MORPHINE CONCENTRATE 100 MG/5 ML (20 MG/ML) ORAL SOLUTION - ADMINISTER 5MG (0.25ML) - 20MG (1ML) BY MOUTH OR UNDER TONGUE EVERY 2 HOURS AS NEEDED FOR DYSPNEA -- HOSPICE EXEMPT R52 R06'});
+// Benzodiazepines
+entry('3A',{cls:'benzo',ind:'anxiety',agent:'Lorazepam',product:'2 mg/mL injection',range:'1–2 mg',routes:['IV','SubQ'],interval:'q1h',max24:'48 mg',
+  bands:[{mg:'1'},{mg:'1.5'},{mg:'2'}],
+  line:'LORAZEPAM 2 MG/ML INJECTION SOLUTION - ADMINISTER 1MG - 2MG INTRAVENOUSLY OR SUBCUTANEOUSLY EVERY 1 HOUR AS NEEDED FOR ANXIETY/AGITATION'});
+entry('3B',{cls:'benzo',ind:'anxiety',agent:'Lorazepam',product:'2 mg/mL injection',range:'2–4 mg',routes:['IV','SubQ'],interval:'q1h',max24:'96 mg',
+  bands:[{mg:'2'},{mg:'3'},{mg:'4'}],
+  line:'LORAZEPAM 2 MG/ML INJECTION SOLUTION - ADMINISTER 2MG - 4MG INTRAVENOUSLY OR SUBCUTANEOUSLY EVERY 1 HOUR AS NEEDED FOR ANXIETY/AGITATION'});
+entry('3C',{cls:'benzo',ind:'anxiety',agent:'Diazepam',product:'5 mg/mL injection',range:'2.5–10 mg',routes:['IV'],interval:'q2h',max24:'120 mg',ivOnly:true,
+  bands:[{mg:'2.5'},{mg:'5'},{mg:'10'}],
+  line:'DIAZEPAM 5 MG/ML INJECTION SOLUTION - ADMINISTER 2.5MG - 10MG INTRAVENOUSLY EVERY 2 HOURS AS NEEDED FOR ANXIETY/AGITATION'});
+entry('3D',{cls:'benzo',ind:'anxiety',agent:'Diazepam',product:'5 mg/mL injection',range:'10–20 mg',routes:['IV'],interval:'q2h',max24:'240 mg',ivOnly:true,flag:'Highest benzodiazepine exposure on the sheet — flagged for P&T',
+  bands:[{mg:'10'},{mg:'15'},{mg:'20'}],
+  line:'DIAZEPAM 5 MG/ML INJECTION SOLUTION - ADMINISTER 10MG - 20MG INTRAVENOUSLY EVERY 2 HOURS AS NEEDED FOR ANXIETY/AGITATION'});
+entry('3E',{cls:'benzo',ind:'anxiety',agent:'Lorazepam oral concentrate',product:'2 mg/mL oral concentrate',range:'0.5–2 mg',routes:['PO/SL'],interval:'q2h',max24:'24 mg',
+  bands:[{mg:'0.5',ml:'0.25'},{mg:'1',ml:'0.5'},{mg:'2',ml:'1'}],
+  line:'LORAZEPAM 2 MG/ML ORAL CONCENTRATE - ADMINISTER 0.5MG (0.25ML) - 2MG (1ML) BY MOUTH OR UNDER TONGUE EVERY 2 HOURS AS NEEDED FOR ANXIETY OR AGITATION'});
+// Haloperidol — nausea (two bands)
+entry('4A',{cls:'halo-n',ind:'nausea',agent:'Haloperidol',product:'lactate 5 mg/mL injection',range:'1–2 mg',routes:['IV','SubQ'],interval:'q2h',max24:'24 mg',
+  bands:[{mg:'1'},{mg:'2'}],
+  line:'HALOPERIDOL LACTATE 5 MG/ML INJECTION SOLUTION - ADMINISTER 1MG - 2MG INTRAVENOUSLY OR SUBCUTANEOUSLY EVERY 2 HOURS AS NEEDED FOR NAUSEA/VOMITING'});
+entry('4B',{cls:'halo-n',ind:'nausea',agent:'Haloperidol',product:'lactate 5 mg/mL injection',range:'2.5–5 mg',routes:['IV','SubQ'],interval:'q2h',max24:'60 mg',flag:'Reaches the 20 mg/24 h threshold after four upper-band doses — flagged for P&T',
+  bands:[{mg:'2.5'},{mg:'5'}],
+  line:'HALOPERIDOL LACTATE 5 MG/ML INJECTION SOLUTION - ADMINISTER 2.5MG - 5MG INTRAVENOUSLY OR SUBCUTANEOUSLY EVERY 2 HOURS AS NEEDED FOR NAUSEA/VOMITING'});
+// Haloperidol — agitation (three bands)
+entry('5A',{cls:'halo-a',ind:'agitation',agent:'Haloperidol',product:'lactate 5 mg/mL injection',range:'1–2 mg',routes:['IV','SubQ'],interval:'q2h',max24:'24 mg',
+  bands:[{mg:'1'},{mg:'1.5'},{mg:'2'}],
+  line:'HALOPERIDOL LACTATE 5 MG/ML INJECTION SOLUTION - ADMINISTER 1MG - 2MG INTRAVENOUSLY OR SUBCUTANEOUSLY EVERY 2 HOURS AS NEEDED FOR AGITATION/DELIRIUM'});
+entry('5B',{cls:'halo-a',ind:'agitation',agent:'Haloperidol',product:'lactate 5 mg/mL injection',range:'2.5–5 mg',routes:['IV','SubQ'],interval:'q2h',max24:'60 mg',flag:'Reaches the 20 mg/24 h threshold after four maximum-band doses — flagged for P&T',
+  bands:[{mg:'2.5'},{mg:'4'},{mg:'5'}],
+  line:'HALOPERIDOL LACTATE 5 MG/ML INJECTION SOLUTION - ADMINISTER 2.5MG - 5MG INTRAVENOUSLY OR SUBCUTANEOUSLY EVERY 2 HOURS AS NEEDED FOR AGITATION/DELIRIUM'});
+
+const isHalo = e => e.cls==='halo-n'||e.cls==='halo-a';
+function bandCell(label,b){ return `<div>${label}<b>${b.mg} mg</b>${b.ml?`<small>${b.ml} mL</small>`:''}</div>`; }
+function bandsHtml(x){
+  if(x.cls==='halo-n') return `<div class="bands" style="grid-template-columns:1fr 1fr">${bandCell('Lower',x.bands[0])}${bandCell('Upper',x.bands[1])}</div>`;
+  return `<div class="bands">${bandCell('Mild',x.bands[0])}${bandCell('Moderate',x.bands[1])}${bandCell('Severe',x.bands[2])}</div>`;
+}
+const isOral = e => e.routes[0]==='PO/SL';
+function doseText(b, emr){ // emr=true → "5mg (0.25mL)" style used in the quick-order text
+  if(emr) return b.ml ? `${b.mg}mg (${b.ml}mL)` : `${b.mg}mg`;
+  return b.ml ? `${b.mg} mg (${b.ml} mL)` : `${b.mg} mg`;
+}
+
+/* Reassessment interval by entry class and route given (policy §5.3, §6) */
+function reassess(e, route){
+  if(e.cls==='halo-n') return '60 min';
+  if(e.cls==='halo-a') return '30–60 min';
+  if(route==='PO/SL') return '60 min';
+  if(e.cls==='benzo') return '30 min';
+  return route==='SubQ' ? '30 min' : '15–30 min';
+}
+
+/* ===================== INSTRUMENTS ===================== */
+const INSTR = {
+  nrs:   {name:'NRS', long:'Numeric Rating Scale (pain)', type:'nrs', who:'Patient can self-report', prompt:'"On a scale of zero to ten, where zero is no pain and ten is the worst pain you can imagine, what is your pain right now?" Ask about pain now. Allow 20–30 seconds.', self:true},
+  painad:{name:'PAINAD', long:'Pain Assessment in Advanced Dementia', type:'items', who:'Nonverbal, or advanced dementia', prompt:'Observe for five minutes, ideally during care or movement. Score each item 0, 1 or 2 and add.', items:[
+    ['Breathing (independent of vocalization)', ['Normal','Occasional labored breathing; short period of hyperventilation','Noisy labored breathing; long period of hyperventilation; Cheyne-Stokes respirations']],
+    ['Negative vocalization', ['None','Occasional moan or groan; low-level speech with a negative or disapproving quality','Repeated troubled calling out; loud moaning or groaning; crying']],
+    ['Facial expression', ['Smiling, or inexpressive','Sad, frightened, or frowning','Facial grimacing']],
+    ['Body language', ['Relaxed','Tense; distressed pacing; fidgeting','Rigid; fists clenched; knees pulled up; pulling or pushing away; striking out']],
+    ['Consolability', ['No need to console','Distracted or reassured by voice or touch','Unable to console, distract, or reassure']]
+  ], caution:'PAINAD detects distress, not specifically pain. Agonal or Cheyne-Stokes breathing scores 2 on the breathing item without necessarily indicating pain. Rule out reversible contributors before treating a high score as pain.'},
+  flacc: {name:'FLACC', long:'Face, Legs, Activity, Cry, Consolability', type:'items', who:'Only when PAINAD cannot be completed', prompt:'Observe with legs and body uncovered for two to five minutes; reposition or observe during activity. Score each category 0, 1 or 2 and add.', items:[
+    ['Face', ['No particular expression, or smiling','Occasional grimace or frown; withdrawn; disinterested','Frequent to constant frown; clenched jaw; quivering chin']],
+    ['Legs', ['Normal position, or relaxed','Uneasy; restless; tense','Kicking, or legs drawn up']],
+    ['Activity', ['Lying quietly; normal position; moves easily','Squirming; shifting back and forth; tense','Arched; rigid; or jerking']],
+    ['Cry', ['No cry, awake or asleep','Moans or whimpers; occasional complaint','Crying steadily; screams or sobs; frequent complaints']],
+    ['Consolability', ['Content; relaxed','Reassured by occasional touching, hugging, or being talked to; distractible','Difficult to console or comfort']]
+  ], caution:'FLACC was validated in children. PAINAD is the instrument validated for nonverbal adults; use FLACC only when PAINAD cannot be completed, and document why.'},
+  dnrs:  {name:'Dyspnea NRS', long:'Dyspnea Numeric Rating Scale', type:'nrs', who:'Patient can self-report breathlessness', prompt:'"On a scale of zero to ten, where zero is no breathlessness and ten is the worst breathlessness you can imagine, how is your breathing right now?" Accept held-up fingers or a pointed finger on a printed scale. Treat the reported score, not the monitor.', self:true},
+  rdos:  {name:'RDOS', long:'Respiratory Distress Observation Scale', type:'items', who:'Patient cannot self-report breathlessness', prompt:'Position upright if possible and observe for one full minute. Auscultate the heart rate and count respirations for a full minute. Score the eight variables and add (0–16).', items:[
+    ['Heart rate (auscultated, per minute)', [['Below 90',0],['90 to 109',1],['110 or above',2]]],
+    ['Respiratory rate (per minute)', [['18 or below',0],['19 to 30',1],['Above 30',2]]],
+    ['Restlessness (non-purposeful movements)', [['None',0],['Occasional, slight movements',1],['Frequent movements',2]]],
+    ['Paradoxical breathing (abdomen moves in on inspiration)', [['None',0],['Present',2]]],
+    ['Accessory muscle use (rise in clavicle on inspiration)', [['None',0],['Slight rise',1],['Pronounced rise',2]]],
+    ['Grunting at end-expiration', [['None',0],['Present',2]]],
+    ['Nasal flaring', [['None',0],['Present',2]]],
+    ['Look of fear (eyes wide, brow furrowed, facial muscles tense, mouth open with teeth together)', [['None',0],['Present',2]]]
+  ], caution:'In a deeply obtunded or actively dying patient a falling total may reflect declining reserve rather than improving comfort. Tachycardia from fever, hypovolemia, anticholinergics or beta-agonists raises the total without any change in breathlessness.'},
+  rass:  {name:'RASS-PAL', long:'Richmond Agitation-Sedation Scale, palliative version', type:'rass', who:'Agitation, restlessness, sedation depth', prompt:'Observe first, without speaking. If alert, restless or agitated, score 0 to +4 and stop. If not alert, speak the name and ask for eye contact (−1 to −3). If no response to voice, touch — shoulder touch, then shake (−4, −5). No painful stimulation.', levels:[
+    [4,'Combative','Overtly combative or violent; immediate danger to staff or self'],
+    [3,'Very agitated','Pulls at or removes lines, tubes, or dressings; aggressive toward staff'],
+    [2,'Agitated','Frequent non-purposeful movement; unable to settle'],
+    [1,'Restless','Anxious or apprehensive; movements not aggressive or vigorous'],
+    [0,'Alert and calm','Alert and calm; no intervention indicated'],
+    [-1,'Drowsy','Not fully alert, but sustained awakening to voice — eye contact for more than 10 seconds'],
+    [-2,'Light sedation','Briefly awakens to voice with eye contact for less than 10 seconds'],
+    [-3,'Moderate sedation','Any movement or eye opening to voice, but no eye contact'],
+    [-4,'Deep sedation','No response to voice, but any movement to physical stimulation'],
+    [-5,'Unarousable','No response to voice or physical stimulation']
+  ], caution:'The negative scores are not a target. +3 to 0 is a treatment success; +3 to −4 is over-sedation and a reason to call the provider rather than repeat the dose.'},
+  nnrs:  {name:'Nausea NRS', long:'Nausea Numeric Rating Scale', type:'nrs', who:'Nausea or vomiting', prompt:'"On a scale of zero to ten, where zero is no nausea and ten is the worst nausea you can imagine, how is your nausea right now?" If the patient cannot self-report, score from observation (retching, refusal of food or fluids, pallor, sweating, repeated swallowing). Record emesis separately — any emesis places the patient in the upper band.', self:true}
+};
+
+/* Band from score. Returns index 0/1/2 (nausea: 0/1) or -1 for hold. */
+function bandOf(instr, score, emesis){
+  if(score===null||score===undefined) return null;
+  if(instr==='rdos'){ return score<=2 ? -1 : score<=4 ? 0 : score<=8 ? 1 : 2; }
+  if(instr==='rass'){ return score<=0 ? -1 : score===1 ? 0 : score===2 ? 1 : 2; }
+  if(instr==='nnrs'){ if(emesis) return 1; return score===0 ? -1 : score<=5 ? 0 : 1; }
+  return score===0 ? -1 : score<=3 ? 0 : score<=6 ? 1 : 2;
+}
+function bandName(e, idx){
+  if(e.cls==='halo-n') return idx===0 ? 'lower band' : 'upper band';
+  return ['mild band','moderate band','severe band'][idx];
+}
+function bandClass(e, idx){
+  if(idx===-1) return 'hold';
+  if(e.cls==='halo-n') return idx===0 ? 'mild' : 'sev';
+  return ['mild','mod','sev'][idx];
+}
+function bandRangeText(instr, idx){
+  const t = {
+    nrs:['1–3','4–6','7–10'], dnrs:['1–3','4–6','7–10'], painad:['1–3','4–6','7–10'], flacc:['1–3','4–6','7–10'],
+    rdos:['3–4','5–8','9 or above'], rass:['+1','+2','+3 to +4'], nnrs:['1–5, no emesis','6–10, or any emesis']
+  };
+  return t[instr][idx];
+}
+function holdReason(instr){
+  if(instr==='rass') return 'RASS-PAL 0 or negative';
+  if(instr==='rdos') return 'RDOS 0–2';
+  return 'score of 0';
+}
+function isMaxBand(e, idx){ return idx === e.bands.length-1; }
+
+/* ===================== STATE ===================== */
+const NONPHARM = ['Repositioning','Upright positioning','Fan to face','Quiet room / reduced stimulation','Calm presence / reassurance','Toileting / bladder check','Warm or cool compress','Family at bedside'];
+const REV = ['Uncontrolled pain','Urinary retention','Fecal impaction','Hypoxia','Hypoglycemia','Opioid neurotoxicity','Nicotine or alcohol withdrawal','Unfamiliar room or caregiver'];
+
+function fresh(){
+  return {ind:null, entry:null, route:null, instr:null, score:null, items:{}, emesis:false,
+    flaccReason:'', instrChanged:false, instrFrom:'', instrChangeReason:'',
+    nonpharm:{}, nonpharmOther:'', anticipatory:false, anticipEvent:'',
+    presentation:null, revScreen:null, revFound:'', revAddressed:'',
+    epsClear:false, haloPrior:'', pdStuff:false,
+    max8:'', max24:'', prevMaxNoResponse:false,
+    postScore:null, postItems:{}, postEmesis:false, postMinutes:'', postDone:false,
+    obs:{}, notified:false, notifiedText:'', prevIneffective:false};
+}
+let S = fresh();
+
+/* ===================== HELPERS ===================== */
+const esc = s => String(s??'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const $ = (sel, root=document) => root.querySelector(sel);
+function chip(label, on, attrs){ return `<button class="chip${on?' on':''}" ${attrs}>${esc(label)}</button>`; }
+
+function itemsScore(instr, store){
+  const def = INSTR[instr]; let total = 0;
+  for(let i=0;i<def.items.length;i++){ if(store[i]===undefined) return null; total += store[i]; }
+  return total;
+}
+function itemsSummary(instr, store){
+  const def = INSTR[instr];
+  return def.items.map((it,i)=>{
+    const label = it[0].replace(/\s*\(.*\)$/,'');
+    const v = store[i];
+    return `${label.toLowerCase()} ${v}`;
+  }).join(', ');
+}
+function scoreOf(instr, which){ // which: 'pre'|'post'
+  const def = INSTR[instr];
+  if(def.type==='items') return itemsScore(instr, which==='pre' ? S.items : S.postItems);
+  return which==='pre' ? S.score : S.postScore;
+}
+function fmtScore(instr, score){
+  if(instr==='rass') return (score>0?'+':'')+score;
+  if(instr==='rdos') return score+'/16';
+  if(INSTR[instr].type==='items') return score+'/10';
+  return String(score);
+}
+
+/* ===================== DOSE MODE: RENDER FLOW ===================== */
+function scorer(instr, which){
+  const def = INSTR[instr];
+  const store = which==='pre' ? S.items : S.postItems;
+  const cur = which==='pre' ? S.score : S.postScore;
+  let h = `<p class="hint" style="margin-top:8px">${esc(def.prompt)}</p>`;
+  if(def.type==='nrs'){
+    h += `<div class="opts nrs">`;
+    for(let i=0;i<=10;i++) h += `<button class="opt${cur===i?' on':''}" data-act="score" data-which="${which}" data-v="${i}">${i}</button>`;
+    h += `</div>`;
+    if(instr==='nnrs'){
+      const em = which==='pre' ? S.emesis : S.postEmesis;
+      h += `<label class="check"><input type="checkbox" data-field="${which==='pre'?'emesis':'postEmesis'}" ${em?'checked':''}><span>Emesis present <small>Any emesis places the patient in the upper band regardless of the number.</small></span></label>`;
+    }
+  } else if(def.type==='rass'){
+    h += `<div class="opts rass">`;
+    def.levels.forEach(l=>{
+      if(l[0]===0) h += `<div class="sep" style="width:100%"></div>`;
+      h += `<button class="opt${cur===l[0]?' on':''}" data-act="score" data-which="${which}" data-v="${l[0]}"><span class="sc">${l[0]>0?'+':''}${l[0]}</span><span class="tm">${esc(l[1])}</span><span class="ds">${esc(l[2])}</span></button>`;
+      if(l[0]===0) h += `<div class="sep" style="width:100%"></div>`;
+    });
+    h += `</div>`;
+  } else {
+    def.items.forEach((it,i)=>{
+      h += `<div class="item"><div class="lb">${esc(it[0])}</div><div class="opts">`;
+      it[1].forEach((o,j)=>{
+        const label = Array.isArray(o) ? o[0] : o;
+        const pts = Array.isArray(o) ? o[1] : j;
+        h += `<button class="opt${store[i]===pts?' on':''}" data-act="item" data-which="${which}" data-i="${i}" data-v="${pts}">${esc(label)}<small>${pts} point${pts===1?'':'s'}</small></button>`;
+      });
+      h += `</div></div>`;
+    });
+    const t = itemsScore(instr, store);
+    h += `<p class="hint" style="margin-top:10px"><b>Total: ${t===null?'— (score every item)':t+'/'+(instr==='rdos'?16:10)}</b></p>`;
+  }
+  if(def.caution) h += `<div class="note-info">${esc(def.caution)}</div>`;
+  return h;
+}
+
+function renderDose(){
+  const e = S.entry ? E[S.entry] : null;
+  let h = '';
+
+  // 1 indication
+  h += `<div class="step"><h2>1. What is the order for?</h2><p class="hint">One indication per order. The indication names the scale, and the scale sets the dose.</p><div class="chips">`;
+  IND_ORDER.forEach(k=> h += chip(IND[k].label, S.ind===k, `data-act="ind" data-v="${k}"`));
+  h += `</div>`;
+  if(S.ind==='agitation') h += `<p class="hint" style="margin-top:10px">Lorazepam and diazepam orders are listed under <b>Anxiety or restlessness</b>. Benzodiazepines are not first-line for hyperactive delirium.</p>`;
+  if(S.ind==='anxiety') h += `<p class="hint" style="margin-top:10px">Haloperidol orders for agitation or delirium are listed under <b>Agitation or delirium</b>.</p>`;
+  h += `</div>`;
+
+  // 2 entry
+  h += `<div class="step${S.ind?'':' dim'}"><h2>2. Which range is ordered?</h2><p class="hint">Pick the exact range on the order. You give the printed dose for that range — never a value between bands, never two bands stacked, never a different range.</p>`;
+  if(S.ind){
+    h += `<div class="cards">`;
+    IND[S.ind].entries.forEach(id=>{
+      const x = E[id];
+      h += `<button class="card${S.entry===id?' on':''}" data-act="entry" data-v="${id}"><div class="nm">${esc(x.agent)}</div><div class="rg">${esc(x.range)}</div><div class="mt">${esc(x.routes.join('/'))} · ${esc(x.interval)} · ${esc(x.product)}</div>`;
+      h += bandsHtml(x);
+      if(x.ivOnly) h += `<div class="fl">IV only — never subcutaneous</div>`;
+      h += `</button>`;
+    });
+    h += `</div>`;
+    if(e && e.routes.length>1){
+      h += `<div class="field" style="margin-top:14px"><label>Route you are giving</label><div class="chips">`;
+      e.routes.forEach(r=> h += chip(r, S.route===r, `data-act="route" data-v="${r}"`));
+      h += `</div></div>`;
+    }
+  }
+  h += `</div>`;
+
+  // 3 assess
+  const ready2 = e && S.route;
+  h += `<div class="step${ready2?'':' dim'}"><h2>3. Score the patient</h2><p class="hint">Self-report wins whenever the patient can give one, even if it is inconsistent. A behavioral scale is for patients who cannot self-report — not a second opinion on those who can.</p>`;
+  if(ready2){
+    const ins = IND[S.ind].instruments;
+    if(ins.length>1){
+      h += `<div class="chips">`;
+      ins.forEach(k=> h += chip(`${INSTR[k].name} — ${INSTR[k].who}`, S.instr===k, `data-act="instr" data-v="${k}"`));
+      h += `</div>`;
+    }
+    if(S.instr){
+      if(S.instr==='flacc') h += `<div class="field"><label>Why PAINAD could not be completed <span class="req">required</span></label><input type="text" data-field="flaccReason" value="${esc(S.flaccReason)}" placeholder="e.g. unable to observe breathing item — patient on BiPAP"></div>`;
+      h += scorer(S.instr,'pre');
+      // instrument change
+      h += `<label class="check" style="margin-top:10px"><input type="checkbox" data-field="instrChanged" ${S.instrChanged?'checked':''}><span>This is a different instrument from the one used for the previous assessment <small>The reason for any change of instrument must be in the record.</small></span></label>`;
+      if(S.instrChanged){
+        h += `<div class="row"><div class="field"><label>Previous instrument</label><input type="text" data-field="instrFrom" value="${esc(S.instrFrom)}" placeholder="e.g. NRS"></div><div class="field" style="flex:2 1 260px"><label>Reason for the change <span class="req">required</span></label><input type="text" data-field="instrChangeReason" value="${esc(S.instrChangeReason)}" placeholder="e.g. patient no longer able to give a number"></div></div>`;
+      }
+    }
+  }
+  h += `</div>`;
+
+  // 4 before the dose
+  const preScore = ready2 && S.instr ? scoreOf(S.instr,'pre') : null;
+  const band = preScore===null ? null : bandOf(S.instr, preScore, S.emesis);
+  const ready3 = preScore!==null;
+  h += `<div class="step${ready3?'':' dim'}"><h2>4. Before you give it</h2>`;
+  if(ready3 && e){
+    if(e.cls==='benzo' || e.cls==='halo-a'){
+      h += `<p class="hint">Screen for reversible contributors before every benzodiazepine or haloperidol dose. <b>Required.</b></p><div class="chips">`;
+      h += chip('Screened — none identified', S.revScreen==='none', `data-act="rev" data-v="none"`);
+      h += chip('Screened — contributor identified', S.revScreen==='found', `data-act="rev" data-v="found"`);
+      h += `</div><p class="hint" style="margin-top:8px">${REV.join(' · ')}</p>`;
+      if(S.revScreen==='found'){
+        h += `<div class="row"><div class="field"><label>Contributor identified</label><input type="text" data-field="revFound" value="${esc(S.revFound)}" placeholder="e.g. urinary retention"></div><div class="field"><label>How it was addressed</label><input type="text" data-field="revAddressed" value="${esc(S.revAddressed)}" placeholder="e.g. bladder scan 600 mL, in-and-out catheter"></div></div>`;
+      }
+    }
+    if(e.cls==='benzo'){
+      h += `<div class="field"><label>Presentation</label><div class="chips">${chip('Anxiety or restlessness', S.presentation==='anxiety', 'data-act="pres" data-v="anxiety"')}${chip('Features of hyperactive delirium', S.presentation==='delirium', 'data-act="pres" data-v="delirium"')}</div></div>`;
+      if(S.presentation==='delirium') h += `<div class="alert"><b>Notify the prescriber.</b> Benzodiazepines are not first-line for hyperactive delirium and may worsen it through paradoxical disinhibition. The haloperidol agitation ranges are the right ones — that is a new order.</div>`;
+    }
+    if(isHalo(e)){
+      h += `<label class="check"><input type="checkbox" data-field="epsClear" ${S.epsClear?'checked':''}><span>No rigidity, dystonia, akathisia, oculogyric crisis, or fever with rigidity; no known Parkinson or Lewy body disease <small>Any of these: hold the drug and notify the prescriber.</small></span></label>`;
+      h += `<div class="field"><label>Haloperidol already given in the past 24 h (mg, all indications)</label><input type="number" min="0" step="0.5" data-field="haloPrior" value="${esc(S.haloPrior)}"></div>`;
+    }
+    if(e.cls==='opioid' && e.ind==='pain'){
+      h += `<label class="check"><input type="checkbox" data-field="anticipatory" ${S.anticipatory?'checked':''}><span>Anticipatory dose — given before a known painful event <small>Uses the moderate-band dose unless the prescriber specified otherwise (policy 4.3.6).</small></span></label>`;
+      if(S.anticipatory) h += `<div class="field"><label>Event</label><input type="text" data-field="anticipEvent" value="${esc(S.anticipEvent)}" placeholder="e.g. wound care, transfer to chair"></div>`;
+    }
+    h += `<div class="field"><label>Non-pharmacologic measures given with the dose${e.ind==='dyspnea'?' — pair every dyspnea dose with a fan to the face and upright positioning':''}</label><div class="chips">`;
+    NONPHARM.forEach(n=> h += chip(n, !!S.nonpharm[n], `data-act="np" data-v="${esc(n)}"`));
+    h += `</div><input type="text" style="margin-top:8px" data-field="nonpharmOther" value="${esc(S.nonpharmOther)}" placeholder="Other"></div>`;
+    if(band!==null && band>=0 && isMaxBand(e,band)){
+      h += `<div class="row"><div class="field"><label>Maximum-band doses in the past 8 h, counting this one</label><input type="number" min="1" data-field="max8" value="${esc(S.max8)}"></div><div class="field"><label>In the past 24 h, counting this one</label><input type="number" min="1" data-field="max24" value="${esc(S.max24)}"></div></div>`;
+      h += `<label class="check"><input type="checkbox" data-field="prevMaxNoResponse" ${S.prevMaxNoResponse?'checked':''}><span>The previous dose was also maximum-band and did not give an adequate response</span></label>`;
+    }
+  }
+  h += `</div>`;
+
+  // 5 post-dose
+  const given = ready3 && band>=0;
+  h += `<div class="step${given?'':' dim'}"><h2>5. Reassess after the dose</h2>`;
+  if(given){
+    h += `<p class="hint">Re-score on <b>${esc(INSTR[S.instr].name)}</b> — the same instrument — at <b>${esc(reassess(e,S.route))}</b>. A pre-dose score without a post-dose score does not satisfy the policy.</p>`;
+    h += `<label class="check"><input type="checkbox" data-field="postDone" ${S.postDone?'checked':''}><span>Add the post-dose assessment now</span></label>`;
+    if(S.postDone){
+      h += `<div class="field"><label>Minutes after the dose</label><input type="number" min="0" data-field="postMinutes" value="${esc(S.postMinutes)}"></div>`;
+      h += scorer(S.instr,'post');
+      h += `<label class="check" style="margin-top:8px"><input type="checkbox" data-field="prevIneffective" ${S.prevIneffective?'checked':''}><span>${e.cls==='halo-n' ? 'The previous haloperidol dose was also ineffective' : 'The previous dose also failed to bring the score down by 2 points'}</span></label>`;
+      // observations
+      const OBS = obsList(e);
+      h += `<div class="field"><label>Observed since the dose</label>`;
+      OBS.forEach(o=> h += `<label class="check"><input type="checkbox" data-obs="${esc(o.k)}" ${S.obs[o.k]?'checked':''}><span>${esc(o.t)}</span></label>`);
+      h += `</div>`;
+      h += `<label class="check" style="margin-top:6px"><input type="checkbox" data-field="notified" ${S.notified?'checked':''}><span>Prescriber notified</span></label>`;
+      if(S.notified) h += `<div class="field"><label>Who, when, and any new instruction</label><input type="text" data-field="notifiedText" value="${esc(S.notifiedText)}" placeholder="e.g. Dr. X at 1420 — will evaluate for scheduled dosing"></div>`;
+    }
+  }
+  h += `</div>`;
+
+  $('#doseFlow').innerHTML = h;
+  renderDoseOut(e, preScore, band);
+}
+
+function obsList(e){
+  const L = [];
+  if(e.cls==='opioid') L.push({k:'otox', t:'New confusion, myoclonus, hallucinations or hyperalgesia (possible opioid neurotoxicity)'});
+  if(e.ind==='dyspnea') L.push({k:'stridor', t:'New stridor, secretions, or a suspected reversible cause'});
+  if(e.cls==='benzo') L.push({k:'parad', t:'Paradoxical agitation or worsening confusion'});
+  if(isHalo(e)) L.push({k:'eps', t:'Rigidity, dystonia, akathisia, oculogyric crisis, or fever with rigidity — hold haloperidol'});
+  L.push({k:'fam', t:'Patient or family asks for a change in the approach to symptom management'});
+  return L;
+}
+
+/* ===================== DOSE MODE: RESULT + NOTE ===================== */
+function triggers(e, band, pre, post){
+  const T = []; // {t, hot}
+  const maxB = band>=0 && isMaxBand(e,band);
+  const n8 = parseInt(S.max8,10), n24 = parseInt(S.max24,10);
+  if(e.cls!=='halo-n'){
+    T.push({t:'3 or more maximum-band doses in 8 h, or 4 or more in 24 h', hot: maxB && ((n8>=3)||(n24>=4))});
+  }
+  const delta = (pre!==null && post!==null) ? pre-post : null;
+  const failed = delta!==null && delta<2 && (S.instr!=='nnrs' || (S.postEmesis || post>0));
+  if(e.cls==='halo-n'){
+    T.push({t:'Two consecutive ineffective doses — the wrong drug, not the wrong dose; consider another antiemetic class', hot: failed && S.prevIneffective});
+  } else {
+    T.push({t:'Score fails to fall by 2 points after two consecutive doses', hot: failed && S.prevIneffective});
+    T.push({t:'Two consecutive maximum-band doses without adequate response', hot: maxB && S.prevMaxNoResponse && failed});
+  }
+  if(e.cls==='opioid') T.push({t:'New confusion, myoclonus, hallucinations or hyperalgesia', hot: !!S.obs.otox});
+  if(e.ind==='dyspnea') T.push({t:'New stridor, secretions, or suspected reversible cause', hot: !!S.obs.stridor});
+  if(e.cls==='benzo'){
+    T.push({t:'Paradoxical agitation or worsening confusion', hot: !!S.obs.parad});
+    T.push({t:'RASS-PAL of −3 or lower after the dose', hot: post!==null && post<=-3});
+    if(S.presentation==='delirium') T.push({t:'Presentation is delirium rather than anxiety — benzodiazepine not first-line', hot:true});
+  }
+  if(isHalo(e)){
+    T.push({t:'Any extrapyramidal sign, akathisia, dystonia, oculogyric crisis, or fever with rigidity — hold', hot: !!S.obs.eps});
+    const prior = parseFloat(S.haloPrior)||0, cum = prior + (band>=0 ? parseFloat(e.bands[band].mg) : 0);
+    T.push({t:`Cumulative haloperidol approaching 20 mg in 24 h${S.haloPrior!==''&&band>=0?` (${cum} mg with this dose)`:''}`, hot: S.haloPrior!=='' && cum>=15});
+  }
+  T.push({t:'Patient or family asks for a change in approach', hot: !!S.obs.fam});
+  return T;
+}
+
+function renderDoseOut(e, pre, band){
+  let h = '';
+  const instr = S.instr ? INSTR[S.instr] : null;
+  // result card
+  if(!e || !S.route){
+    h += `<div class="result"><p class="lead">Pick the order and the route, then score the patient. The printed dose appears here.</p></div>`;
+  } else if(pre===null){
+    h += `<div class="result"><p class="lead">${esc(e.agent)} ${esc(e.range)} ${esc(S.route)} ${esc(e.interval)}</p><div class="dose"><span class="big" style="color:var(--ink-3)">—</span></div><p class="lead">Waiting for a ${instr?esc(instr.name):''} score.</p></div>`;
+  } else if(band===-1){
+    h += `<div class="result hold"><p class="lead">${esc(e.agent)} ${esc(e.range)} ${esc(S.route)} ${esc(e.interval)} · ${esc(instr.name)} ${esc(fmtScore(S.instr,pre))}</p><div class="dose"><span class="big">Hold</span></div><span class="band b-hold">${esc(holdReason(S.instr))} — do not administer</span><div class="meta"><div>No PRN dose is given for a ${esc(holdReason(S.instr))}.${e.cls==='opioid' && e.ind==='pain' ? ' If a patient on scheduled opioid records consistent scores of 0, raise the scheduled dose with the prescriber for possible reduction.' : ''}</div></div></div>`;
+  } else {
+    let useBand = band;
+    let antic = false;
+    if(S.anticipatory && e.cls==='opioid' && e.ind==='pain'){ useBand = 1; antic = true; }
+    const b = e.bands[useBand];
+    const cls = bandClass(e,useBand);
+    h += `<div class="result ${cls}"><p class="lead">${esc(e.agent)} ${esc(e.range)} ${esc(S.route)} ${esc(e.interval)} · ${esc(instr.name)} ${esc(fmtScore(S.instr,pre))}${S.emesis?' with emesis':''}</p>`;
+    h += `<div class="dose"><span class="big">${esc(b.mg)} mg</span>${b.ml?`<span class="ml">${esc(b.ml)} mL</span>`:''}</div>`;
+    h += `<span class="band b-${cls}">${esc(bandName(e,useBand))}${antic?' — anticipatory dose':''}</span>`;
+    if(antic && band!==1) h += `<p class="lead" style="margin-top:8px">Score falls in the ${esc(bandName(e,band))}; the moderate-band dose is used for an anticipatory dose unless the prescriber specified otherwise.</p>`;
+    h += `<div class="meta"><div><span>Reassess</span>${esc(instr.name)} at ${esc(reassess(e,S.route))} after ${esc(S.route)}</div>`;
+    h += `<div><span>Interval</span>No sooner than ${esc(e.interval)} — the interval is fixed</div>`;
+    if(e.ivOnly) h += `<div><span>Route</span>IV only. Do not give diazepam subcutaneously.</div>`;
+    h += `</div>`;
+    // blocks
+    const blocks = [];
+    if((e.cls==='benzo'||e.cls==='halo-a') && !S.revScreen) blocks.push('Reversible-contributor screen not yet recorded.');
+    if(isHalo(e) && !S.epsClear) blocks.push('Confirm no extrapyramidal signs, fever with rigidity, or Parkinson/Lewy body disease.');
+    if(S.instr==='flacc' && !S.flaccReason.trim()) blocks.push('Record why PAINAD could not be completed.');
+    if(S.instrChanged && !S.instrChangeReason.trim()) blocks.push('Record the reason for the change of instrument.');
+    if(blocks.length) h += `<div class="alert">${blocks.map(esc).join('<br>')}</div>`;
+    // triggers
+    const post = S.postDone ? scoreOf(S.instr,'post') : null;
+    const T = triggers(e, band, pre, post);
+    const hot = T.filter(t=>t.hot);
+    h += `<div class="triggers"><p class="lead" style="margin-bottom:4px">${hot.length?'<b style="color:var(--sev)">Notify the prescriber</b>':'Call the prescriber when'}</p>`;
+    T.forEach(t=> h += `<div class="trig${t.hot?' hot':''}"><span class="dot"></span><span>${esc(t.t)}</span></div>`);
+    h += `</div></div>`;
+  }
+  // note text
+  const note = e && S.route && pre!==null ? buildNote(e, pre, band) : '';
+  h += `<div class="outbox"><div class="hd"><h3>Documentation for the EMR</h3><button class="btn sm" data-act="copy" data-target="noteText" ${note?'':'disabled'}>Copy</button></div><pre id="noteText" class="${note?'':'empty'}">${note?esc(note):'The note builds as you work through the steps. It covers every element the policy requires: pre-dose score and instrument, dose and route, non-pharmacologic measures, post-dose score on the same instrument, any change of instrument, and whether the dose was anticipatory.'}</pre></div>`;
+  h += `<div class="tools"><span class="muted">Nothing here is saved. Reload or start over for the next dose.</span><button class="btn ghost sm" data-act="reset">Start over</button></div>`;
+  $('#doseOut').innerHTML = h;
+}
+
+function buildNote(e, pre, band){
+  const L = [];
+  const instr = INSTR[S.instr];
+  const ind = IND[S.ind].label.toLowerCase();
+  const orderDesc = `${e.agent.toLowerCase()} ${e.range} ${e.routes.join('/')} ${e.interval} PRN ${ind}`;
+  const selfReport = instr.self ? 'patient self-report' : S.instr==='rass' ? 'scored by observation, then voice, then touch' : 'patient unable to self-report; behavioral instrument used';
+  let assess = `Pre-dose assessment: ${instr.name} ${fmtScore(S.instr,pre)}`;
+  if(S.instr==='nnrs') assess += S.emesis ? ', emesis present' : ', no emesis';
+  if(band>=0) assess += ` (${bandName(e,band)})`;
+  assess += ` — ${selfReport}.`;
+  if(instr.type==='items') assess += ` Items: ${itemsSummary(S.instr, S.items)}.`;
+  if(S.instr==='flacc' && S.flaccReason.trim()) assess += ` FLACC used because PAINAD could not be completed: ${S.flaccReason.trim()}.`;
+  if(S.instrChanged){ assess += ` Instrument changed${S.instrFrom.trim()?` from ${S.instrFrom.trim()}`:''} to ${instr.name}${S.instrChangeReason.trim()?`: ${S.instrChangeReason.trim()}`:''}.`; }
+
+  if(band===-1){
+    L.push(`${orderDesc.replace(/^(\S)/, c=>c.toUpperCase())} — NOT GIVEN. ${holdReason(S.instr).replace(/^score/,'Score')}: no PRN dose per the IPU PRN Range Orders policy.`);
+    L.push(assess);
+    if(e.cls==='opioid' && e.ind==='pain') L.push('If scores remain consistently 0 on scheduled opioid, scheduled dose to be raised with prescriber for possible reduction.');
+  } else {
+    let useBand = band, antic = false;
+    if(S.anticipatory && e.cls==='opioid' && e.ind==='pain'){ useBand = 1; antic = true; }
+    const b = e.bands[useBand];
+    L.push(`PRN ${e.agent.toLowerCase()} ${doseText(b)} ${S.route} given per range order ${orderDesc} — ${bandName(e,useBand)} printed dose for the documented score (Alive IPU PRN Range Orders policy).`);
+    L.push(assess);
+    if(antic) L.push(`ANTICIPATORY DOSE given before ${S.anticipEvent.trim()||'a known painful event'}; moderate-band dose per policy 4.3.6.`);
+    if(e.cls==='benzo'||e.cls==='halo-a'){
+      if(S.revScreen==='none') L.push(`Reversible contributors screened before dose (${REV.join(', ').toLowerCase()}): none identified.`);
+      else if(S.revScreen==='found') L.push(`Reversible contributors screened before dose: ${S.revFound.trim()||'contributor identified'}${S.revAddressed.trim()?` — ${S.revAddressed.trim()}`:''}.`);
+    }
+    if(e.cls==='benzo' && S.presentation==='anxiety') L.push('Presentation consistent with anxiety/restlessness rather than hyperactive delirium.');
+    if(e.cls==='benzo' && S.presentation==='delirium') L.push('Features of hyperactive delirium present — benzodiazepine not first-line; prescriber notified for consideration of haloperidol.');
+    if(isHalo(e)){
+      if(S.epsClear) L.push('No rigidity, dystonia, akathisia, oculogyric crisis, or fever with rigidity before dose; no known Parkinson or Lewy body disease.');
+      if(S.haloPrior!==''){ const cum = (parseFloat(S.haloPrior)||0) + parseFloat(b.mg); L.push(`Cumulative haloperidol in past 24 h including this dose: ${cum} mg${cum>=20?' — 20 mg/24 h threshold reached; prescriber to be notified':cum>=15?' — approaching 20 mg/24 h threshold':''}.`); }
+    }
+    const np = NONPHARM.filter(n=>S.nonpharm[n]).map(n=>n.toLowerCase());
+    if(S.nonpharmOther.trim()) np.push(S.nonpharmOther.trim());
+    L.push(np.length ? `Non-pharmacologic measures with dose: ${np.join(', ')}.` : 'Non-pharmacologic measures with dose: none.');
+    if(S.max8!=='' || S.max24!==''){ L.push(`Maximum-band doses including this one: ${S.max8!==''?S.max8+' in past 8 h':''}${S.max8!==''&&S.max24!==''?', ':''}${S.max24!==''?S.max24+' in past 24 h':''}.`); }
+    L.push(`Plan: reassess ${instr.name} at ${reassess(e,S.route)} post-dose and document on the same instrument.`);
+    // post-dose
+    if(S.postDone){
+      const post = scoreOf(S.instr,'post');
+      if(post!==null){
+        let p = `Post-dose assessment${S.postMinutes!==''?` at ${S.postMinutes} min`:''}: ${instr.name} ${fmtScore(S.instr,post)}`;
+        if(S.instr==='nnrs') p += S.postEmesis ? ', emesis present' : ', no emesis';
+        const d = pre - post;
+        if(S.instr==='rass'){ p += post<=-3 ? ` (from ${fmtScore(S.instr,pre)}; now sedated)` : post<=0 && d>0 ? ` (from ${fmtScore(S.instr,pre)}; agitation resolved, patient calm)` : d>0 ? ` (from ${fmtScore(S.instr,pre)}; improved)` : d===0 ? ` (unchanged from ${fmtScore(S.instr,pre)})` : ` (from ${fmtScore(S.instr,pre)}; more agitated)`; }
+        else { p += d>0 ? ` (from ${fmtScore(S.instr,pre)}; decreased ${d} point${d===1?'':'s'})` : d===0 ? ` (unchanged from ${fmtScore(S.instr,pre)})` : ` (from ${fmtScore(S.instr,pre)}; increased ${-d} point${d===-1?'':'s'})`; }
+        p += '.';
+        if(instr.type==='items') p += ` Items: ${itemsSummary(S.instr, S.postItems)}.`;
+        if(S.instr==='rass' && post<=-3) p += ' Over-sedated relative to goal — not a target; prescriber to be notified.';
+        L.push(p);
+      } else {
+        L.push('Post-dose assessment: (score every item to complete)');
+      }
+      const T = triggers(e, band, pre, post).filter(t=>t.hot);
+      if(T.length) L.push(`Notification trigger${T.length>1?'s':''} met: ${T.map(t=>t.t.replace(/\s*\(.*\)$/,'')).join('; ')}.`);
+      if(S.notified) L.push(`Prescriber notified${S.notifiedText.trim()?`: ${S.notifiedText.trim()}`:''}.`);
+      else if(T.length) L.push('Prescriber notification: pending.');
+    } else {
+      L.push('Post-dose assessment: ___ (required — same instrument, at the interval above).');
+    }
+  }
+  return L.join('\n');
+}
+
+/* ===================== REFERENCE ===================== */
+function renderRef(){
+  let h = `<div class="ref">`;
+  h += `<div class="step"><h2>Which band is the score?</h2><table><tr><th>Scale</th><th>Hold</th><th>Mild</th><th>Moderate</th><th>Severe</th></tr>
+  <tr><td>NRS · PAINAD · FLACC · Dyspnea NRS</td><td class="n">0</td><td class="n">1–3</td><td class="n">4–6</td><td class="n">7–10</td></tr>
+  <tr><td>RDOS</td><td class="n">0–2</td><td class="n">3–4</td><td class="n">5–8</td><td class="n">9 or above</td></tr>
+  <tr><td>RASS-PAL</td><td class="n">0 or negative</td><td class="n">+1</td><td class="n">+2</td><td class="n">+3 to +4</td></tr>
+  <tr><td>Nausea NRS</td><td class="n">0</td><td class="n">1–5, no emesis</td><td class="n">— not used —</td><td class="n">6–10, or any emesis</td></tr></table>
+  <p class="hint" style="margin-top:10px">No PRN dose for a score of 0, a RASS-PAL of 0 or negative, or an RDOS of 0–2.</p></div>`;
+  h += `<div class="step"><h2>Reassess at</h2><table><tr><th>Route</th><th>Opioid</th><th>Benzodiazepine</th><th>Haloperidol</th></tr>
+  <tr><td>IV</td><td class="n">15–30 min</td><td class="n">30 min</td><td class="n" rowspan="2">Nausea 60 min<br>Agitation 30–60 min</td></tr>
+  <tr><td>SubQ</td><td class="n">30 min</td><td class="n">30 min</td></tr>
+  <tr><td>PO / SL</td><td class="n">60 min</td><td class="n">60 min</td><td class="n">—</td></tr></table>
+  <p class="hint" style="margin-top:10px">Re-score on the same instrument used before the dose, and document it. A missing post-dose score is the most common survey finding.</p></div>`;
+  h += `<div class="step"><h2>Call the prescriber when</h2><ul class="plain">
+  <li>3 or more maximum-band doses in 8 h, or 4 or more in 24 h — for evaluation of scheduled dosing or infusion</li>
+  <li>Score fails to fall by 2 points after two consecutive doses</li>
+  <li>Two consecutive maximum-band doses without adequate response</li>
+  <li>New confusion, myoclonus, hallucinations or hyperalgesia (opioid neurotoxicity)</li>
+  <li>Paradoxical agitation or worsening confusion after a benzodiazepine; RASS-PAL −3 or lower</li>
+  <li>Any rigidity, dystonia, akathisia, oculogyric crisis or fever with rigidity after haloperidol — hold</li>
+  <li>Cumulative haloperidol approaching 20 mg in 24 h</li>
+  <li>Two consecutive ineffective antiemetic doses — consider another class</li>
+  <li>Patient or family asks for a change in the approach to symptoms</li></ul></div>`;
+  h += `<div class="step"><h2>Rules that apply to every dose</h2><ul class="plain">
+  <li>Self-report wins. If the patient can give any self-report, use it — even if inconsistent. Do not convert an observed behavior into a self-reported number; change instrument and say so.</li>
+  <li>Give exactly the printed dose. Never between bands, never two bands stacked, never a range other than the one ordered. Changing range, route or agent is a new order.</li>
+  <li>Screen for reversible contributors before every benzodiazepine or haloperidol dose: pain, urinary retention, impaction, hypoxia, hypoglycemia, opioid neurotoxicity, nicotine or alcohol withdrawal, an unfamiliar room or caregiver.</li>
+  <li>Benzodiazepines are not first-line for hyperactive delirium. Sedation is not the endpoint.</li>
+  <li>Pair every dyspnea dose with a fan to the face and upright positioning.</li>
+  <li>Diazepam is IV only. Haloperidol orders must state nausea or agitation.</li>
+  <li>Anticipatory dosing before a known painful event uses the moderate-band dose unless the prescriber specified otherwise, and the record says it was anticipatory.</li></ul></div>`;
+  // printed doses table
+  h += `<div class="step" style="grid-column:1/-1"><h2>Printed doses by ordered range</h2><table><tr><th>Drug and ordered range</th><th>Route</th><th>Interval</th><th>Assess with</th><th>Mild</th><th>Moderate</th><th>Severe</th><th>Theoretical max / 24 h</th></tr>`;
+  ['1A','1B','1C','1D','1E','3A','3B','3E','3C','3D','4A','4B','5A','5B'].forEach(id=>{
+    const x = E[id];
+    const ins = x.cls==='opioid' ? 'pain or dyspnea — per order' : IND[x.ind].instruments.map(k=>INSTR[k].name).join(' / ') + (x.cls==='halo-n'?' — two bands':'');
+    const nm = x.cls==='halo-n' ? `${x.agent} ${x.range} · nausea` : x.cls==='halo-a' ? `${x.agent} ${x.range} · agitation` : `${x.agent} ${x.range}`;
+    h += `<tr><td><b>${esc(nm)}</b></td><td>${esc(x.routes.join('/'))}${x.ivOnly?' only':''}</td><td class="n">${esc(x.interval)}</td><td>${esc(ins)}</td>`;
+    if(x.cls==='halo-n') h += `<td class="n"><b>${doseText(x.bands[0])}</b></td><td class="n">— no middle dose —</td><td class="n"><b>${doseText(x.bands[1])}</b></td>`;
+    else h += `<td class="n"><b>${doseText(x.bands[0])}</b></td><td class="n"><b>${doseText(x.bands[1])}</b></td><td class="n"><b>${doseText(x.bands[2])}</b></td>`;
+    h += `<td class="n">${esc(x.max24)}</td></tr>`;
+  });
+  h += `</table></div>`;
+  // scales
+  ['nrs','dnrs','nnrs','painad','flacc','rdos','rass'].forEach(k=>{
+    const d = INSTR[k];
+    h += `<div class="step${(k==='painad'||k==='flacc'||k==='rdos'||k==='rass')?'" style="grid-column:1/-1':''}"><h2>${esc(d.name)} — ${esc(d.long)}</h2><p class="hint"><b>${esc(d.who)}.</b> ${esc(d.prompt)}</p>`;
+    if(d.type==='items'){
+      h += `<table><tr><th>Item</th>${k==='rdos'?'<th>0 points</th><th>1 point</th><th>2 points</th>':'<th>0</th><th>1</th><th>2</th>'}</tr>`;
+      d.items.forEach(it=>{
+        h += `<tr><td><b>${esc(it[0])}</b></td>`;
+        if(k==='rdos'){
+          const by = {0:'—',1:'—',2:'—'}; it[1].forEach(o=> by[o[1]] = o[0]);
+          h += `<td>${esc(by[0])}</td><td>${by[1]==='—'?'<span style="color:var(--ink-3)">— not scored —</span>':esc(by[1])}</td><td>${esc(by[2])}</td>`;
+        } else it[1].forEach(o=> h += `<td>${esc(o)}</td>`);
+        h += `</tr>`;
+      });
+      h += `</table>`;
+    } else if(d.type==='rass'){
+      h += `<table><tr><th>Score</th><th>Term</th><th>Description</th></tr>`;
+      d.levels.forEach(l=> h += `<tr><td class="n"><b>${l[0]>0?'+':''}${l[0]}</b></td><td>${esc(l[1])}</td><td>${esc(l[2])}</td></tr>`);
+      h += `</table>`;
+    }
+    if(d.caution) h += `<div class="note-info">${esc(d.caution)}</div>`;
+    h += `</div>`;
+  });
+  h += `<div class="step" style="grid-column:1/-1"><h2>Instrument sources</h2><ul class="plain">
+  <li>PAINAD — Warden V, Hurley AC, Volicer L. J Am Med Dir Assoc. 2003;4(1):9–15.</li>
+  <li>FLACC — Merkel SI, Voepel-Lewis T, Shayevitz JR, Malviya S. Pediatr Nurs. 1997;23(3):293–297. Copyright University of Michigan; confirm permissions before reproduction outside direct patient care.</li>
+  <li>RDOS — Campbell ML, Templin T, Walch J. J Palliat Med. 2010;13(3):285–290.</li>
+  <li>RASS — Sessler CN et al. Am J Respir Crit Care Med. 2002;166(10):1338–1344. RASS-PAL — Bush SH et al. J Pain Symptom Manage. 2014;48(6):1160–1166.</li></ul></div>`;
+  h += `</div>`;
+  $('#refBody').innerHTML = h;
+}
+
+/* ===================== EVENTS ===================== */
+document.querySelector('.modes').addEventListener('click', ev=>{
+  const b = ev.target.closest('button[data-mode]'); if(!b) return;
+  document.querySelectorAll('.modes button').forEach(x=>x.classList.toggle('on', x===b));
+  document.querySelectorAll('.mode').forEach(m=>m.classList.toggle('on', m.id==='mode-'+b.dataset.mode));
+  window.scrollTo({top:0});
+});
+
+function copyText(id, btn){
+  const t = document.getElementById(id).textContent;
+  const done = ()=>{ const old = btn.textContent; btn.textContent='Copied'; btn.classList.add('ok'); setTimeout(()=>{btn.textContent=old; btn.classList.remove('ok');},1600); };
+  if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(t).then(done).catch(()=>fallback()); } else fallback();
+  function fallback(){ const ta=document.createElement('textarea'); ta.value=t; ta.className='sr'; document.body.appendChild(ta); ta.select(); try{document.execCommand('copy'); done();}catch(e){} document.body.removeChild(ta); }
+}
+
+$('#mode-dose').addEventListener('click', ev=>{
+  const b = ev.target.closest('[data-act]'); if(!b) return;
+  const a = b.dataset.act, v = b.dataset.v;
+  if(a==='ind'){ S = fresh(); S.ind = v; }
+  else if(a==='entry'){ const keep = S.ind; S = fresh(); S.ind = keep; S.entry = v; const e = E[v]; if(e.routes.length===1) S.route = e.routes[0]; if(IND[S.ind].instruments.length===1) S.instr = IND[S.ind].instruments[0]; }
+  else if(a==='route'){ S.route = v; }
+  else if(a==='instr'){ if(S.instr!==v){ S.instr = v; S.score=null; S.items={}; S.postScore=null; S.postItems={}; } }
+  else if(a==='score'){ const n = parseInt(v,10); if(b.dataset.which==='pre'){ S.score = (S.score===n?null:n); } else { S.postScore = (S.postScore===n?null:n); } }
+  else if(a==='item'){ const i = +b.dataset.i, n = +v; const st = b.dataset.which==='pre' ? S.items : S.postItems; st[i] = n; }
+  else if(a==='rev'){ S.revScreen = v; }
+  else if(a==='pres'){ S.presentation = v; }
+  else if(a==='np'){ S.nonpharm[v] = !S.nonpharm[v]; }
+  else if(a==='copy'){ copyText(b.dataset.target, b); return; }
+  else if(a==='reset'){ S = fresh(); }
+  renderDose();
+});
+$('#mode-dose').addEventListener('change', ev=>{
+  const t = ev.target;
+  if(t.dataset.field){ S[t.dataset.field] = t.type==='checkbox' ? t.checked : t.value; renderDose(); }
+  else if(t.dataset.obs){ S.obs[t.dataset.obs] = t.checked; renderDose(); }
+});
+
+
+renderDose(); renderRef();
+</script>
+</body>
+</html>
